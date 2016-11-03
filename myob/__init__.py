@@ -1,5 +1,5 @@
 from .api import Myob  # noqa
-# from .credentials import PartnerCredentials  # noqa
+from .credentials import PartnerCredentials  # noqa
 
 VERSION = (0, 1, 1)
 
