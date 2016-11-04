@@ -11,6 +11,7 @@ class PartnerCredentials():
     """An object wrapping the 3-step OAuth2 process for Partner MYOB API access."""
     def __init__(self, consumer_key, consumer_secret, callback_uri,
                  verified=False,
+                 userpass=None,
                  oauth_token=None,
                  oauth_expires_at=None, oauth_authorization_expires_at=None,
                  oauth_session_handle=None, scope=None):
@@ -20,6 +21,7 @@ class PartnerCredentials():
 
         self.verified = verified
         self._oauth = None
+        self.userpass = userpass
         self.oauth_token = oauth_token
         self.oauth_expires_at = oauth_expires_at
 
@@ -50,7 +52,7 @@ class PartnerCredentials():
             client_secret=self.consumer_secret,
         )
 
-        self.access_token = response_state.get('access_token')
+        self.oauth_token = response_state.get('access_token')
         self.refresh_token = response_state.get('refresh_token')
 
         self.oauth_expires_at = datetime.datetime.fromtimestamp(response_state.get('expires_at'))
@@ -71,4 +73,5 @@ class PartnerCredentials():
 
     def refresh(self):
         """ Refresh an expired token. """
+        import pdb; pdb.set_trace()
         raise NotImplementedError
