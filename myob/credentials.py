@@ -13,16 +13,17 @@ class PartnerCredentials():
                  verified=False,
                  userpass=None,
                  oauth_token=None,
-                 oauth_expires_at=None, oauth_authorization_expires_at=None,
-                 oauth_session_handle=None, scope=None):
+                 refresh_token=None,
+                 oauth_expires_at=None,
+                 scope=None):
         self.consumer_key = consumer_key
         self.consumer_secret = consumer_secret
         self.callback_uri = callback_uri
 
         self.verified = verified
-        self._oauth = None
         self.userpass = userpass
         self.oauth_token = oauth_token
+        self.refresh_token = refresh_token
         self.oauth_expires_at = oauth_expires_at
 
         self._oauth = OAuth2Session(consumer_key, redirect_uri=callback_uri)
@@ -31,34 +32,19 @@ class PartnerCredentials():
 
     @property
     def state(self):
-        """Obtain the useful state of this credentials object so that
-        we can reconstruct it independently.
-        """
+        """ Get a representation of this credentials object from which it can be reconstructed. """
         return dict(
             (attr, getattr(self, attr))
             for attr in (
                 'consumer_key', 'consumer_secret', 'callback_uri',
-                'verified', 'oauth_token',
+                'verified', 'userpass', 'oauth_token', 'refresh_token',
                 'oauth_expires_at'
             )
             if getattr(self, attr) is not None
         )
 
-    def verify(self, code):
-        "Verify an OAuth session, retrieving an access token."
-        response_state = self._oauth.fetch_token(
-            MYOB_PARTNER_BASE_URL + ACCESS_TOKEN_URL,
-            code=code,
-            client_secret=self.consumer_secret,
-        )
-
-        self.oauth_token = response_state.get('access_token')
-        self.refresh_token = response_state.get('refresh_token')
-
-        self.oauth_expires_at = datetime.datetime.fromtimestamp(response_state.get('expires_at'))
-        self.verified = True
-
     def expired(self, now=None):
+        """ Determine whether the current access token has expired. """
         # Expiry might be unset if the user hasn't finished authenticating.
         if self.oauth_expires_at is None:
             return False
@@ -71,7 +57,28 @@ class PartnerCredentials():
         now = now or datetime.datetime.now()
         return self.oauth_expires_at <= (now + datetime.timedelta(seconds=CONSERVATIVE_SECONDS))
 
+    def verify(self, code):
+        """ Verify an OAuth session, retrieving an access token. """
+        token = self._oauth.fetch_token(
+            MYOB_PARTNER_BASE_URL + ACCESS_TOKEN_URL,
+            code=code,
+            client_secret=self.consumer_secret,
+        )
+        self.save_token(token)
+
     def refresh(self):
         """ Refresh an expired token. """
-        import pdb; pdb.set_trace()
-        raise NotImplementedError
+        token = self._oauth.refresh_token(
+            MYOB_PARTNER_BASE_URL + ACCESS_TOKEN_URL,
+            refresh_token=self.refresh_token,
+            client_id=self.consumer_key,
+            client_secret=self.consumer_secret,
+        )
+        self.save_token(token)
+
+    def save_token(self, token):
+        self.oauth_token = token.get('access_token')
+        self.refresh_token = token.get('refresh_token')
+
+        self.oauth_expires_at = datetime.datetime.fromtimestamp(token.get('expires_at'))
+        self.verified = True
