@@ -3,6 +3,7 @@ import requests
 
 from .constants import MYOB_BASE_URL
 from .endpoints import ENDPOINTS, METHOD_ORDER
+from .exceptions import MyobExceptionUnknown, MyobUnauthorized
 
 
 class Manager():
@@ -44,9 +45,15 @@ class Manager():
 
             # Build query.
             params = dict((k, v) for k, v in kwargs.items() if k not in required_args)
-            response = requests.request(method, url, headers=headers, params=params)
-            # TODO: Handle exceptions coming from response.
-            return response.json()
+            request_method = 'GET' if method == 'ALL' else method
+            response = requests.request(request_method, url, headers=headers, params=params)
+
+            if response.status_code == 200:
+                return response.json()
+            elif response.status_code == 401:
+                raise MyobUnauthorized(response)
+            else:
+                raise MyobExceptionUnknown(response)
 
         # Build method name
         method_name = '_'.join(p for p in endpoint.split('/') if '[' not in p)
