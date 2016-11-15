@@ -1,5 +1,6 @@
 import re
 import requests
+from collections import Sequence
 
 from .constants import MYOB_BASE_URL
 from .endpoints import ENDPOINTS, METHOD_ORDER
@@ -47,7 +48,13 @@ class Manager():
             }
 
             # Build query.
-            params = dict((k, v) for k, v in kwargs.items() if k not in required_args)
+            filters = []
+            for k, v in kwargs.items():
+                if k not in required_args:
+                    if isinstance(v, str):
+                        v = [v]
+                    filters.append(' or '.join("%s eq '%s'" % (k, v_) for v_ in v))
+            params = {'$filter': '&'.join(filters)}
             request_method = 'GET' if method == 'ALL' else method
             response = requests.request(request_method, url, headers=headers, params=params)
 
