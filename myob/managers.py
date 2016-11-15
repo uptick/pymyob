@@ -1,6 +1,5 @@
 import re
 import requests
-from collections import Sequence
 
 from .constants import MYOB_BASE_URL
 from .endpoints import ENDPOINTS, METHOD_ORDER
