@@ -1,4 +1,3 @@
-from .credentials import PartnerCredentials
 from .endpoints import ENDPOINTS
 from .managers import Manager
 
@@ -6,6 +5,7 @@ from .managers import Manager
 class Myob:
     """An ORM-like interface to the MYOB API"""
     def __init__(self, credentials):
+        from .credentials import PartnerCredentials
         if not isinstance(credentials, PartnerCredentials):
             raise TypeError(
                 'Expected a Credentials instance, got %s.' % (
