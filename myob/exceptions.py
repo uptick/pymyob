@@ -1,13 +1,10 @@
-import simplejson
-
-
 class MyobException(Exception):
     def __init__(self, response, msg=None):
         self.response = response
         try:
             self.errors = response.json()['Errors']
             self.problem = self.errors[0]['Message']
-        except simplejson.scanner.JSONDecodeError:
+        except Exception:
             self.errors = []
             self.problem = response.reason
         super().__init__(response, self.problem)
