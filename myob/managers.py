@@ -53,7 +53,9 @@ class Manager():
                     if isinstance(v, str):
                         v = [v]
                     filters.append(' or '.join("%s eq '%s'" % (k, v_) for v_ in v))
-            params = {'$filter': '&'.join(filters)}
+            params = {}
+            if filters:
+                params = {'$filter': '&'.join(filters)}
             request_method = 'GET' if method == 'ALL' else method
             response = requests.request(request_method, url, headers=headers, params=params)
 
