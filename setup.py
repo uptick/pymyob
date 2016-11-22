@@ -20,4 +20,8 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Topic :: Office/Business',
     ],
+    install_requires=[
+        'requests>=2.10.0',
+        'requests-oauthlib>=0.6.0',
+    ],
 )
