@@ -30,10 +30,11 @@ ENDPOINTS = {
         'plural': 'invoices',
         'methods': [
             (ALL, '', 'Return all sale invoice types for an AccountRight company file.'),
-            (GET, 'Item', 'Return item type sale invoices for an AccountRight company file.'),
+            (ALL, 'Item', 'Return item type sale invoices for an AccountRight company file.'),
+            (GET, 'Item/[uid]', 'Return item type sale invoices for an AccountRight company file.'),
+            (PUT, 'Item/[uid]', 'Update item type sale invoices for an AccountRight company file.'),
             (POST, 'Item', 'Create item type sale invoices for an AccountRight company file.'),
-            (PUT, 'Item', 'Update item type sale invoices for an AccountRight company file.'),
-            (DELETE, 'Item', 'Delete item type sale invoices for an AccountRight company file.')
+            (DELETE, 'Item/[uid]', 'Delete item type sale invoices for an AccountRight company file.')
         ]
     }
 }
