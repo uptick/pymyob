@@ -24,22 +24,31 @@ class Manager():
     def build_method(self, method, endpoint, hint):
         full_endpoint = self.base_url + '/' + endpoint
         required_args = re.findall('\[([^\]]*)\]', full_endpoint)
+        if method in ('PUT', 'POST'):
+            required_args.append('data')
         template = full_endpoint.replace('[', '{').replace(']', '}')
 
         def inner(*args, **kwargs):
             if args:
                 raise AttributeError("Unnamed args provided. Only keyword args accepted.")
 
-            # Build url.
-            try:
-                url = template.format(**kwargs)
-            except KeyError as e:
-                raise KeyError("Missing arg '%s' while building url. Endpoint requires %s." % (
-                    str(e), required_args
+            # Ensure all required args have been provided.
+            missing_args = set(required_args) - set(kwargs.keys())
+            if missing_args:
+                raise KeyError("Missing args %s. Endpoint requires %s." % (
+                    list(missing_args), required_args
                 ))
 
+            # Determine request method.
+            request_method = 'GET' if method == 'ALL' else method
+
+            # Build url.
+            url = template.format(**kwargs)
+
+            request_kwargs = {}
+
             # Build headers.
-            headers = {
+            request_kwargs['headers'] = {
                 'Authorization': 'Bearer %s' % self.credentials.oauth_token,
                 'x-myobapi-cftoken': self.credentials.userpass,
                 'x-myobapi-key': self.credentials.consumer_key,
@@ -53,14 +62,21 @@ class Manager():
                     if isinstance(v, str):
                         v = [v]
                     filters.append(' or '.join("%s eq '%s'" % (k, v_) for v_ in v))
-            params = {}
             if filters:
-                params = {'$filter': '&'.join(filters)}
-            request_method = 'GET' if method == 'ALL' else method
-            response = requests.request(request_method, url, headers=headers, params=params)
+                request_kwargs['params'] = {'$filter': '&'.join(filters)}
+            else:
+                request_kwargs['params'] = {}
+
+            # Build body.
+            if 'data' in kwargs:
+                request_kwargs['json'] = kwargs['data']
+
+            response = requests.request(request_method, url, **request_kwargs)
 
             if response.status_code == 200:
                 return response.json()
+            elif response.status_code == 201:
+                return {'status': 'OK'},
             elif response.status_code == 400:
                 raise MyobBadRequest(response)
             elif response.status_code == 401:
