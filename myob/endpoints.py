@@ -31,10 +31,30 @@ ENDPOINTS = {
         'methods': [
             (ALL, '', 'Return all sale invoice types for an AccountRight company file.'),
             (ALL, 'Item', 'Return item type sale invoices for an AccountRight company file.'),
-            (GET, 'Item/[uid]', 'Return item type sale invoices for an AccountRight company file.'),
-            (PUT, 'Item/[uid]', 'Update item type sale invoices for an AccountRight company file.'),
-            (POST, 'Item', 'Create item type sale invoices for an AccountRight company file.'),
-            (DELETE, 'Item/[uid]', 'Delete item type sale invoices for an AccountRight company file.')
+            (GET, 'Item/[uid]', 'Return selected item type sale invoice.'),
+            (PUT, 'Item/[uid]', 'Update selected item type sale invoice.'),
+            (POST, 'Item', 'Create new item type sale invoice.'),
+            (DELETE, 'Item/[uid]', 'Delete selected item type sale invoice.')
         ]
-    }
+    },
+    '[company_id]/GeneralLedger': {
+        'plural': 'general_ledger',
+        'methods': [
+            (ALL, 'TaxCode', 'Return tax codes set up with an AccountRight company file.'),
+            (GET, 'TaxCode/[uid]', 'Return selected tax code.'),
+            (PUT, 'TaxCode/[uid]', 'Update selected tax codes.'),
+            (POST, 'TaxCode', 'Create new tax code.'),
+            (DELETE, 'TaxCode/[uid]', 'Delete selected tax code.')
+        ]
+    },
+    '[company_id]/Inventory': {
+        'plural': 'inventory',
+        'methods': [
+            (ALL, 'Item', 'Return inventory items for an AccountRight company file'),
+            (GET, 'Item/[uid]', 'Return selected inventory item.'),
+            (PUT, 'Item/[uid]', 'Update selected inventory items.'),
+            (POST, 'Item', 'Create new inventory item.'),
+            (DELETE, 'Item/[uid]', 'Delete selected inventory item.')
+        ]
+    },
 }
