@@ -56,16 +56,21 @@ class Manager():
             }
 
             # Build query.
+            request_kwargs['params'] = {}
             filters = []
             for k, v in kwargs.items():
-                if k not in required_args:
+                if k not in required_args + ['orderby', 'format', 'headers']:
                     if isinstance(v, str):
                         v = [v]
                     filters.append(' or '.join("%s eq '%s'" % (k, v_) for v_ in v))
             if filters:
-                request_kwargs['params'] = {'$filter': '&'.join(filters)}
-            else:
-                request_kwargs['params'] = {}
+                request_kwargs['params']['$filter'] = '&'.join(filters)
+            if 'orderby' in kwargs:
+                request_kwargs['params']['$orderby'] = kwargs['orderby']
+            if 'format' in kwargs:
+                request_kwargs['params']['format'] = kwargs['format']
+            if 'headers' in kwargs:
+                request_kwargs['headers'].update(kwargs['headers'])
 
             # Build body.
             if 'data' in kwargs:
@@ -74,6 +79,10 @@ class Manager():
             response = requests.request(request_method, url, **request_kwargs)
 
             if response.status_code == 200:
+                # We don't want to be deserialising binary responses..
+                if not response.headers['content-type'].startswith('application/json'):
+                    return response.content
+
                 return response.json()
             elif response.status_code == 201:
                 return {'status': 'OK'},
