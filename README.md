@@ -41,7 +41,7 @@ def myob_authorisation_complete_view(request):
         if state:
             cred = PartnerCredentials(**state)
             cred.verify(verifier)
-            if credentials.verified:
+            if cred.verified:
                 messages.success(request, 'OAuth verification successful.')
             else:
                 messages.error(request, 'OAuth verification failed: verifier invalid.')
