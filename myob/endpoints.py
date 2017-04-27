@@ -62,8 +62,8 @@ ENDPOINTS = {
         'methods': [
             (ALL, '', 'Return all purchase order types for an AccountRight company file.'),
             (ALL, 'Item', 'Return item type purchase orders for an AccountRight company file.'),
-            (GET, 'Item/[uid]', 'Return selected item type purchase orders.'),
-            (PUT, 'Item/[uid]', 'Update selected item type purchase orders.'),
+            (GET, 'Item/[uid]', 'Return selected item type purchase order.'),
+            (PUT, 'Item/[uid]', 'Update selected item type purchase order.'),
             (POST, 'Item', 'Create new item type purchase order.'),
             (DELETE, 'Item/[uid]', 'Delete selected item type purchase order.')
         ]
