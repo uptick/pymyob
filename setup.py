@@ -1,5 +1,6 @@
 import re
-from distutils.core import setup
+
+from setuptools import setup
 
 # Get version this way, so that we don't load any modules.
 with open('./myob/__init__.py') as f:
