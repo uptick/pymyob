@@ -1,7 +1,7 @@
 import re
 import requests
 
-from .constants import MYOB_BASE_URL
+from .constants import MYOB_BASE_URL, DEFAULT_PAGE_SIZE
 from .endpoints import ENDPOINTS, METHOD_ORDER
 from .exceptions import MyobBadRequest, MyobExceptionUnknown, MyobNotFound, MyobUnauthorized
 
@@ -65,10 +65,21 @@ class Manager():
                     filters.append(' or '.join("%s eq '%s'" % (k, v_) for v_ in v))
             if filters:
                 request_kwargs['params']['$filter'] = '&'.join(filters)
+
             if 'orderby' in kwargs:
                 request_kwargs['params']['$orderby'] = kwargs['orderby']
+
+            page_size = DEFAULT_PAGE_SIZE
+            if 'limit' in kwargs:
+                page_size = int(kwargs['limit'])
+                request_kwargs['params']['$top'] = page_size
+
+            if 'page' in kwargs:
+                request_kwargs['params']['$skip'] = (int(kwargs['page']) - 1) * page_size
+
             if 'format' in kwargs:
                 request_kwargs['params']['format'] = kwargs['format']
+
             if 'headers' in kwargs:
                 request_kwargs['headers'].update(kwargs['headers'])
 
