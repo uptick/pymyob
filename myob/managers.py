@@ -1,7 +1,7 @@
 import re
 import requests
 
-from .constants import MYOB_BASE_URL, DEFAULT_PAGE_SIZE
+from .constants import DEFAULT_PAGE_SIZE, MYOB_BASE_URL
 from .endpoints import ENDPOINTS, METHOD_ORDER
 from .exceptions import MyobBadRequest, MyobExceptionUnknown, MyobNotFound, MyobUnauthorized
 
@@ -59,7 +59,7 @@ class Manager():
             request_kwargs['params'] = {}
             filters = []
             for k, v in kwargs.items():
-                if k not in required_args + ['orderby', 'format', 'headers']:
+                if k not in required_args + ['orderby', 'format', 'headers', 'page', 'limit']:
                     if isinstance(v, str):
                         v = [v]
                     filters.append(' or '.join("%s eq '%s'" % (k, v_) for v_ in v))
