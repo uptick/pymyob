@@ -7,7 +7,7 @@ It's not yet a fully fleshed out ORM, but rather a collection of namespaced func
 
 ## Pre-getting started
 
-Register for API Keys with MYOB. You'll find a detailed instructions [here](http://developer.myob.com/api/accountright/api-overview/getting-started/).
+Register for API Keys with MYOB. You'll find detailed instructions [here](http://developer.myob.com/api/accountright/api-overview/getting-started/).
 
 ## Getting started
 
