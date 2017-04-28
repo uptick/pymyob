@@ -34,7 +34,12 @@ ENDPOINTS = {
             (GET, 'Item/[uid]', 'Return selected item type sale invoice.'),
             (PUT, 'Item/[uid]', 'Update selected item type sale invoice.'),
             (POST, 'Item', 'Create new item type sale invoice.'),
-            (DELETE, 'Item/[uid]', 'Delete selected item type sale invoice.')
+            (DELETE, 'Item/[uid]', 'Delete selected item type sale invoice.'),
+            (ALL, 'Service', 'Return service type sale invoices for an AccountRight company file.'),
+            (GET, 'Service/[uid]', 'Return selected service type sale invoice.'),
+            (PUT, 'Service/[uid]', 'Update selected service type sale invoice.'),
+            (POST, 'Service', 'Create new service type sale invoice.'),
+            (DELETE, 'Service/[uid]', 'Delete selected service type sale invoice.'),
         ]
     },
     '[company_id]/GeneralLedger': {
@@ -44,7 +49,12 @@ ENDPOINTS = {
             (GET, 'TaxCode/[uid]', 'Return selected tax code.'),
             (PUT, 'TaxCode/[uid]', 'Update selected tax codes.'),
             (POST, 'TaxCode', 'Create new tax code.'),
-            (DELETE, 'TaxCode/[uid]', 'Delete selected tax code.')
+            (DELETE, 'TaxCode/[uid]', 'Delete selected tax code.'),
+            (ALL, 'Account', 'Return accounts set up with an AccountRight company file.'),
+            (GET, 'Account/[uid]', 'Return selected account.'),
+            (PUT, 'Account/[uid]', 'Update selected accounts.'),
+            (POST, 'Account', 'Create new account.'),
+            (DELETE, 'Account/[uid]', 'Delete selected account.'),
         ]
     },
     '[company_id]/Inventory': {
