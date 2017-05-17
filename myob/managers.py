@@ -59,7 +59,7 @@ class Manager():
             request_kwargs['params'] = {}
             filters = []
             for k, v in kwargs.items():
-                if k not in required_args + ['orderby', 'format', 'headers', 'page', 'limit']:
+                if k not in required_args + ['orderby', 'format', 'headers', 'page', 'limit', 'templatename']:
                     if isinstance(v, str):
                         v = [v]
                     filters.append(' or '.join("%s eq '%s'" % (k, v_) for v_ in v))
@@ -79,6 +79,9 @@ class Manager():
 
             if 'format' in kwargs:
                 request_kwargs['params']['format'] = kwargs['format']
+
+            if 'templatename' in kwargs:
+                request_kwargs['params']['templatename'] = kwargs['templatename']
 
             if 'headers' in kwargs:
                 request_kwargs['headers'].update(kwargs['headers'])
