@@ -5,7 +5,9 @@ A Python API around [MYOB's AccountRight API](http://developer.myob.com/api/acco
 
 This code is based off [PyXero](https://github.com/freakboy3742/pyxero) and [PyWorkflowMax](https://github.com/ABASystems/pyworkflowmax), providing pythonic access to the MYOB api in a similar fashion.
 
-It's not yet a fully fleshed out ORM, but rather a collection of namespaced functions that link up to MYOB's endpoints, but the plan is to eventually move it in that direction.
+It's not a fully fleshed out ORM, but rather a collection of namespaced functions that link up to MYOB's endpoints, though the plan is to eventually move in that direction.
+
+This project supports Python 3 only.
 
 ## Pre-getting started
 
@@ -97,12 +99,3 @@ If you don't know what you're looking for:
 
 - the repr of a `Myob` instance will yield a list of available managers (i.e. `invoices` in the above example).
 - the repr of a `Manager` instance will yield a list of available methods on that manager. Each method corresponds to an API call in MYOB.
-
-
-## Development
-
-This project is still a baby. It has no tests, no documentation aside from this README, limited endpoint coverage, and supports Python 3 only.
-
-The plan is to ORM-ify it more, so object representations can be returned rather than raw JSON data. Would also be nice not having to pass `company_id` in everywhere.
-
-Contributions are welcome. ;)
