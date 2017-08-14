@@ -83,6 +83,9 @@ class Manager():
             if 'templatename' in kwargs:
                 request_kwargs['params']['templatename'] = kwargs['templatename']
 
+            if request_method == 'POST':
+                request_kwargs['params']['returnBody'] = 'true'
+
             if 'headers' in kwargs:
                 request_kwargs['headers'].update(kwargs['headers'])
 
@@ -99,7 +102,7 @@ class Manager():
 
                 return response.json()
             elif response.status_code == 201:
-                return {'status': 'OK'},
+                return response.json()
             elif response.status_code == 400:
                 raise MyobBadRequest(response)
             elif response.status_code == 401:
