@@ -83,7 +83,7 @@ class Manager():
             if 'templatename' in kwargs:
                 request_kwargs['params']['templatename'] = kwargs['templatename']
 
-            if request_method == 'POST':
+            if request_method in ('PUT', 'POST'):
                 request_kwargs['params']['returnBody'] = 'true'
 
             if 'headers' in kwargs:
