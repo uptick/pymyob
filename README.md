@@ -32,7 +32,7 @@ cred = PartnerCredentials(
 ```
 
 Cache `cred.state` somewhere. You'll use this to rebuild the `PartnerCredentials` instance later.
-Redirect the user to `cred.url`. There, they will need to log in to MYOB and authorise partnership with your app<sup>[1](#footnote1)</sup>. Once they do, they'll be redirected to the Redirect Uri you supplied.
+Redirect the user to `cred.url`. There, they will need to log in to MYOB and authorise partnership with your app<sup id="a1">[1](#f1)</sup>. Once they do, they'll be redirected to the Redirect Uri you supplied.
 
 At the url they're redirected to, rebuild the `PartnerCredentials` then pick the verifier out of the request and use it to verify the credentials.
 ```
@@ -120,5 +120,6 @@ If you don't know what you're looking for:
 - the repr of a `Myob` instance will yield a list of available managers (i.e. `invoices` in the above example).
 - the repr of a `Manager` instance will yield a list of available methods on that manager. Each method corresponds to an API call in MYOB.
 
+## 
 
-<a name="footnote1">1</a>: Your users can review their partner authorisations at https://secure.myob.com/.
+<a name="f1">1</a>: Your users can review their partner authorisations at https://secure.myob.com/. [↩](#a1)
