@@ -57,17 +57,37 @@ def myob_authorisation_complete_view(request):
 
 Save `cred.state` once more, but this time you want it in persistent storage. So plonk it somewhere in your database.
 
-With your application partnered with MYOB, you're now good to go. Create a `Myob` instance, supplying the verified credentials:
+With your application partnered with MYOB, you can now create a `Myob` instance, supplying the verified credentials:
 ```
 from myob import Myob
 from myob.credentials import PartnerCredentials
 
-cred = PartnerCredentials(**<persistently_saved_state_from_verified_credentials)
+cred = PartnerCredentials(**<persistently_saved_state_from_verified_credentials>)
 myob = Myob(cred)
 ```
 
-Access stuff:
+You're almost there! MYOB has this thing called company files. Even though you've authorised against a user now, you need to collect a further set of credentials for getting into the company file.
 ```
+company_files = myob.companyfiles.all()
+```
+
+Render a dropdown for your user to let them select which of the company files they wish to use. Usually there will only be one against their account, but best to check. Once they've selected, prompt them for the username and password for that company file. Save this as follows:
+```
+import base64
+
+cred.userpass = base64.b64encode(bytes('%s:%s' % (<username>, <password>), 'utf-8')).decode('utf-8')
+```
+
+Save the new `cred.state` back to your persistent storage.
+
+Now you can access stuff!
+```
+from myob import Myob
+from myob.credentials import PartnerCredentials
+
+cred = PartnerCredentials(**<persistently_saved_state_from_verified_credentials>)
+myob = Myob(cred)
+
 # Obtain list of company files. Here you will also find their IDs, which are required for other endpoints
 company_files = myob.companyfiles.all()
 
