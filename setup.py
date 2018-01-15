@@ -15,7 +15,7 @@ try:
         license='BSD',
         author='Jarek Głowacki',
         author_email='jarekwg@gmail.com',
-        url='https://github.com/ABASystems/pymyob',
+        url='https://github.com/uptick/pymyob',
         keywords=['myob'],
         classifiers=[
             'Development Status :: 2 - Pre-Alpha',

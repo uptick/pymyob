@@ -3,7 +3,7 @@
 
 A Python API around [MYOB's AccountRight API](http://developer.myob.com/api/accountright/api-overview/).
 
-This code is based off [PyXero](https://github.com/freakboy3742/pyxero) and [PyWorkflowMax](https://github.com/ABASystems/pyworkflowmax), providing pythonic access to the MYOB api in a similar fashion.
+This code is based off [PyXero](https://github.com/freakboy3742/pyxero) and [PyWorkflowMax](https://github.com/uptick/pyworkflowmax), providing pythonic access to the MYOB api in a similar fashion.
 
 It's not a fully fleshed out ORM, but rather a collection of namespaced functions that link up to MYOB's endpoints, though the plan is to eventually move in that direction.
 
