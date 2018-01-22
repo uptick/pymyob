@@ -3,7 +3,13 @@ import requests
 
 from .constants import DEFAULT_PAGE_SIZE, MYOB_BASE_URL
 from .endpoints import ENDPOINTS, METHOD_ORDER
-from .exceptions import MyobBadRequest, MyobExceptionUnknown, MyobNotFound, MyobUnauthorized
+from .exceptions import (
+    MyobBadRequest,
+    MyobExceptionUnknown,
+    MyobForbidden,
+    MyobNotFound,
+    MyobUnauthorized
+)
 
 
 class Manager():
@@ -107,6 +113,8 @@ class Manager():
                 raise MyobBadRequest(response)
             elif response.status_code == 401:
                 raise MyobUnauthorized(response)
+            elif response.status_code == 403:
+                raise MyobForbidden(response)
             elif response.status_code == 404:
                 raise MyobNotFound(response)
             else:

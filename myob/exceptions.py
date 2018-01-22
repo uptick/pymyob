@@ -21,6 +21,11 @@ class MyobUnauthorized(MyobException):
     pass
 
 
+class MyobForbidden(MyobException):
+    # HTTP 403: Forbidden
+    pass
+
+
 class MyobNotFound(MyobException):
     # HTTP 404: Not Found
     pass
