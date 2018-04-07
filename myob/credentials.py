@@ -12,7 +12,7 @@ class PartnerCredentials():
     def __init__(
         self, consumer_key, consumer_secret, callback_uri,
         verified=False,
-        userpass=None,
+        userpass={},
         oauth_token=None,
         refresh_token=None,
         oauth_expires_at=None,
@@ -31,6 +31,10 @@ class PartnerCredentials():
         self._oauth = OAuth2Session(consumer_key, redirect_uri=callback_uri)
         url, _ = self._oauth.authorization_url(MYOB_PARTNER_BASE_URL + AUTHORIZE_URL)
         self.url = url + '&scope=CompanyFile'
+
+    def authenticate(self, companyfile=None, userpass=None):
+        if companyfile:
+            self.userpass[companyfile] = userpass
 
     @property
     def state(self):

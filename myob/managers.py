@@ -14,13 +14,14 @@ from .exceptions import (
 
 
 class Manager():
-    def __init__(self, name, credentials):
+    def __init__(self, name, credentials, company_id=None):
         self.credentials = credentials
         self.name = '_'.join(p for p in name.rstrip('/').split('/') if '[' not in p)
         self.base_url = MYOB_BASE_URL
         if name:
             self.base_url += name
         self.method_details = {}
+        self.company_id = company_id
 
         # Build ORM methods from given url endpoints.
         # Sort them first, to determine duplicate disambiguation order.
@@ -107,7 +108,7 @@ class Manager():
         # Build headers.
         request_kwargs['headers'] = {
             'Authorization': 'Bearer %s' % self.credentials.oauth_token,
-            'x-myobapi-cftoken': self.credentials.userpass,
+            'x-myobapi-cftoken': self.credentials.userpass.get(self.company_id),
             'x-myobapi-key': self.credentials.consumer_key,
             'x-myobapi-version': 'v2',
         }

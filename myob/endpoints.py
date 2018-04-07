@@ -8,7 +8,7 @@ METHOD_ORDER = [ALL, GET, POST, PUT, DELETE]
 
 ENDPOINTS = {
     '': {
-        'plural': 'companyfiles',
+        'plural': 'company',
         'methods': [
             (ALL, '', 'Return a list of company files.'),
             (GET, '[id]/', 'List endpoints available for a company file.'),
