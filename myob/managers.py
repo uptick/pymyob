@@ -13,13 +13,14 @@ from .exceptions import (
 
 
 class Manager():
-    def __init__(self, name, credentials):
+    def __init__(self, name, credentials, company_id=None):
         self.credentials = credentials
         self.name = '_'.join(p for p in name.split('/') if '[' not in p)
         self.base_url = MYOB_BASE_URL
         if name:
             self.base_url += '/' + name.lower()
         self.method_details = {}
+        self.company_id = company_id
 
         # Build ORM methods from given url endpoints.
         # Sort them first, to determine duplicate disambiguation order.
@@ -35,11 +36,13 @@ class Manager():
         template = full_endpoint.replace('[', '{').replace(']', '}')
 
         def inner(*args, **kwargs):
+            if self.company_id:
+                kwargs['company_id'] = self.company_id
             if args:
                 raise AttributeError("Unnamed args provided. Only keyword args accepted.")
 
             # Ensure all required args have been provided.
-            missing_args = set(required_args) - set(kwargs.keys())
+            missing_args = set(required_args) - set(kwargs.keys()) - set(['company_id'])
             if missing_args:
                 raise KeyError("Missing args %s. Endpoint requires %s." % (
                     list(missing_args), required_args
@@ -56,7 +59,7 @@ class Manager():
             # Build headers.
             request_kwargs['headers'] = {
                 'Authorization': 'Bearer %s' % self.credentials.oauth_token,
-                'x-myobapi-cftoken': self.credentials.userpass,
+                'x-myobapi-cftoken': self.credentials.userpass.get(kwargs.get('company_id')),
                 'x-myobapi-key': self.credentials.consumer_key,
                 'x-myobapi-version': 'v2',
             }
