@@ -1,5 +1,6 @@
 # PyMYOB
 [![PyPI version](https://badge.fury.io/py/pymyob.svg)](https://badge.fury.io/py/pymyob)
+[![Build Status](https://travis-ci.org/uptick/pymyob.svg?branch=master)](https://travis-ci.org/uptick/pymyob)
 
 A Python API around [MYOB's AccountRight API](http://developer.myob.com/api/accountright/api-overview/).
 
