@@ -15,7 +15,7 @@ install:
   - if [ $TASK == flake8 ]; then pip install flake8; fi
 
 script:
-  - if [ $TASK = isort ]; then isort --diff --check-only; fi
+  - if [ $TASK = isort ]; then isort --diff --check-only; fi;
     if [ $TASK = flake8 ]; then flake8; fi
 
 notifications:
