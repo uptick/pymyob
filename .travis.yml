@@ -1,0 +1,22 @@
+language: python
+python: 3.6
+
+branches:
+  only:
+    - master
+
+env:
+  matrix:
+    - TASK=isort
+    - TASK=flake8
+
+install:
+  - if [ $TASK == isort ]; then pip install isort; fi
+  - if [ $TASK == flake8 ]; then pip install flake8; fi
+
+script:
+  - if [ $TASK = isort ]; then isort --diff --check-only; fi
+    if [ $TASK = flake8 ]; then flake8; fi
+
+notifications:
+  email: false
