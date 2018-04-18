@@ -1,7 +1,7 @@
 from .endpoints import ENDPOINTS
 from .managers import Manager
 
-class CompanyFile:
+class CompanyFiles:
     def __init__(self, credentials):
         self.credentials = credentials
         for k, v in ENDPOINTS.items():
@@ -35,7 +35,7 @@ class Myob:
                 )
             )
         self.credentials = credentials
-        self.companyfiles = CompanyFile(self.credentials)
+        self.companyfiles = CompanyFiles(self.credentials)
 
         
 
