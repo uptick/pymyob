@@ -12,12 +12,12 @@ DATA = {'dummy': 'data'}
 
 class EndpointTests(TestCase):
     def setUp(self):
-        self.cred = PartnerCredentials(
+        cred = PartnerCredentials(
             consumer_key='KeyToTheKingdom',
             consumer_secret='TellNoOne',
             callback_uri='CallOnlyWhenCalledTo',
         )
-        self.myob = Myob(self.cred)
+        self.myob = Myob(cred)
         self.request_headers = {
             'Authorization': 'Bearer None',
             'x-myobapi-cftoken': None,

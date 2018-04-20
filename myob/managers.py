@@ -29,75 +29,45 @@ class Manager():
 
     def build_method(self, method, endpoint, hint):
         full_endpoint = self.base_url + endpoint
-        required_args = re.findall('\[([^\]]*)\]', full_endpoint)
-        if method in ('PUT', 'POST'):
-            required_args.append('data')
+        url_keys = re.findall('\[([^\]]*)\]', full_endpoint)
         template = full_endpoint.replace('[', '{').replace(']', '}')
+
+        required_kwargs = url_keys.copy()
+        if method in ('PUT', 'POST'):
+            required_kwargs.append('data')
 
         def inner(*args, **kwargs):
             if args:
                 raise AttributeError("Unnamed args provided. Only keyword args accepted.")
 
-            # Ensure all required args have been provided.
-            missing_args = set(required_args) - set(kwargs.keys())
-            if missing_args:
-                raise KeyError("Missing args %s. Endpoint requires %s." % (
-                    list(missing_args), required_args
+            # Ensure all required url kwargs have been provided.
+            missing_kwargs = set(required_kwargs) - set(kwargs.keys())
+            if missing_kwargs:
+                raise KeyError("Missing kwargs %s. Endpoint requires %s." % (
+                    list(missing_kwargs), required_kwargs
                 ))
+
+            # Parse kwargs.
+            url_kwargs = {}
+            request_kwargs_raw = {}
+            for k, v in kwargs.items():
+                if k in url_keys:
+                    url_kwargs[k] = v
+                elif k != 'data':
+                    request_kwargs_raw[k] = v
 
             # Determine request method.
             request_method = 'GET' if method == 'ALL' else method
 
             # Build url.
-            url = template.format(**kwargs)
+            url = template.format(**url_kwargs)
 
-            request_kwargs = {}
-
-            # Build headers.
-            request_kwargs['headers'] = {
-                'Authorization': 'Bearer %s' % self.credentials.oauth_token,
-                'x-myobapi-cftoken': self.credentials.userpass,
-                'x-myobapi-key': self.credentials.consumer_key,
-                'x-myobapi-version': 'v2',
-            }
-
-            # Build query.
-            request_kwargs['params'] = {}
-            filters = []
-            for k, v in kwargs.items():
-                if k not in required_args + ['orderby', 'format', 'headers', 'page', 'limit', 'templatename']:
-                    if isinstance(v, str):
-                        v = [v]
-                    filters.append(' or '.join("%s eq '%s'" % (k, v_) for v_ in v))
-            if filters:
-                request_kwargs['params']['$filter'] = '&'.join(filters)
-
-            if 'orderby' in kwargs:
-                request_kwargs['params']['$orderby'] = kwargs['orderby']
-
-            page_size = DEFAULT_PAGE_SIZE
-            if 'limit' in kwargs:
-                page_size = int(kwargs['limit'])
-                request_kwargs['params']['$top'] = page_size
-
-            if 'page' in kwargs:
-                request_kwargs['params']['$skip'] = (int(kwargs['page']) - 1) * page_size
-
-            if 'format' in kwargs:
-                request_kwargs['params']['format'] = kwargs['format']
-
-            if 'templatename' in kwargs:
-                request_kwargs['params']['templatename'] = kwargs['templatename']
-
-            if request_method in ('PUT', 'POST'):
-                request_kwargs['params']['returnBody'] = 'true'
-
-            if 'headers' in kwargs:
-                request_kwargs['headers'].update(kwargs['headers'])
-
-            # Build body.
-            if 'data' in kwargs:
-                request_kwargs['json'] = kwargs['data']
+            # Build request kwargs (header/query/body)
+            request_kwargs = self.build_request_kwargs(
+                request_method,
+                data=kwargs.get('data'),
+                **request_kwargs_raw,
+            )
 
             response = requests.request(request_method, url, **request_kwargs)
 
@@ -129,10 +99,65 @@ class Manager():
         elif hasattr(self, method_name):
             method_name = '%s_%s' % (method.lower(), method_name)
         self.method_details[method_name] = {
-            'args': required_args,
+            'kwargs': required_kwargs,
             'hint': hint,
         }
         setattr(self, method_name, inner)
+
+    def build_request_kwargs(self, method, data=None, **kwargs):
+        request_kwargs = {}
+
+        # Build headers.
+        request_kwargs['headers'] = {
+            'Authorization': 'Bearer %s' % self.credentials.oauth_token,
+            'x-myobapi-cftoken': self.credentials.userpass,
+            'x-myobapi-key': self.credentials.consumer_key,
+            'x-myobapi-version': 'v2',
+        }
+        if 'headers' in kwargs:
+            request_kwargs['headers'].update(kwargs['headers'])
+
+        # Build query.
+        request_kwargs['params'] = {}
+        filters = []
+        for k, v in kwargs.items():
+            if k not in ['orderby', 'format', 'headers', 'page', 'limit', 'templatename']:
+                if isinstance(v, str):
+                    v = [v]
+                operator = 'eq'
+                for op in ['lt', 'gt']:
+                    if k.endswith('__%s' % op):
+                        k = k[:-4]
+                        operator = op
+                filters.append(' or '.join("%s %s '%s'" % (k, operator, v_) for v_ in v))
+        if filters:
+            request_kwargs['params']['$filter'] = ' and '.join(filters)
+
+        if 'orderby' in kwargs:
+            request_kwargs['params']['$orderby'] = kwargs['orderby']
+
+        page_size = DEFAULT_PAGE_SIZE
+        if 'limit' in kwargs:
+            page_size = int(kwargs['limit'])
+            request_kwargs['params']['$top'] = page_size
+
+        if 'page' in kwargs:
+            request_kwargs['params']['$skip'] = (int(kwargs['page']) - 1) * page_size
+
+        if 'format' in kwargs:
+            request_kwargs['params']['format'] = kwargs['format']
+
+        if 'templatename' in kwargs:
+            request_kwargs['params']['templatename'] = kwargs['templatename']
+
+        if method in ('PUT', 'POST'):
+            request_kwargs['params']['returnBody'] = 'true'
+
+        # Build body.
+        if data is not None:
+            request_kwargs['json'] = data
+
+        return request_kwargs
 
     def __repr__(self):
         def print_method(name, args):
@@ -144,7 +169,7 @@ class Manager():
         )
         return '%s%s:\n    %s' % (self.name, self.__class__.__name__, '\n    '.join(
             formatstr % (
-                print_method(k, v['args']),
+                print_method(k, v['kwargs']),
                 v['hint'],
             ) for k, v in sorted(self.method_details.items())
         ))
