@@ -31,6 +31,7 @@ try:
             'requests>=2.10.0',
             'requests-oauthlib>=0.6.0',
         ],
+        test_suite="tests",
     )
 except NameError:
     raise RuntimeError("Unable to determine version.")

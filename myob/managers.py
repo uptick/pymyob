@@ -15,10 +15,10 @@ from .exceptions import (
 class Manager():
     def __init__(self, name, credentials):
         self.credentials = credentials
-        self.name = '_'.join(p for p in name.split('/') if '[' not in p)
+        self.name = '_'.join(p for p in name.rstrip('/').split('/') if '[' not in p)
         self.base_url = MYOB_BASE_URL
         if name:
-            self.base_url += '/' + name.lower()
+            self.base_url += name
         self.method_details = {}
 
         # Build ORM methods from given url endpoints.
@@ -28,7 +28,7 @@ class Manager():
             self.build_method(method, endpoint, hint)
 
     def build_method(self, method, endpoint, hint):
-        full_endpoint = self.base_url + '/' + endpoint
+        full_endpoint = self.base_url + endpoint
         required_args = re.findall('\[([^\]]*)\]', full_endpoint)
         if method in ('PUT', 'POST'):
             required_args.append('data')
@@ -121,7 +121,7 @@ class Manager():
                 raise MyobExceptionUnknown(response)
 
         # Build method name
-        method_name = '_'.join(p for p in endpoint.split('/') if '[' not in p).lower()
+        method_name = '_'.join(p for p in endpoint.rstrip('/').split('/') if '[' not in p).lower()
         # If it has no name, use method.
         if not method_name:
             method_name = method.lower()

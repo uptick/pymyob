@@ -9,13 +9,15 @@ from .constants import ACCESS_TOKEN_URL, AUTHORIZE_URL, MYOB_PARTNER_BASE_URL
 
 class PartnerCredentials():
     """An object wrapping the 3-step OAuth2 process for Partner MYOB API access."""
-    def __init__(self, consumer_key, consumer_secret, callback_uri,
-                 verified=False,
-                 userpass=None,
-                 oauth_token=None,
-                 refresh_token=None,
-                 oauth_expires_at=None,
-                 scope=None):
+    def __init__(
+        self, consumer_key, consumer_secret, callback_uri,
+        verified=False,
+        userpass=None,
+        oauth_token=None,
+        refresh_token=None,
+        oauth_expires_at=None,
+        scope=None
+    ):
         self.consumer_key = consumer_key
         self.consumer_secret = consumer_secret
         self.callback_uri = callback_uri
