@@ -6,12 +6,18 @@ from setuptools import setup
 with open('./myob/__init__.py') as f:
     exec(re.search(r'VERSION = .*', f.read(), re.DOTALL).group())
 
+
+with open('README.md') as file:
+    long_description = file.read()
+
 try:
     setup(
         name='pymyob',
         packages=['myob'],
         version=__version__,
         description="A Python API around MYOB's AccountRight API.",
+        long_description=long_description,
+        long_description_content_type='text/markdown',
         license='BSD',
         author='Jarek Głowacki',
         author_email='jarekwg@gmail.com',
