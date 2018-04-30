@@ -64,7 +64,7 @@ ENDPOINTS = {
             (GET, 'Item/[uid]/', 'Return selected inventory item.'),
             (PUT, 'Item/[uid]/', 'Update selected inventory items.'),
             (POST, 'Item/', 'Create new inventory item.'),
-            (DELETE, 'Item/[uid]/', 'Delete selected inventory item.')
+            (DELETE, 'Item/[uid]/', 'Delete selected inventory item.'),
         ]
     },
     '[company_id]/Purchase/Order/': {
@@ -75,7 +75,7 @@ ENDPOINTS = {
             (GET, 'Item/[uid]/', 'Return selected item type purchase order.'),
             (PUT, 'Item/[uid]/', 'Update selected item type purchase order.'),
             (POST, 'Item/', 'Create new item type purchase order.'),
-            (DELETE, 'Item/[uid]/', 'Delete selected item type purchase order.')
+            (DELETE, 'Item/[uid]/', 'Delete selected item type purchase order.'),
         ]
     },
     '[company_id]/Purchase/Bill/': {
