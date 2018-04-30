@@ -90,3 +90,16 @@ class EndpointTests(TestCase):
         self.assertEndpointReached(self.myob.purchase_orders.put_item, {'company_id': CID, 'uid': UID, 'data': DATA}, 'PUT', f'/{CID}/Purchase/Order/Item/{UID}/')
         self.assertEndpointReached(self.myob.purchase_orders.post_item, {'company_id': CID, 'data': DATA}, 'POST', f'/{CID}/Purchase/Order/Item/')
         self.assertEndpointReached(self.myob.purchase_orders.delete_item, {'company_id': CID, 'uid': UID}, 'DELETE', f'/{CID}/Purchase/Order/Item/{UID}/')
+
+    def test_purchase_bills(self):
+        self.assertEndpointReached(self.myob.purchase_bills.all, {'company_id': CID}, 'GET', f'/{CID}/Purchase/Bill/')
+        self.assertEndpointReached(self.myob.purchase_bills.item, {'company_id': CID}, 'GET', f'/{CID}/Purchase/Bill/Item/')
+        self.assertEndpointReached(self.myob.purchase_bills.get_item, {'company_id': CID, 'uid': UID}, 'GET', f'/{CID}/Purchase/Bill/Item/{UID}/')
+        self.assertEndpointReached(self.myob.purchase_bills.put_item, {'company_id': CID, 'uid': UID, 'data': DATA}, 'PUT', f'/{CID}/Purchase/Bill/Item/{UID}/')
+        self.assertEndpointReached(self.myob.purchase_bills.post_item, {'company_id': CID, 'data': DATA}, 'POST', f'/{CID}/Purchase/Bill/Item/')
+        self.assertEndpointReached(self.myob.purchase_bills.delete_item, {'company_id': CID, 'uid': UID}, 'DELETE', f'/{CID}/Purchase/Bill/Item/{UID}/')
+        self.assertEndpointReached(self.myob.purchase_bills.service, {'company_id': CID}, 'GET', f'/{CID}/Purchase/Bill/Service/')
+        self.assertEndpointReached(self.myob.purchase_bills.get_service, {'company_id': CID, 'uid': UID}, 'GET', f'/{CID}/Purchase/Bill/Service/{UID}/')
+        self.assertEndpointReached(self.myob.purchase_bills.put_service, {'company_id': CID, 'uid': UID, 'data': DATA}, 'PUT', f'/{CID}/Purchase/Bill/Service/{UID}/')
+        self.assertEndpointReached(self.myob.purchase_bills.post_service, {'company_id': CID, 'data': DATA}, 'POST', f'/{CID}/Purchase/Bill/Service/')
+        self.assertEndpointReached(self.myob.purchase_bills.delete_service, {'company_id': CID, 'uid': UID}, 'DELETE', f'/{CID}/Purchase/Bill/Service/{UID}/')
