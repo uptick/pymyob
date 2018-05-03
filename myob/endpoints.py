@@ -24,6 +24,11 @@ ENDPOINTS = {
             (PUT, 'Customer/[uid]/', 'Update selected customer contact.'),
             (POST, 'Customer/', 'Create new customer contact.'),
             (DELETE, 'Customer/[uid]/', 'Delete selected customer contact.'),
+            (ALL, 'Supplier/', 'Return all supplier contacts for an AccountRight company file.'),
+            (GET, 'Supplier/[uid]/', 'Return selected supplier contact.'),
+            (PUT, 'Supplier/[uid]/', 'Update selected supplier contact.'),
+            (POST, 'Supplier/', 'Create new supplier contact.'),
+            (DELETE, 'Supplier/[uid]/', 'Delete selected supplier contact.'),
         ],
     },
     '[company_id]/Sale/Invoice/': {

@@ -50,6 +50,11 @@ class EndpointTests(TestCase):
         self.assertEndpointReached(self.myob.contacts.put_customer, {'company_id': CID, 'uid': UID, 'data': DATA}, 'PUT', f'/{CID}/Contact/Customer/{UID}/')
         self.assertEndpointReached(self.myob.contacts.post_customer, {'company_id': CID, 'data': DATA}, 'POST', f'/{CID}/Contact/Customer/')
         self.assertEndpointReached(self.myob.contacts.delete_customer, {'company_id': CID, 'uid': UID}, 'DELETE', f'/{CID}/Contact/Customer/{UID}/')
+        self.assertEndpointReached(self.myob.contacts.supplier, {'company_id': CID}, 'GET', f'/{CID}/Contact/Supplier/')
+        self.assertEndpointReached(self.myob.contacts.get_supplier, {'company_id': CID, 'uid': UID}, 'GET', f'/{CID}/Contact/Supplier/{UID}/')
+        self.assertEndpointReached(self.myob.contacts.put_supplier, {'company_id': CID, 'uid': UID, 'data': DATA}, 'PUT', f'/{CID}/Contact/Supplier/{UID}/')
+        self.assertEndpointReached(self.myob.contacts.post_supplier, {'company_id': CID, 'data': DATA}, 'POST', f'/{CID}/Contact/Supplier/')
+        self.assertEndpointReached(self.myob.contacts.delete_supplier, {'company_id': CID, 'uid': UID}, 'DELETE', f'/{CID}/Contact/Supplier/{UID}/')
 
     def test_invoices(self):
         self.assertEndpointReached(self.myob.invoices.all, {'company_id': CID}, 'GET', f'/{CID}/Sale/Invoice/')
