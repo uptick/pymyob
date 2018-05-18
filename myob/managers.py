@@ -1,5 +1,6 @@
 import re
 import requests
+from datetime import date
 
 from .constants import DEFAULT_PAGE_SIZE, MYOB_BASE_URL
 from .endpoints import ENDPOINTS, METHOD_ORDER
@@ -120,16 +121,23 @@ class Manager():
         # Build query.
         request_kwargs['params'] = {}
         filters = []
+
+        def build_value(value):
+            if issubclass(type(value), date):
+                return "datetime'%s'" % value
+            return "'%s'" % value
+
         for k, v in kwargs.items():
             if k not in ['orderby', 'format', 'headers', 'page', 'limit', 'templatename']:
-                if isinstance(v, str):
+                if not isinstance(v, (list, tuple)):
                     v = [v]
                 operator = 'eq'
                 for op in ['lt', 'gt']:
                     if k.endswith('__%s' % op):
                         k = k[:-4]
                         operator = op
-                filters.append(' or '.join("%s %s '%s'" % (k, operator, v_) for v_ in v))
+                filters.append(' or '.join("%s %s %s" % (k, operator, build_value(v_)) for v_ in v))
+
         if filters:
             request_kwargs['params']['$filter'] = ' and '.join(filters)
 
