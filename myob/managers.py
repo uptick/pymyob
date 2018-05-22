@@ -172,7 +172,7 @@ class Manager():
             return '%s(%s)' % (name, ', '.join(args))
 
         formatstr = '%%%is - %%s' % max(
-            len(print_method(k, v['args']))
+            len(print_method(k, v['kwargs']))
             for k, v in self.method_details.items()
         )
         return '%s%s:\n    %s' % (self.name, self.__class__.__name__, '\n    '.join(
