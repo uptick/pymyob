@@ -18,7 +18,7 @@ ENDPOINTS = {
     '[company_id]/Contact/': {
         'plural': 'contacts',
         'methods': [
-            (ALL, '', 'Return all contact types for an AccountRight company file'),
+            (ALL, '', 'Return all contact types for an AccountRight company file.'),
             (ALL, 'Customer/', 'Return all customer contacts for an AccountRight company file.'),
             (GET, 'Customer/[uid]/', 'Return selected customer contact.'),
             (PUT, 'Customer/[uid]/', 'Update selected customer contact.'),
@@ -65,7 +65,7 @@ ENDPOINTS = {
     '[company_id]/Inventory/': {
         'plural': 'inventory',
         'methods': [
-            (ALL, 'Item/', 'Return inventory items for an AccountRight company file'),
+            (ALL, 'Item/', 'Return inventory items for an AccountRight company file.'),
             (GET, 'Item/[uid]/', 'Return selected inventory item.'),
             (PUT, 'Item/[uid]/', 'Update selected inventory items.'),
             (POST, 'Item/', 'Create new inventory item.'),
