@@ -64,11 +64,7 @@ class Manager():
             url = template.format(**url_kwargs)
 
             # Build request kwargs (header/query/body)
-            request_kwargs = self.build_request_kwargs(
-                request_method,
-                data=kwargs.get('data'),
-                **request_kwargs_raw,
-            )
+            request_kwargs = self.build_request_kwargs(request_method, data=kwargs.get('data'), **request_kwargs_raw)
 
             response = requests.request(request_method, url, **request_kwargs)
 
