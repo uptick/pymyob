@@ -1,5 +1,4 @@
-from __future__ import unicode_literals
-
+import base64
 import datetime
 
 from requests_oauthlib import OAuth2Session
@@ -12,7 +11,7 @@ class PartnerCredentials():
     def __init__(
         self, consumer_key, consumer_secret, callback_uri,
         verified=False,
-        userpass={},
+        companyfile_credentials={},
         oauth_token=None,
         refresh_token=None,
         oauth_expires_at=None,
@@ -23,7 +22,7 @@ class PartnerCredentials():
         self.callback_uri = callback_uri
 
         self.verified = verified
-        self.userpass = userpass
+        self.companyfile_credentials = companyfile_credentials
         self.oauth_token = oauth_token
         self.refresh_token = refresh_token
         self.oauth_expires_at = oauth_expires_at
@@ -32,9 +31,12 @@ class PartnerCredentials():
         url, _ = self._oauth.authorization_url(MYOB_PARTNER_BASE_URL + AUTHORIZE_URL)
         self.url = url + '&scope=CompanyFile'
 
-    def authenticate(self, companyfile=None, userpass=None):
-        if companyfile:
-            self.userpass[companyfile] = userpass
+    # TODO: Add `verify` kwarg here, which will quickly throw the provided credentials at a
+    # protected endpoint to ensure they are valid. If not, raise appropriate error.
+    def authenticate_companyfile(self, company_id, username, password):
+        """ Store hashed username-password for logging into company file. """
+        userpass = base64.b64encode(bytes('%s:%s' % (username, password), 'utf-8')).decode('utf-8')
+        self.companyfile_credentials[company_id] = userpass
 
     @property
     def state(self):
@@ -43,7 +45,7 @@ class PartnerCredentials():
             (attr, getattr(self, attr))
             for attr in (
                 'consumer_key', 'consumer_secret', 'callback_uri',
-                'verified', 'userpass', 'oauth_token', 'refresh_token',
+                'verified', 'companyfile_credentials', 'oauth_token', 'refresh_token',
                 'oauth_expires_at'
             )
             if getattr(self, attr) is not None

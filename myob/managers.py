@@ -106,9 +106,17 @@ class Manager():
         request_kwargs = {}
 
         # Build headers.
+        if self.company_id:
+            try:
+                companyfile_credentials = self.companyfile_credentials[self.company_id]
+            except KeyError:
+                raise KeyError('There are no stored username-password credentials for this company id.')
+        else:
+            companyfile_credentials = ''
+
         request_kwargs['headers'] = {
             'Authorization': 'Bearer %s' % self.credentials.oauth_token,
-            'x-myobapi-cftoken': self.credentials.userpass.get(self.company_id),
+            'x-myobapi-cftoken': companyfile_credentials,
             'x-myobapi-key': self.credentials.consumer_key,
             'x-myobapi-version': 'v2',
         }

@@ -74,9 +74,7 @@ company_files = myob.companyfiles.all()
 
 Render a dropdown for your user to let them select which of the company files they wish to use. Usually there will only be one against their account, but best to check. Once they've selected, prompt them for the username and password for that company file. Save this as follows:
 ```
-import base64
-
-cred.userpass = base64.b64encode(bytes('%s:%s' % (<username>, <password>), 'utf-8')).decode('utf-8')
+cred.authenticate_companyfile(company_id, <username>, <password>)
 ```
 
 Save the new `cred.state` back to your persistent storage.
@@ -121,6 +119,6 @@ If you don't know what you're looking for:
 - the repr of a `Myob` instance will yield a list of available managers (i.e. `invoices` in the above example).
 - the repr of a `Manager` instance will yield a list of available methods on that manager. Each method corresponds to an API call in MYOB.
 
-## 
+##
 
 <a name="f1">1</a>: Your users can review their partner authorisations at https://secure.myob.com/. [↩](#a1)
