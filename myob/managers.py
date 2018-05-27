@@ -3,7 +3,7 @@ import requests
 from datetime import date
 
 from .constants import DEFAULT_PAGE_SIZE, MYOB_BASE_URL
-from .endpoints import ENDPOINTS, METHOD_ORDER
+from .endpoints import METHOD_ORDER
 from .exceptions import (
     MyobBadRequest,
     MyobExceptionUnknown,
@@ -13,11 +13,13 @@ from .exceptions import (
 )
 
 
-class Manager():
-    def __init__(self, name, credentials, company_id=None):
+class Manager:
+    def __init__(self, name, credentials, company_id=None, endpoints=[]):
         self.credentials = credentials
         self.name = '_'.join(p for p in name.rstrip('/').split('/') if '[' not in p)
         self.base_url = MYOB_BASE_URL
+        if company_id is not None:
+            self.base_url += company_id + '/'
         if name:
             self.base_url += name
         self.method_details = {}
@@ -25,8 +27,8 @@ class Manager():
 
         # Build ORM methods from given url endpoints.
         # Sort them first, to determine duplicate disambiguation order.
-        endpoints = sorted(ENDPOINTS[name]['methods'], key=lambda x: METHOD_ORDER.index(x[0]))
-        for method, endpoint, hint in endpoints:
+        sorted_endpoints = sorted(endpoints, key=lambda x: METHOD_ORDER.index(x[0]))
+        for method, endpoint, hint in sorted_endpoints:
             self.build_method(method, endpoint, hint)
 
     def build_method(self, method, endpoint, hint):

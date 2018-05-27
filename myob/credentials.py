@@ -6,7 +6,7 @@ from requests_oauthlib import OAuth2Session
 from .constants import ACCESS_TOKEN_URL, AUTHORIZE_URL, MYOB_PARTNER_BASE_URL
 
 
-class PartnerCredentials():
+class PartnerCredentials:
     """An object wrapping the 3-step OAuth2 process for Partner MYOB API access."""
     def __init__(
         self, consumer_key, consumer_secret, callback_uri,
