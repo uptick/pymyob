@@ -6,8 +6,6 @@ A Python API around [MYOB's AccountRight API](http://developer.myob.com/api/acco
 
 This code is based off [PyXero](https://github.com/freakboy3742/pyxero) and [PyWorkflowMax](https://github.com/uptick/pyworkflowmax), providing pythonic access to the MYOB api in a similar fashion.
 
-It's not a fully fleshed out ORM, but rather a collection of namespaced functions that link up to MYOB's endpoints, though the plan is to eventually move in that direction.
-
 This project supports Python 3 only.
 
 ## Pre-getting started
@@ -74,9 +72,7 @@ company_files = myob.companyfiles.all()
 
 Render a dropdown for your user to let them select which of the company files they wish to use. Usually there will only be one against their account, but best to check. Once they've selected, prompt them for the username and password for that company file. Save this as follows:
 ```
-import base64
-
-cred.userpass = base64.b64encode(bytes('%s:%s' % (<username>, <password>), 'utf-8')).decode('utf-8')
+cred.authenticate_companyfile(company_id, <username>, <password>)
 ```
 
 Save the new `cred.state` back to your persistent storage.
@@ -89,38 +85,41 @@ from myob.credentials import PartnerCredentials
 cred = PartnerCredentials(**<persistently_saved_state_from_verified_credentials>)
 myob = Myob(cred)
 
-# Obtain list of company files. Here you will also find their IDs, which are required for other endpoints
+# Obtain list of company files. Here you will also find their IDs, which you'll need to retrieve a given company file later.
 company_files = myob.companyfiles.all()
 
+# Obtain a specific company file. Use `call=False` to just prep it for calling other endpoints without actually making a call yet at this stage.
+comp = myob.companyfiles.get(<company_id>, call=False)
+
 # Obtain a list of customers (two ways to go about this).
-customers = myob.contacts.all(company_id=<company_id>, Type='Customer')
-customers = myob.contacts.customer(company_id=<company_id>)
+customers = comp.contacts.all(Type='Customer')
+customers = comp.contacts.customer()
 
 # Obtain a list of sale invoices (two ways to go about this).
-invoices = myob.invoices.all(company_id=<company_id>, InvoiceType='Item', orderby='Number desc')
-invoices = myob.invoices.item(company_id=<company_id>, orderby='Number desc')
+invoices = comp.invoices.all(InvoiceType='Item', orderby='Number desc')
+invoices = comp.invoices.item(orderby='Number desc')
 
 # Create an invoice.
-myob.invoices.post_item(company_id=<company_id>, data=data)
+comp.invoices.post_item(data=data)
 
 # Obtain a specific invoice.
-invoice = myob.invoices.get_item(company_id=<company_id>, uid=<invoice_uid>)
+invoice = comp.invoices.get_item(uid=<invoice_uid>)
 
 # Download PDF for a specific invoice.
-invoice_pdf = myob.invoices.get_item(company_id=<company_id>, uid=<invoice_uid>, headers={'Accept': 'application/pdf'})
+invoice_pdf = comp.invoices.get_item(uid=<invoice_uid>, headers={'Accept': 'application/pdf'})
 
 # Obtain a list of tax codes.
-taxcodes = myob.general_ledger.taxcode(company_id=<company_id>)
+taxcodes = comp.general_ledger.taxcode()
 
 # Obtain a list of inventory items.
-inventory = myob.inventory.item(company_id=<company_id>)
+inventory = comp.inventory.item()
 ```
 
-If you don't know what you're looking for:
+If you don't know what you're looking for, the reprs of most objects (eg. `myob`, `comp`, `comp.invoices` above) will yield info on what managers/methods are available.
+Each method corresponds to one API call to MYOB.
 
-- the repr of a `Myob` instance will yield a list of available managers (i.e. `invoices` in the above example).
-- the repr of a `Manager` instance will yield a list of available methods on that manager. Each method corresponds to an API call in MYOB.
+Note that not all endpoints are covered here yet; we've just been adding them on an as-needed basis. If there's a particular endpoint you'd like added, please feel free to throw it into the endpoints.py file and open up a PR. All contributions are welcome and will be reviewed promptly. :)
 
-## 
+##
 
 <a name="f1">1</a>: Your users can review their partner authorisations at https://secure.myob.com/. [↩](#a1)

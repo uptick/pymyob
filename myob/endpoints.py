@@ -7,15 +7,7 @@ DELETE = 'DELETE'
 METHOD_ORDER = [ALL, GET, POST, PUT, DELETE]
 
 ENDPOINTS = {
-    '': {
-        'plural': 'companyfiles',
-        'methods': [
-            (ALL, '', 'Return a list of company files.'),
-            (GET, '[id]/', 'List endpoints available for a company file.'),
-            (GET, 'Info/', 'Return API build information for each individual endpoint.'),
-        ],
-    },
-    '[company_id]/Contact/': {
+    'Contact/': {
         'plural': 'contacts',
         'methods': [
             (ALL, '', 'Return all contact types for an AccountRight company file.'),
@@ -31,7 +23,7 @@ ENDPOINTS = {
             (DELETE, 'Supplier/[uid]/', 'Delete selected supplier contact.'),
         ],
     },
-    '[company_id]/Sale/Invoice/': {
+    'Sale/Invoice/': {
         'plural': 'invoices',
         'methods': [
             (ALL, '', 'Return all sale invoice types for an AccountRight company file.'),
@@ -47,7 +39,7 @@ ENDPOINTS = {
             (DELETE, 'Service/[uid]/', 'Delete selected service type sale invoice.'),
         ]
     },
-    '[company_id]/GeneralLedger/': {
+    'GeneralLedger/': {
         'plural': 'general_ledger',
         'methods': [
             (ALL, 'TaxCode/', 'Return tax codes set up with an AccountRight company file.'),
@@ -62,7 +54,7 @@ ENDPOINTS = {
             (DELETE, 'Account/[uid]/', 'Delete selected account.'),
         ]
     },
-    '[company_id]/Inventory/': {
+    'Inventory/': {
         'plural': 'inventory',
         'methods': [
             (ALL, 'Item/', 'Return inventory items for an AccountRight company file.'),
@@ -72,7 +64,7 @@ ENDPOINTS = {
             (DELETE, 'Item/[uid]/', 'Delete selected inventory item.'),
         ]
     },
-    '[company_id]/Purchase/Order/': {
+    'Purchase/Order/': {
         'plural': 'purchase_orders',
         'methods': [
             (ALL, '', 'Return all purchase order types for an AccountRight company file.'),
@@ -83,7 +75,7 @@ ENDPOINTS = {
             (DELETE, 'Item/[uid]/', 'Delete selected item type purchase order.'),
         ]
     },
-    '[company_id]/Purchase/Bill/': {
+    'Purchase/Bill/': {
         'plural': 'purchase_bills',
         'methods': [
             (ALL, '', 'Return all purchase bill types for an AccountRight company file.'),
