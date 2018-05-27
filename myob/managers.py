@@ -110,7 +110,7 @@ class Manager:
         # Build headers.
         if self.company_id:
             try:
-                companyfile_credentials = self.companyfile_credentials[self.company_id]
+                companyfile_credentials = self.credentials.companyfile_credentials[self.company_id]
             except KeyError:
                 raise KeyError('There are no stored username-password credentials for this company id.')
         else:

@@ -15,14 +15,14 @@ class Myob:
         self.credentials = credentials
         self.companyfiles = CompanyFiles(credentials)
         self._manager = Manager('', credentials, endpoints=[
-            (GET, 'Info', 'Return API build information for each individual endpoint.'),
+            (GET, 'Info/', 'Return API build information for each individual endpoint.'),
         ])
 
     def info(self):
         return self._manager.info()
 
     def __repr__(self):
-        return 'Myob:\n    %s' % '\n    '.join('companyfiles', 'info')
+        return 'Myob:\n    %s' % '\n    '.join(['companyfiles', 'info'])
 
 
 class CompanyFiles:
@@ -30,7 +30,7 @@ class CompanyFiles:
         self.credentials = credentials
         self._manager = Manager('', self.credentials, endpoints=[
             (ALL, '', 'Return a list of company files.'),
-            (GET, '[id]', 'List endpoints available for a company file.'),
+            (GET, '[id]/', 'List endpoints available for a company file.'),
         ])
         self._manager.name = 'CompanyFile'
 
@@ -43,7 +43,7 @@ class CompanyFiles:
             raw_companyfile = self._manager.get(id=id)['CompanyFile']
         else:
             raw_companyfile = {'Id': id}
-        return CompanyFile(raw_companyfile, id, self.credentials)
+        return CompanyFile(raw_companyfile, self.credentials)
 
     def __repr__(self):
         return self._manager.__repr__()
