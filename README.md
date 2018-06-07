@@ -69,15 +69,15 @@ You're almost there! MYOB has this thing called company files. Even though you'v
 ```
 companyfiles = myob.companyfiles.all()
 
-# Each company file has the following data:
-companyfile.id  # Id
-companyfile.name  # Name
+# Each company file has the following attrs:
+companyfile.id  # Company Id
+companyfile.name  # Company Name
 companyfile.data  # Remaining data as a raw dict.
 ```
 
 Render a dropdown for your user to let them select which of the company files they wish to use. Usually there will only be one against their account, but best to check. Once they've selected, prompt them for the username and password for that company file. Save this as follows:
 ```
-cred.authenticate_companyfile(company_id, <username>, <password>)
+cred.authenticate_companyfile(<company_id>, <username>, <password>)
 ```
 
 Save the new `cred.state` back to your persistent storage.
