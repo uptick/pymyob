@@ -28,7 +28,7 @@ class EndpointTests(TestCase):
         }
 
     @patch('myob.managers.requests.request')
-    def assertEndpointReached(self, func, params, method, endpoint, mock_request):
+    def assertEndpointReached(self, func, params, method, endpoint, mock_request, timeout=None):
         mock_request.return_value.status_code = 200
         print(endpoint)
         if endpoint == '/%s/' % CID:
@@ -41,6 +41,7 @@ class EndpointTests(TestCase):
             headers=self.expected_request_headers,
             params={'returnBody': 'true'} if method in ['PUT', 'POST'] else {},
             **({'json': DATA} if method in ['PUT', 'POST'] else {}),
+            timeout=timeout,
         )
 
     def test_base(self):
