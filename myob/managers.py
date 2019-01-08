@@ -68,7 +68,6 @@ class Manager:
 
             # Build request kwargs (header/query/body)
             request_kwargs = self.build_request_kwargs(request_method, data=kwargs.get('data'), **request_kwargs_raw)
-            import ipdb; ipdb.set_trace()
             response = requests.request(request_method, url, timeout=timeout, **request_kwargs)
 
             if response.status_code == 200:
