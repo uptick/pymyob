@@ -31,7 +31,7 @@ class Manager:
         for method, endpoint, hint in sorted_endpoints:
             self.build_method(method, endpoint, hint)
 
-    def build_method(self, method, endpoint, hint, timeout=None):
+    def build_method(self, method, endpoint, hint):
         full_endpoint = self.base_url + endpoint
         url_keys = re.findall('\[([^\]]*)\]', full_endpoint)
         template = full_endpoint.replace('[', '{').replace(']', '}')
@@ -40,7 +40,7 @@ class Manager:
         if method in ('PUT', 'POST'):
             required_kwargs.append('data')
 
-        def inner(*args, **kwargs):
+        def inner(*args, timeout=None, **kwargs):
             if args:
                 raise AttributeError("Unnamed args provided. Only keyword args accepted.")
 
@@ -68,7 +68,7 @@ class Manager:
 
             # Build request kwargs (header/query/body)
             request_kwargs = self.build_request_kwargs(request_method, data=kwargs.get('data'), **request_kwargs_raw)
-
+            import ipdb; ipdb.set_trace()
             response = requests.request(request_method, url, timeout=timeout, **request_kwargs)
 
             if response.status_code == 200:
@@ -135,7 +135,7 @@ class Manager:
             return "'%s'" % value
 
         for k, v in kwargs.items():
-            if k not in ['orderby', 'format', 'headers', 'page', 'limit', 'templatename']:
+            if k not in ['orderby', 'format', 'headers', 'page', 'limit', 'templatename', 'timeout']:
                 if not isinstance(v, (list, tuple)):
                     v = [v]
                 operator = 'eq'
