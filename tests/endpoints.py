@@ -28,7 +28,7 @@ class EndpointTests(TestCase):
         }
 
     @patch('myob.managers.requests.request')
-    def assertEndpointReached(self, func, params, method, endpoint, mock_request):
+    def assertEndpointReached(self, func, params, method, endpoint, mock_request, timeout=None):
         mock_request.return_value.status_code = 200
         print(endpoint)
         if endpoint == '/%s/' % CID:
@@ -41,6 +41,7 @@ class EndpointTests(TestCase):
             headers=self.expected_request_headers,
             params={'returnBody': 'true'} if method in ['PUT', 'POST'] else {},
             **({'json': DATA} if method in ['PUT', 'POST'] else {}),
+            timeout=timeout,
         )
 
     def test_base(self):
@@ -212,3 +213,6 @@ class EndpointTests(TestCase):
         self.assertEndpointReached(self.companyfile.purchase_bills.put_service, {'uid': UID, 'data': DATA}, 'PUT', f'/{CID}/Purchase/Bill/Service/{UID}/')
         self.assertEndpointReached(self.companyfile.purchase_bills.post_service, {'data': DATA}, 'POST', f'/{CID}/Purchase/Bill/Service/')
         self.assertEndpointReached(self.companyfile.purchase_bills.delete_service, {'uid': UID}, 'DELETE', f'/{CID}/Purchase/Bill/Service/{UID}/')
+
+    def test_timeout(self):
+        self.assertEndpointReached(self.companyfile.contacts.all, {'timeout': 5}, 'GET', f'/{CID}/Contact/', timeout=5)
