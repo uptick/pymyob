@@ -33,7 +33,7 @@ class Manager:
 
     def build_method(self, method, endpoint, hint):
         full_endpoint = self.base_url + endpoint
-        url_keys = re.findall('\[([^\]]*)\]', full_endpoint)
+        url_keys = re.findall(r'\[([^\]]*)\]', full_endpoint)
         template = full_endpoint.replace('[', '{').replace(']', '}')
 
         required_kwargs = url_keys.copy()
