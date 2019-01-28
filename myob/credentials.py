@@ -71,6 +71,7 @@ class PartnerCredentials:
             MYOB_PARTNER_BASE_URL + ACCESS_TOKEN_URL,
             code=code,
             client_secret=self.consumer_secret,
+            include_client_id=True,
         )
         self.save_token(token)
 
