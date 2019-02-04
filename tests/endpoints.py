@@ -27,8 +27,6 @@ class EndpointTests(TestCase):
             'x-myobapi-version': 'v2'
         }
 
-        self.maxDiff = None
-
     @patch('myob.managers.requests.request')
     def assertEndpointReached(self, func, params, method, endpoint, mock_request, timeout=None):
         mock_request.return_value.status_code = 200
