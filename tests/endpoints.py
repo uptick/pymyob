@@ -68,6 +68,7 @@ class EndpointTests(TestCase):
     def test_companyfile(self):
         self.assertEqual(repr(self.companyfile), (
             "CompanyFile:\n"
+            "    banking\n"
             "    contacts\n"
             "    general_ledger\n"
             "    inventory\n"
@@ -75,6 +76,33 @@ class EndpointTests(TestCase):
             "    purchase_bills\n"
             "    purchase_orders"
         ))
+
+    def test_banking(self):
+        self.assertEqual(repr(self.companyfile.banking), (
+            "BankingManager:\n"
+            "                             all() - Return all banking types for an AccountRight company file.\n"
+            "       delete_receivemoneytxn(uid) - Delete selected receivemoneytxn.\n"
+            "         delete_spendmoneytxn(uid) - Delete selected spendmoneytxn.\n"
+            "          get_receivemoneytxn(uid) - Return selected receivemoneytxn.\n"
+            "            get_spendmoneytxn(uid) - Return selected spendmoneytxn.\n"
+            "        post_receivemoneytxn(data) - Create new receivemoneytxn.\n"
+            "          post_spendmoneytxn(data) - Create new spendmoneytxn.\n"
+            "    put_receivemoneytxn(uid, data) - Update selected receivemoneytxn.\n"
+            "      put_spendmoneytxn(uid, data) - Update selected spendmoneytxn.\n"
+            "                 receivemoneytxn() - Return all receivemoneytxns for an AccountRight company file.\n"
+            "                   spendmoneytxn() - Return all spendmoneytxns for an AccountRight company file."
+        ))
+        self.assertEndpointReached(self.companyfile.banking.all, {}, 'GET', f'/{CID}/Banking/')
+        self.assertEndpointReached(self.companyfile.banking.spendmoneytxn, {}, 'GET', f'/{CID}/Banking/SpendMoneyTxn/')
+        self.assertEndpointReached(self.companyfile.banking.get_spendmoneytxn, {'uid': UID}, 'GET', f'/{CID}/Banking/SpendMoneyTxn/{UID}/')
+        self.assertEndpointReached(self.companyfile.banking.put_spendmoneytxn, {'uid': UID, 'data': DATA}, 'PUT', f'/{CID}/Banking/SpendMoneyTxn/{UID}/')
+        self.assertEndpointReached(self.companyfile.banking.post_spendmoneytxn, {'data': DATA}, 'POST', f'/{CID}/Banking/SpendMoneyTxn/')
+        self.assertEndpointReached(self.companyfile.banking.delete_spendmoneytxn, {'uid': UID}, 'DELETE', f'/{CID}/Banking/SpendMoneyTxn/{UID}/')
+        self.assertEndpointReached(self.companyfile.banking.receivemoneytxn, {}, 'GET', f'/{CID}/Banking/ReceiveMoneyTxn/')
+        self.assertEndpointReached(self.companyfile.banking.get_receivemoneytxn, {'uid': UID}, 'GET', f'/{CID}/Banking/ReceiveMoneyTxn/{UID}/')
+        self.assertEndpointReached(self.companyfile.banking.put_receivemoneytxn, {'uid': UID, 'data': DATA}, 'PUT', f'/{CID}/Banking/ReceiveMoneyTxn/{UID}/')
+        self.assertEndpointReached(self.companyfile.banking.post_receivemoneytxn, {'data': DATA}, 'POST', f'/{CID}/Banking/ReceiveMoneyTxn/')
+        self.assertEndpointReached(self.companyfile.banking.delete_receivemoneytxn, {'uid': UID}, 'DELETE', f'/{CID}/Banking/ReceiveMoneyTxn/{UID}/')
 
     def test_contacts(self):
         self.assertEqual(repr(self.companyfile.contacts), (

@@ -7,6 +7,22 @@ DELETE = 'DELETE'
 METHOD_ORDER = [ALL, GET, POST, PUT, DELETE]
 
 ENDPOINTS = {
+    'Banking/': {
+        'plural': 'banking',
+        'methods': [
+            (ALL, '', 'Return all banking types for an AccountRight company file.'),
+            (ALL, 'SpendMoneyTxn/', 'Return all spendmoneytxns for an AccountRight company file.'),
+            (GET, 'SpendMoneyTxn/[uid]/', 'Return selected spendmoneytxn.'),
+            (PUT, 'SpendMoneyTxn/[uid]/', 'Update selected spendmoneytxn.'),
+            (POST, 'SpendMoneyTxn/', 'Create new spendmoneytxn.'),
+            (DELETE, 'SpendMoneyTxn/[uid]/', 'Delete selected spendmoneytxn.'),
+            (ALL, 'ReceiveMoneyTxn/', 'Return all receivemoneytxns for an AccountRight company file.'),
+            (GET, 'ReceiveMoneyTxn/[uid]/', 'Return selected receivemoneytxn.'),
+            (PUT, 'ReceiveMoneyTxn/[uid]/', 'Update selected receivemoneytxn.'),
+            (POST, 'ReceiveMoneyTxn/', 'Create new receivemoneytxn.'),
+            (DELETE, 'ReceiveMoneyTxn/[uid]/', 'Delete selected receivemoneytxn.'),
+        ],
+    },
     'Contact/': {
         'plural': 'contacts',
         'methods': [
