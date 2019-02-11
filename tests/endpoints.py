@@ -218,17 +218,22 @@ class EndpointTests(TestCase):
     def test_purchase_bills(self):
         self.assertEqual(repr(self.companyfile.purchase_bills), (
             "Purchase_BillManager:\n"
-            "                     all() - Return all purchase bill types for an AccountRight company file.\n"
-            "          delete_item(uid) - Delete selected item type purchase bill.\n"
-            "       delete_service(uid) - Delete selected service type purchase bill.\n"
-            "             get_item(uid) - Return selected item type purchase bill.\n"
-            "          get_service(uid) - Return selected service type purchase bill.\n"
-            "                    item() - Return item type purchase bills for an AccountRight company file.\n"
-            "           post_item(data) - Create new item type purchase bill.\n"
-            "        post_service(data) - Create new service type purchase bill.\n"
-            "       put_item(uid, data) - Update selected item type purchase bill.\n"
-            "    put_service(uid, data) - Update selected service type purchase bill.\n"
-            "                 service() - Return service type purchase bills for an AccountRight company file."
+            "                           all() - Return all purchase bill types for an AccountRight company file.\n"
+            "                delete_item(uid) - Delete selected item type purchase bill.\n"
+            "       delete_miscellaneous(uid) - Delete selected miscellaneous type purchase bill.\n"
+            "             delete_service(uid) - Delete selected service type purchase bill.\n"
+            "                   get_item(uid) - Return selected item type purchase bill.\n"
+            "          get_miscellaneous(uid) - Return selected miscellaneous type purchase bill.\n"
+            "                get_service(uid) - Return selected service type purchase bill.\n"
+            "                          item() - Return item type purchase bills for an AccountRight company file.\n"
+            "                 miscellaneous() - Return miscellaneous type purchase bills for an AccountRight company file.\n"
+            "                 post_item(data) - Create new item type purchase bill.\n"
+            "        post_miscellaneous(data) - Create new miscellaneous type purchase bill.\n"
+            "              post_service(data) - Create new service type purchase bill.\n"
+            "             put_item(uid, data) - Update selected item type purchase bill.\n"
+            "    put_miscellaneous(uid, data) - Update selected miscellaneous type purchase bill.\n"
+            "          put_service(uid, data) - Update selected service type purchase bill.\n"
+            "                       service() - Return service type purchase bills for an AccountRight company file."
         ))
         self.assertEndpointReached(self.companyfile.purchase_bills.all, {}, 'GET', f'/{CID}/Purchase/Bill/')
         self.assertEndpointReached(self.companyfile.purchase_bills.item, {}, 'GET', f'/{CID}/Purchase/Bill/Item/')
@@ -241,6 +246,11 @@ class EndpointTests(TestCase):
         self.assertEndpointReached(self.companyfile.purchase_bills.put_service, {'uid': UID, 'data': DATA}, 'PUT', f'/{CID}/Purchase/Bill/Service/{UID}/')
         self.assertEndpointReached(self.companyfile.purchase_bills.post_service, {'data': DATA}, 'POST', f'/{CID}/Purchase/Bill/Service/')
         self.assertEndpointReached(self.companyfile.purchase_bills.delete_service, {'uid': UID}, 'DELETE', f'/{CID}/Purchase/Bill/Service/{UID}/')
+        self.assertEndpointReached(self.companyfile.purchase_bills.miscellaneous, {}, 'GET', f'/{CID}/Purchase/Bill/Miscellaneous/')
+        self.assertEndpointReached(self.companyfile.purchase_bills.get_miscellaneous, {'uid': UID}, 'GET', f'/{CID}/Purchase/Bill/Miscellaneous/{UID}/')
+        self.assertEndpointReached(self.companyfile.purchase_bills.put_miscellaneous, {'uid': UID, 'data': DATA}, 'PUT', f'/{CID}/Purchase/Bill/Miscellaneous/{UID}/')
+        self.assertEndpointReached(self.companyfile.purchase_bills.post_miscellaneous, {'data': DATA}, 'POST', f'/{CID}/Purchase/Bill/Miscellaneous/')
+        self.assertEndpointReached(self.companyfile.purchase_bills.delete_miscellaneous, {'uid': UID}, 'DELETE', f'/{CID}/Purchase/Bill/Miscellaneous/{UID}/')
 
     def test_timeout(self):
         self.assertEndpointReached(self.companyfile.contacts.all, {'timeout': 5}, 'GET', f'/{CID}/Contact/', timeout=5)

@@ -105,6 +105,11 @@ ENDPOINTS = {
             (PUT, 'Service/[uid]/', 'Update selected service type purchase bill.'),
             (POST, 'Service/', 'Create new service type purchase bill.'),
             (DELETE, 'Service/[uid]/', 'Delete selected service type purchase bill.'),
+            (ALL, 'Miscellaneous/', 'Return miscellaneous type purchase bills for an AccountRight company file.'),
+            (GET, 'Miscellaneous/[uid]/', 'Return selected miscellaneous type purchase bill.'),
+            (PUT, 'Miscellaneous/[uid]/', 'Update selected miscellaneous type purchase bill.'),
+            (POST, 'Miscellaneous/', 'Create new miscellaneous type purchase bill.'),
+            (DELETE, 'Miscellaneous/[uid]/', 'Delete selected miscellaneous type purchase bill.'),
         ]
     },
 }
