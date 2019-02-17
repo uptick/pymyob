@@ -68,6 +68,11 @@ ENDPOINTS = {
             (PUT, 'Account/[uid]/', 'Update selected accounts.'),
             (POST, 'Account/', 'Create new account.'),
             (DELETE, 'Account/[uid]/', 'Delete selected account.'),
+            (ALL, 'Category/', 'Return categories for cost center tracking.'),
+            (GET, 'Category/[uid]/', 'Return selected category.'),
+            (PUT, 'Category/[uid]/', 'Update selected categories.'),
+            (POST, 'Category/', 'Create new category.'),
+            (DELETE, 'Category/[uid]/', 'Delete selected category.'),
         ]
     },
     'Inventory/': {

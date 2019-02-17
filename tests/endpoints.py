@@ -11,6 +11,8 @@ DATA = {'dummy': 'data'}
 
 
 class EndpointTests(TestCase):
+    maxDiff = None
+
     def setUp(self):
         cred = PartnerCredentials(
             consumer_key='KeyToTheKingdom',
@@ -161,16 +163,21 @@ class EndpointTests(TestCase):
     def test_general_ledger(self):
         self.assertEqual(repr(self.companyfile.general_ledger), (
             "GeneralLedgerManager:\n"
-            "                 account() - Return accounts set up with an AccountRight company file.\n"
-            "       delete_account(uid) - Delete selected account.\n"
-            "       delete_taxcode(uid) - Delete selected tax code.\n"
-            "          get_account(uid) - Return selected account.\n"
-            "          get_taxcode(uid) - Return selected tax code.\n"
-            "        post_account(data) - Create new account.\n"
-            "        post_taxcode(data) - Create new tax code.\n"
-            "    put_account(uid, data) - Update selected accounts.\n"
-            "    put_taxcode(uid, data) - Update selected tax codes.\n"
-            "                 taxcode() - Return tax codes set up with an AccountRight company file."
+            "                  account() - Return accounts set up with an AccountRight company file.\n"
+            "                 category() - Return categories for cost center tracking.\n"
+            "        delete_account(uid) - Delete selected account.\n"
+            "       delete_category(uid) - Delete selected category.\n"
+            "        delete_taxcode(uid) - Delete selected tax code.\n"
+            "           get_account(uid) - Return selected account.\n"
+            "          get_category(uid) - Return selected category.\n"
+            "           get_taxcode(uid) - Return selected tax code.\n"
+            "         post_account(data) - Create new account.\n"
+            "        post_category(data) - Create new category.\n"
+            "         post_taxcode(data) - Create new tax code.\n"
+            "     put_account(uid, data) - Update selected accounts.\n"
+            "    put_category(uid, data) - Update selected categories.\n"
+            "     put_taxcode(uid, data) - Update selected tax codes.\n"
+            "                  taxcode() - Return tax codes set up with an AccountRight company file."
         ))
         self.assertEndpointReached(self.companyfile.general_ledger.taxcode, {}, 'GET', f'/{CID}/GeneralLedger/TaxCode/')
         self.assertEndpointReached(self.companyfile.general_ledger.get_taxcode, {'uid': UID}, 'GET', f'/{CID}/GeneralLedger/TaxCode/{UID}/')
@@ -182,6 +189,11 @@ class EndpointTests(TestCase):
         self.assertEndpointReached(self.companyfile.general_ledger.put_account, {'uid': UID, 'data': DATA}, 'PUT', f'/{CID}/GeneralLedger/Account/{UID}/')
         self.assertEndpointReached(self.companyfile.general_ledger.post_account, {'data': DATA}, 'POST', f'/{CID}/GeneralLedger/Account/')
         self.assertEndpointReached(self.companyfile.general_ledger.delete_account, {'uid': UID}, 'DELETE', f'/{CID}/GeneralLedger/Account/{UID}/')
+        self.assertEndpointReached(self.companyfile.general_ledger.category, {}, 'GET', f'/{CID}/GeneralLedger/Category/')
+        self.assertEndpointReached(self.companyfile.general_ledger.get_category, {'uid': UID}, 'GET', f'/{CID}/GeneralLedger/Category/{UID}/')
+        self.assertEndpointReached(self.companyfile.general_ledger.put_category, {'uid': UID, 'data': DATA}, 'PUT', f'/{CID}/GeneralLedger/Category/{UID}/')
+        self.assertEndpointReached(self.companyfile.general_ledger.post_category, {'data': DATA}, 'POST', f'/{CID}/GeneralLedger/Category/')
+        self.assertEndpointReached(self.companyfile.general_ledger.delete_category, {'uid': UID}, 'DELETE', f'/{CID}/GeneralLedger/Category/{UID}/')
 
     def test_inventory(self):
         self.assertEqual(repr(self.companyfile.inventory), (
