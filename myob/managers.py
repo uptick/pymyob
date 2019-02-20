@@ -72,7 +72,7 @@ class Manager:
 
             if response.status_code == 200:
                 # We don't want to be deserialising binary responses..
-                if not response.headers['content-type'].startswith('application/json'):
+                if not response.headers.get('content-type', '').startswith('application/json'):
                     return response.content
 
                 return response.json()
