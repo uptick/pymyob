@@ -14,7 +14,7 @@ class Myob:
             )
         self.credentials = credentials
         self.companyfiles = CompanyFiles(credentials)
-        self._manager = Manager('', credentials, endpoints=[
+        self._manager = Manager('', credentials, raw_endpoints=[
             (GET, 'Info/', 'Return API build information for each individual endpoint.'),
         ])
 
@@ -28,7 +28,7 @@ class Myob:
 class CompanyFiles:
     def __init__(self, credentials):
         self.credentials = credentials
-        self._manager = Manager('', self.credentials, endpoints=[
+        self._manager = Manager('', self.credentials, raw_endpoints=[
             (ALL, '', 'Return a list of company files.'),
             (GET, '[id]/', 'List endpoints available for a company file.'),
         ])
@@ -56,7 +56,7 @@ class CompanyFile:
         self.data = raw  # Dump remaining raw data here.
         self.credentials = credentials
         for k, v in ENDPOINTS.items():
-            setattr(self, v['plural'], Manager(k, credentials, endpoints=v['methods'], company_id=self.id))
+            setattr(self, v['name'], Manager(k, credentials, endpoints=v['methods'], company_id=self.id))
 
     def __repr__(self):
-        return 'CompanyFile:\n    %s' % '\n    '.join(sorted(v['plural'] for v in ENDPOINTS.values()))
+        return 'CompanyFile:\n    %s' % '\n    '.join(sorted(v['name'] for v in ENDPOINTS.values()))

@@ -11,6 +11,8 @@ DATA = {'dummy': 'data'}
 
 
 class EndpointTests(TestCase):
+    maxDiff = None
+
     def setUp(self):
         cred = PartnerCredentials(
             consumer_key='KeyToTheKingdom',
@@ -81,16 +83,16 @@ class EndpointTests(TestCase):
         self.assertEqual(repr(self.companyfile.banking), (
             "BankingManager:\n"
             "                             all() - Return all banking types for an AccountRight company file.\n"
-            "       delete_receivemoneytxn(uid) - Delete selected receivemoneytxn.\n"
-            "         delete_spendmoneytxn(uid) - Delete selected spendmoneytxn.\n"
-            "          get_receivemoneytxn(uid) - Return selected receivemoneytxn.\n"
-            "            get_spendmoneytxn(uid) - Return selected spendmoneytxn.\n"
-            "        post_receivemoneytxn(data) - Create new receivemoneytxn.\n"
-            "          post_spendmoneytxn(data) - Create new spendmoneytxn.\n"
-            "    put_receivemoneytxn(uid, data) - Update selected receivemoneytxn.\n"
-            "      put_spendmoneytxn(uid, data) - Update selected spendmoneytxn.\n"
-            "                 receivemoneytxn() - Return all receivemoneytxns for an AccountRight company file.\n"
-            "                   spendmoneytxn() - Return all spendmoneytxns for an AccountRight company file."
+            "       delete_receivemoneytxn(uid) - Delete selected receive money transaction.\n"
+            "         delete_spendmoneytxn(uid) - Delete selected spend money transaction.\n"
+            "          get_receivemoneytxn(uid) - Return selected receive money transaction.\n"
+            "            get_spendmoneytxn(uid) - Return selected spend money transaction.\n"
+            "        post_receivemoneytxn(data) - Create new receive money transaction.\n"
+            "          post_spendmoneytxn(data) - Create new spend money transaction.\n"
+            "    put_receivemoneytxn(uid, data) - Update selected receive money transaction.\n"
+            "      put_spendmoneytxn(uid, data) - Update selected spend money transaction.\n"
+            "                 receivemoneytxn() - Return all receive money transactions for an AccountRight company file.\n"
+            "                   spendmoneytxn() - Return all spend money transactions for an AccountRight company file."
         ))
         self.assertEndpointReached(self.companyfile.banking.all, {}, 'GET', f'/{CID}/Banking/')
         self.assertEndpointReached(self.companyfile.banking.spendmoneytxn, {}, 'GET', f'/{CID}/Banking/SpendMoneyTxn/')
@@ -139,12 +141,12 @@ class EndpointTests(TestCase):
             "       delete_service(uid) - Delete selected service type sale invoice.\n"
             "             get_item(uid) - Return selected item type sale invoice.\n"
             "          get_service(uid) - Return selected service type sale invoice.\n"
-            "                    item() - Return item type sale invoices for an AccountRight company file.\n"
+            "                    item() - Return all item type sale invoices for an AccountRight company file.\n"
             "           post_item(data) - Create new item type sale invoice.\n"
             "        post_service(data) - Create new service type sale invoice.\n"
             "       put_item(uid, data) - Update selected item type sale invoice.\n"
             "    put_service(uid, data) - Update selected service type sale invoice.\n"
-            "                 service() - Return service type sale invoices for an AccountRight company file."
+            "                 service() - Return all service type sale invoices for an AccountRight company file."
         ))
         self.assertEndpointReached(self.companyfile.invoices.all, {}, 'GET', f'/{CID}/Sale/Invoice/')
         self.assertEndpointReached(self.companyfile.invoices.item, {}, 'GET', f'/{CID}/Sale/Invoice/Item/')
@@ -161,16 +163,21 @@ class EndpointTests(TestCase):
     def test_general_ledger(self):
         self.assertEqual(repr(self.companyfile.general_ledger), (
             "GeneralLedgerManager:\n"
-            "                 account() - Return accounts set up with an AccountRight company file.\n"
-            "       delete_account(uid) - Delete selected account.\n"
-            "       delete_taxcode(uid) - Delete selected tax code.\n"
-            "          get_account(uid) - Return selected account.\n"
-            "          get_taxcode(uid) - Return selected tax code.\n"
-            "        post_account(data) - Create new account.\n"
-            "        post_taxcode(data) - Create new tax code.\n"
-            "    put_account(uid, data) - Update selected accounts.\n"
-            "    put_taxcode(uid, data) - Update selected tax codes.\n"
-            "                 taxcode() - Return tax codes set up with an AccountRight company file."
+            "                  account() - Return all accounts for an AccountRight company file.\n"
+            "                 category() - Return all cost center tracking categories for an AccountRight company file.\n"
+            "        delete_account(uid) - Delete selected account.\n"
+            "       delete_category(uid) - Delete selected cost center tracking category.\n"
+            "        delete_taxcode(uid) - Delete selected tax code.\n"
+            "           get_account(uid) - Return selected account.\n"
+            "          get_category(uid) - Return selected cost center tracking category.\n"
+            "           get_taxcode(uid) - Return selected tax code.\n"
+            "         post_account(data) - Create new account.\n"
+            "        post_category(data) - Create new cost center tracking category.\n"
+            "         post_taxcode(data) - Create new tax code.\n"
+            "     put_account(uid, data) - Update selected account.\n"
+            "    put_category(uid, data) - Update selected cost center tracking category.\n"
+            "     put_taxcode(uid, data) - Update selected tax code.\n"
+            "                  taxcode() - Return all tax codes for an AccountRight company file."
         ))
         self.assertEndpointReached(self.companyfile.general_ledger.taxcode, {}, 'GET', f'/{CID}/GeneralLedger/TaxCode/')
         self.assertEndpointReached(self.companyfile.general_ledger.get_taxcode, {'uid': UID}, 'GET', f'/{CID}/GeneralLedger/TaxCode/{UID}/')
@@ -182,15 +189,20 @@ class EndpointTests(TestCase):
         self.assertEndpointReached(self.companyfile.general_ledger.put_account, {'uid': UID, 'data': DATA}, 'PUT', f'/{CID}/GeneralLedger/Account/{UID}/')
         self.assertEndpointReached(self.companyfile.general_ledger.post_account, {'data': DATA}, 'POST', f'/{CID}/GeneralLedger/Account/')
         self.assertEndpointReached(self.companyfile.general_ledger.delete_account, {'uid': UID}, 'DELETE', f'/{CID}/GeneralLedger/Account/{UID}/')
+        self.assertEndpointReached(self.companyfile.general_ledger.category, {}, 'GET', f'/{CID}/GeneralLedger/Category/')
+        self.assertEndpointReached(self.companyfile.general_ledger.get_category, {'uid': UID}, 'GET', f'/{CID}/GeneralLedger/Category/{UID}/')
+        self.assertEndpointReached(self.companyfile.general_ledger.put_category, {'uid': UID, 'data': DATA}, 'PUT', f'/{CID}/GeneralLedger/Category/{UID}/')
+        self.assertEndpointReached(self.companyfile.general_ledger.post_category, {'data': DATA}, 'POST', f'/{CID}/GeneralLedger/Category/')
+        self.assertEndpointReached(self.companyfile.general_ledger.delete_category, {'uid': UID}, 'DELETE', f'/{CID}/GeneralLedger/Category/{UID}/')
 
     def test_inventory(self):
         self.assertEqual(repr(self.companyfile.inventory), (
             "InventoryManager:\n"
             "       delete_item(uid) - Delete selected inventory item.\n"
             "          get_item(uid) - Return selected inventory item.\n"
-            "                 item() - Return inventory items for an AccountRight company file.\n"
+            "                 item() - Return all inventory items for an AccountRight company file.\n"
             "        post_item(data) - Create new inventory item.\n"
-            "    put_item(uid, data) - Update selected inventory items."
+            "    put_item(uid, data) - Update selected inventory item."
         ))
         self.assertEndpointReached(self.companyfile.inventory.item, {}, 'GET', f'/{CID}/Inventory/Item/')
         self.assertEndpointReached(self.companyfile.inventory.get_item, {'uid': UID}, 'GET', f'/{CID}/Inventory/Item/{UID}/')
@@ -204,7 +216,7 @@ class EndpointTests(TestCase):
             "                  all() - Return all purchase order types for an AccountRight company file.\n"
             "       delete_item(uid) - Delete selected item type purchase order.\n"
             "          get_item(uid) - Return selected item type purchase order.\n"
-            "                 item() - Return item type purchase orders for an AccountRight company file.\n"
+            "                 item() - Return all item type purchase orders for an AccountRight company file.\n"
             "        post_item(data) - Create new item type purchase order.\n"
             "    put_item(uid, data) - Update selected item type purchase order."
         ))
@@ -218,17 +230,22 @@ class EndpointTests(TestCase):
     def test_purchase_bills(self):
         self.assertEqual(repr(self.companyfile.purchase_bills), (
             "Purchase_BillManager:\n"
-            "                     all() - Return all purchase bill types for an AccountRight company file.\n"
-            "          delete_item(uid) - Delete selected item type purchase bill.\n"
-            "       delete_service(uid) - Delete selected service type purchase bill.\n"
-            "             get_item(uid) - Return selected item type purchase bill.\n"
-            "          get_service(uid) - Return selected service type purchase bill.\n"
-            "                    item() - Return item type purchase bills for an AccountRight company file.\n"
-            "           post_item(data) - Create new item type purchase bill.\n"
-            "        post_service(data) - Create new service type purchase bill.\n"
-            "       put_item(uid, data) - Update selected item type purchase bill.\n"
-            "    put_service(uid, data) - Update selected service type purchase bill.\n"
-            "                 service() - Return service type purchase bills for an AccountRight company file."
+            "                           all() - Return all purchase bill types for an AccountRight company file.\n"
+            "                delete_item(uid) - Delete selected item type purchase bill.\n"
+            "       delete_miscellaneous(uid) - Delete selected miscellaneous type purchase bill.\n"
+            "             delete_service(uid) - Delete selected service type purchase bill.\n"
+            "                   get_item(uid) - Return selected item type purchase bill.\n"
+            "          get_miscellaneous(uid) - Return selected miscellaneous type purchase bill.\n"
+            "                get_service(uid) - Return selected service type purchase bill.\n"
+            "                          item() - Return all item type purchase bills for an AccountRight company file.\n"
+            "                 miscellaneous() - Return all miscellaneous type purchase bills for an AccountRight company file.\n"
+            "                 post_item(data) - Create new item type purchase bill.\n"
+            "        post_miscellaneous(data) - Create new miscellaneous type purchase bill.\n"
+            "              post_service(data) - Create new service type purchase bill.\n"
+            "             put_item(uid, data) - Update selected item type purchase bill.\n"
+            "    put_miscellaneous(uid, data) - Update selected miscellaneous type purchase bill.\n"
+            "          put_service(uid, data) - Update selected service type purchase bill.\n"
+            "                       service() - Return all service type purchase bills for an AccountRight company file."
         ))
         self.assertEndpointReached(self.companyfile.purchase_bills.all, {}, 'GET', f'/{CID}/Purchase/Bill/')
         self.assertEndpointReached(self.companyfile.purchase_bills.item, {}, 'GET', f'/{CID}/Purchase/Bill/Item/')
@@ -241,6 +258,11 @@ class EndpointTests(TestCase):
         self.assertEndpointReached(self.companyfile.purchase_bills.put_service, {'uid': UID, 'data': DATA}, 'PUT', f'/{CID}/Purchase/Bill/Service/{UID}/')
         self.assertEndpointReached(self.companyfile.purchase_bills.post_service, {'data': DATA}, 'POST', f'/{CID}/Purchase/Bill/Service/')
         self.assertEndpointReached(self.companyfile.purchase_bills.delete_service, {'uid': UID}, 'DELETE', f'/{CID}/Purchase/Bill/Service/{UID}/')
+        self.assertEndpointReached(self.companyfile.purchase_bills.miscellaneous, {}, 'GET', f'/{CID}/Purchase/Bill/Miscellaneous/')
+        self.assertEndpointReached(self.companyfile.purchase_bills.get_miscellaneous, {'uid': UID}, 'GET', f'/{CID}/Purchase/Bill/Miscellaneous/{UID}/')
+        self.assertEndpointReached(self.companyfile.purchase_bills.put_miscellaneous, {'uid': UID, 'data': DATA}, 'PUT', f'/{CID}/Purchase/Bill/Miscellaneous/{UID}/')
+        self.assertEndpointReached(self.companyfile.purchase_bills.post_miscellaneous, {'data': DATA}, 'POST', f'/{CID}/Purchase/Bill/Miscellaneous/')
+        self.assertEndpointReached(self.companyfile.purchase_bills.delete_miscellaneous, {'uid': UID}, 'DELETE', f'/{CID}/Purchase/Bill/Miscellaneous/{UID}/')
 
     def test_timeout(self):
         self.assertEndpointReached(self.companyfile.contacts.all, {'timeout': 5}, 'GET', f'/{CID}/Contact/', timeout=5)

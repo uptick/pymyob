@@ -3,7 +3,7 @@ import requests
 from datetime import date
 
 from .constants import DEFAULT_PAGE_SIZE, MYOB_BASE_URL
-from .endpoints import METHOD_ORDER
+from .endpoints import CRUD, METHOD_MAPPING, METHOD_ORDER
 from .exceptions import (
     MyobBadRequest,
     MyobExceptionUnknown,
@@ -14,7 +14,7 @@ from .exceptions import (
 
 
 class Manager:
-    def __init__(self, name, credentials, company_id=None, endpoints=[]):
+    def __init__(self, name, credentials, company_id=None, endpoints=[], raw_endpoints=[]):
         self.credentials = credentials
         self.name = '_'.join(p for p in name.rstrip('/').split('/') if '[' not in p)
         self.base_url = MYOB_BASE_URL
@@ -26,9 +26,22 @@ class Manager:
         self.company_id = company_id
 
         # Build ORM methods from given url endpoints.
-        # Sort them first, to determine duplicate disambiguation order.
-        sorted_endpoints = sorted(endpoints, key=lambda x: METHOD_ORDER.index(x[0]))
-        for method, endpoint, hint in sorted_endpoints:
+        for method, base, name in endpoints:
+            if method == CRUD:
+                for m in METHOD_ORDER:
+                    self.build_method(
+                        m,
+                        METHOD_MAPPING[m]['endpoint'](base),
+                        METHOD_MAPPING[m]['hint'](name),
+                    )
+            else:
+                self.build_method(
+                    method,
+                    METHOD_MAPPING[method]['endpoint'](base),
+                    METHOD_MAPPING[method]['hint'](name),
+                )
+        # Build raw methods (ones where we don't want to tinker with the endpoint or hint)
+        for method, endpoint, hint in raw_endpoints:
             self.build_method(method, endpoint, hint)
 
     def build_method(self, method, endpoint, hint):

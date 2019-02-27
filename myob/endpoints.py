@@ -1,110 +1,90 @@
+from .utils import pluralise
+
 ALL = 'ALL'
 GET = 'GET'
 POST = 'POST'
 PUT = 'PUT'
 DELETE = 'DELETE'
+CRUD = 'CRUD'  # shorthand for creating the ALL|GET|POST|PUT|DELETE endpoints in one swoop
 
 METHOD_ORDER = [ALL, GET, POST, PUT, DELETE]
 
 ENDPOINTS = {
     'Banking/': {
-        'plural': 'banking',
+        'name': 'banking',
         'methods': [
-            (ALL, '', 'Return all banking types for an AccountRight company file.'),
-            (ALL, 'SpendMoneyTxn/', 'Return all spendmoneytxns for an AccountRight company file.'),
-            (GET, 'SpendMoneyTxn/[uid]/', 'Return selected spendmoneytxn.'),
-            (PUT, 'SpendMoneyTxn/[uid]/', 'Update selected spendmoneytxn.'),
-            (POST, 'SpendMoneyTxn/', 'Create new spendmoneytxn.'),
-            (DELETE, 'SpendMoneyTxn/[uid]/', 'Delete selected spendmoneytxn.'),
-            (ALL, 'ReceiveMoneyTxn/', 'Return all receivemoneytxns for an AccountRight company file.'),
-            (GET, 'ReceiveMoneyTxn/[uid]/', 'Return selected receivemoneytxn.'),
-            (PUT, 'ReceiveMoneyTxn/[uid]/', 'Update selected receivemoneytxn.'),
-            (POST, 'ReceiveMoneyTxn/', 'Create new receivemoneytxn.'),
-            (DELETE, 'ReceiveMoneyTxn/[uid]/', 'Delete selected receivemoneytxn.'),
+            (ALL, '', 'banking type'),
+            (CRUD, 'SpendMoneyTxn/', 'spend money transaction'),
+            (CRUD, 'ReceiveMoneyTxn/', 'receive money transaction'),
         ],
     },
     'Contact/': {
-        'plural': 'contacts',
+        'name': 'contacts',
         'methods': [
-            (ALL, '', 'Return all contact types for an AccountRight company file.'),
-            (ALL, 'Customer/', 'Return all customer contacts for an AccountRight company file.'),
-            (GET, 'Customer/[uid]/', 'Return selected customer contact.'),
-            (PUT, 'Customer/[uid]/', 'Update selected customer contact.'),
-            (POST, 'Customer/', 'Create new customer contact.'),
-            (DELETE, 'Customer/[uid]/', 'Delete selected customer contact.'),
-            (ALL, 'Supplier/', 'Return all supplier contacts for an AccountRight company file.'),
-            (GET, 'Supplier/[uid]/', 'Return selected supplier contact.'),
-            (PUT, 'Supplier/[uid]/', 'Update selected supplier contact.'),
-            (POST, 'Supplier/', 'Create new supplier contact.'),
-            (DELETE, 'Supplier/[uid]/', 'Delete selected supplier contact.'),
+            (ALL, '', 'contact type'),
+            (CRUD, 'Customer/', 'customer contact'),
+            (CRUD, 'Supplier/', 'supplier contact'),
         ],
     },
     'Sale/Invoice/': {
-        'plural': 'invoices',
+        'name': 'invoices',
         'methods': [
-            (ALL, '', 'Return all sale invoice types for an AccountRight company file.'),
-            (ALL, 'Item/', 'Return item type sale invoices for an AccountRight company file.'),
-            (GET, 'Item/[uid]/', 'Return selected item type sale invoice.'),
-            (PUT, 'Item/[uid]/', 'Update selected item type sale invoice.'),
-            (POST, 'Item/', 'Create new item type sale invoice.'),
-            (DELETE, 'Item/[uid]/', 'Delete selected item type sale invoice.'),
-            (ALL, 'Service/', 'Return service type sale invoices for an AccountRight company file.'),
-            (GET, 'Service/[uid]/', 'Return selected service type sale invoice.'),
-            (PUT, 'Service/[uid]/', 'Update selected service type sale invoice.'),
-            (POST, 'Service/', 'Create new service type sale invoice.'),
-            (DELETE, 'Service/[uid]/', 'Delete selected service type sale invoice.'),
+            (ALL, '', 'sale invoice type'),
+            (CRUD, 'Item/', 'item type sale invoice'),
+            (CRUD, 'Service/', 'service type sale invoice'),
         ]
     },
     'GeneralLedger/': {
-        'plural': 'general_ledger',
+        'name': 'general_ledger',
         'methods': [
-            (ALL, 'TaxCode/', 'Return tax codes set up with an AccountRight company file.'),
-            (GET, 'TaxCode/[uid]/', 'Return selected tax code.'),
-            (PUT, 'TaxCode/[uid]/', 'Update selected tax codes.'),
-            (POST, 'TaxCode/', 'Create new tax code.'),
-            (DELETE, 'TaxCode/[uid]/', 'Delete selected tax code.'),
-            (ALL, 'Account/', 'Return accounts set up with an AccountRight company file.'),
-            (GET, 'Account/[uid]/', 'Return selected account.'),
-            (PUT, 'Account/[uid]/', 'Update selected accounts.'),
-            (POST, 'Account/', 'Create new account.'),
-            (DELETE, 'Account/[uid]/', 'Delete selected account.'),
+            (CRUD, 'TaxCode/', 'tax code'),
+            (CRUD, 'Account/', 'account'),
+            (CRUD, 'Category/', 'cost center tracking category'),
         ]
     },
     'Inventory/': {
-        'plural': 'inventory',
+        'name': 'inventory',
         'methods': [
-            (ALL, 'Item/', 'Return inventory items for an AccountRight company file.'),
-            (GET, 'Item/[uid]/', 'Return selected inventory item.'),
-            (PUT, 'Item/[uid]/', 'Update selected inventory items.'),
-            (POST, 'Item/', 'Create new inventory item.'),
-            (DELETE, 'Item/[uid]/', 'Delete selected inventory item.'),
+            (CRUD, 'Item/', 'inventory item'),
         ]
     },
     'Purchase/Order/': {
-        'plural': 'purchase_orders',
+        'name': 'purchase_orders',
         'methods': [
-            (ALL, '', 'Return all purchase order types for an AccountRight company file.'),
-            (ALL, 'Item/', 'Return item type purchase orders for an AccountRight company file.'),
-            (GET, 'Item/[uid]/', 'Return selected item type purchase order.'),
-            (PUT, 'Item/[uid]/', 'Update selected item type purchase order.'),
-            (POST, 'Item/', 'Create new item type purchase order.'),
-            (DELETE, 'Item/[uid]/', 'Delete selected item type purchase order.'),
+            (ALL, '', 'purchase order type'),
+            (CRUD, 'Item/', 'item type purchase order'),
         ]
     },
     'Purchase/Bill/': {
-        'plural': 'purchase_bills',
+        'name': 'purchase_bills',
         'methods': [
-            (ALL, '', 'Return all purchase bill types for an AccountRight company file.'),
-            (ALL, 'Item/', 'Return item type purchase bills for an AccountRight company file.'),
-            (GET, 'Item/[uid]/', 'Return selected item type purchase bill.'),
-            (PUT, 'Item/[uid]/', 'Update selected item type purchase bill.'),
-            (POST, 'Item/', 'Create new item type purchase bill.'),
-            (DELETE, 'Item/[uid]/', 'Delete selected item type purchase bill.'),
-            (ALL, 'Service/', 'Return service type purchase bills for an AccountRight company file.'),
-            (GET, 'Service/[uid]/', 'Return selected service type purchase bill.'),
-            (PUT, 'Service/[uid]/', 'Update selected service type purchase bill.'),
-            (POST, 'Service/', 'Create new service type purchase bill.'),
-            (DELETE, 'Service/[uid]/', 'Delete selected service type purchase bill.'),
+            (ALL, '', 'purchase bill type'),
+            (CRUD, 'Item/', 'item type purchase bill'),
+            (CRUD, 'Service/', 'service type purchase bill'),
+            (CRUD, 'Miscellaneous/', 'miscellaneous type purchase bill'),
         ]
+    },
+}
+
+METHOD_MAPPING = {
+    ALL: {
+        'endpoint': lambda base: base,
+        'hint': lambda name: 'Return all %s for an AccountRight company file.' % pluralise(name)
+    },
+    GET: {
+        'endpoint': lambda base: base + '[uid]/',
+        'hint': lambda name: 'Return selected %s.' % name
+    },
+    PUT: {
+        'endpoint': lambda base: base + '[uid]/',
+        'hint': lambda name: 'Update selected %s.' % name
+    },
+    POST: {
+        'endpoint': lambda base: base,
+        'hint': lambda name: 'Create new %s.' % name
+    },
+    DELETE: {
+        'endpoint': lambda base: base + '[uid]/',
+        'hint': lambda name: 'Delete selected %s.' % name
     },
 }
