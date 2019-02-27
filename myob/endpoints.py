@@ -40,6 +40,7 @@ ENDPOINTS = {
             (CRUD, 'TaxCode/', 'tax code'),
             (CRUD, 'Account/', 'account'),
             (CRUD, 'Category/', 'cost center tracking category'),
+            (CRUD, 'Job/', 'job'),
         ]
     },
     'Inventory/': {
