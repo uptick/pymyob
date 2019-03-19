@@ -37,12 +37,11 @@ ENDPOINTS = {
     'Sale/Order/': {
         'name': 'orders',
         'methods': [
-            (ALL, '', 'order invoice type'),
-            (CRUD, 'Item/', 'item type sales order'),
-            (CRUD, 'Service/', 'service type sales order'),
+            (ALL, '', 'sale order type'),
+            (CRUD, 'Item/', 'item type sale order'),
+            (CRUD, 'Service/', 'service type sale order'),
         ]
     },
-
     'GeneralLedger/': {
         'name': 'general_ledger',
         'methods': [
