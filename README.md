@@ -2,9 +2,7 @@
 [![PyPI version](https://badge.fury.io/py/pymyob.svg)](https://badge.fury.io/py/pymyob)
 [![Build Status](https://travis-ci.org/uptick/pymyob.svg?branch=master)](https://travis-ci.org/uptick/pymyob)
 
-A Python API around [MYOB's AccountRight API](http://developer.myob.com/api/accountright/api-overview/).
-
-This code is based off [PyXero](https://github.com/freakboy3742/pyxero), providing pythonic access to the MYOB api in a similar fashion.
+A Python API around [MYOB's AccountRight Live API](http://developer.myob.com/api/accountright/v2/).
 
 This project supports Python 3 only.
 
