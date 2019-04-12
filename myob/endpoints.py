@@ -107,4 +107,10 @@ ENDPOINTS = {
             (DELETE, 'Service/[uid]/', 'Delete selected service type purchase bill.'),
         ]
     },
+    'Company/': {
+        'plural': 'company',
+        'methods': [
+            (ALL, 'Preferences/', 'Return company data file preferences for an AccountRight company file.')
+        ]
+    },
 }
