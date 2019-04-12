@@ -74,9 +74,9 @@ ENDPOINTS = {
         ]
     },
     'Company/': {
-        'plural': 'company',
+        'name': 'company',
         'methods': [
-            (ALL, 'Preferences/', 'Return company data file preferences for an AccountRight company file.')
+            (ALL, 'Preferences/', 'company data file preference')
         ]
     },
 }

@@ -301,7 +301,7 @@ class EndpointTests(TestCase):
     def test_company(self):
         self.assertEqual(repr(self.companyfile.company), (
             "CompanyManager:\n"
-            "    preferences() - Return company data file preferences for an AccountRight company file."
+            "    preferences() - Return all company data file preferences for an AccountRight company file."
         ))
         self.assertEndpointReached(self.companyfile.company.preferences, {}, 'GET', f'/{CID}/Company/Preferences/')
 
