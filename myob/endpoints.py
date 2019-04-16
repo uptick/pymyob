@@ -73,6 +73,12 @@ ENDPOINTS = {
             (CRUD, 'Miscellaneous/', 'miscellaneous type purchase bill'),
         ]
     },
+    'Company/': {
+        'name': 'company',
+        'methods': [
+            (ALL, 'Preferences/', 'company data file preference')
+        ]
+    },
 }
 
 METHOD_MAPPING = {

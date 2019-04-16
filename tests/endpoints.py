@@ -71,6 +71,7 @@ class EndpointTests(TestCase):
         self.assertEqual(repr(self.companyfile), (
             "CompanyFile:\n"
             "    banking\n"
+            "    company\n"
             "    contacts\n"
             "    general_ledger\n"
             "    inventory\n"
@@ -296,6 +297,13 @@ class EndpointTests(TestCase):
         self.assertEndpointReached(self.companyfile.purchase_bills.put_miscellaneous, {'uid': UID, 'data': DATA}, 'PUT', f'/{CID}/Purchase/Bill/Miscellaneous/{UID}/')
         self.assertEndpointReached(self.companyfile.purchase_bills.post_miscellaneous, {'data': DATA}, 'POST', f'/{CID}/Purchase/Bill/Miscellaneous/')
         self.assertEndpointReached(self.companyfile.purchase_bills.delete_miscellaneous, {'uid': UID}, 'DELETE', f'/{CID}/Purchase/Bill/Miscellaneous/{UID}/')
+
+    def test_company(self):
+        self.assertEqual(repr(self.companyfile.company), (
+            "CompanyManager:\n"
+            "    preferences() - Return all company data file preferences for an AccountRight company file."
+        ))
+        self.assertEndpointReached(self.companyfile.company.preferences, {}, 'GET', f'/{CID}/Company/Preferences/')
 
     def test_timeout(self):
         self.assertEndpointReached(self.companyfile.contacts.all, {'timeout': 5}, 'GET', f'/{CID}/Contact/', timeout=5)
