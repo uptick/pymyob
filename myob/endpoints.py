@@ -23,6 +23,7 @@ ENDPOINTS = {
         'methods': [
             (ALL, '', 'contact type'),
             (CRUD, 'Customer/', 'customer contact'),
+            (CRUD, 'Employee/', 'employee card'),
             (CRUD, 'Supplier/', 'supplier contact'),
         ],
     },
