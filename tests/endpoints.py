@@ -114,12 +114,17 @@ class EndpointTests(TestCase):
             "                      all() - Return all contact types for an AccountRight company file.\n"
             "                 customer() - Return all customer contacts for an AccountRight company file.\n"
             "       delete_customer(uid) - Delete selected customer contact.\n"
+            "       delete_employee(uid) - Delete selected employee card.\n"
             "       delete_supplier(uid) - Delete selected supplier contact.\n"
+            "                 employee() - Return all employee cards for an AccountRight company file.\n"
             "          get_customer(uid) - Return selected customer contact.\n"
+            "          get_employee(uid) - Return selected employee card.\n"
             "          get_supplier(uid) - Return selected supplier contact.\n"
             "        post_customer(data) - Create new customer contact.\n"
+            "        post_employee(data) - Create new employee card.\n"
             "        post_supplier(data) - Create new supplier contact.\n"
             "    put_customer(uid, data) - Update selected customer contact.\n"
+            "    put_employee(uid, data) - Update selected employee card.\n"
             "    put_supplier(uid, data) - Update selected supplier contact.\n"
             "                 supplier() - Return all supplier contacts for an AccountRight company file."
         ))
@@ -129,6 +134,11 @@ class EndpointTests(TestCase):
         self.assertEndpointReached(self.companyfile.contacts.put_customer, {'uid': UID, 'data': DATA}, 'PUT', f'/{CID}/Contact/Customer/{UID}/')
         self.assertEndpointReached(self.companyfile.contacts.post_customer, {'data': DATA}, 'POST', f'/{CID}/Contact/Customer/')
         self.assertEndpointReached(self.companyfile.contacts.delete_customer, {'uid': UID}, 'DELETE', f'/{CID}/Contact/Customer/{UID}/')
+        self.assertEndpointReached(self.companyfile.contacts.employee, {}, 'GET', f'/{CID}/Contact/Employee/')
+        self.assertEndpointReached(self.companyfile.contacts.get_employee, {'uid': UID}, 'GET', f'/{CID}/Contact/Employee/{UID}/')
+        self.assertEndpointReached(self.companyfile.contacts.put_employee, {'uid': UID, 'data': DATA}, 'PUT', f'/{CID}/Contact/Employee/{UID}/')
+        self.assertEndpointReached(self.companyfile.contacts.post_employee, {'data': DATA}, 'POST', f'/{CID}/Contact/Employee/')
+        self.assertEndpointReached(self.companyfile.contacts.delete_employee, {'uid': UID}, 'DELETE', f'/{CID}/Contact/Employee/{UID}/')
         self.assertEndpointReached(self.companyfile.contacts.supplier, {}, 'GET', f'/{CID}/Contact/Supplier/')
         self.assertEndpointReached(self.companyfile.contacts.get_supplier, {'uid': UID}, 'GET', f'/{CID}/Contact/Supplier/{UID}/')
         self.assertEndpointReached(self.companyfile.contacts.put_supplier, {'uid': UID, 'data': DATA}, 'PUT', f'/{CID}/Contact/Supplier/{UID}/')
