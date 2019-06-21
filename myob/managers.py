@@ -144,6 +144,8 @@ class Manager:
         def build_value(value):
             if issubclass(type(value), date):
                 return "datetime'%s'" % value
+            if isinstance(value, bool):
+                return str(value.lower())
             return "'%s'" % value
 
         for k, v in kwargs.items():
