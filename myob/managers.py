@@ -148,19 +148,22 @@ class Manager:
                 return str(value).lower()
             return "'%s'" % value
 
+        if 'raw_filter' in kwargs:
+            filters.append(kwargs['raw_filter'])
+
         for k, v in kwargs.items():
-            if k not in ['orderby', 'format', 'headers', 'page', 'limit', 'templatename', 'timeout']:
-                if not isinstance(v, (list, tuple)):
-                    v = [v]
+            if k not in ['orderby', 'format', 'headers', 'page', 'limit', 'templatename', 'timeout', 'raw_filter']:
                 operator = 'eq'
                 for op in ['lt', 'gt']:
                     if k.endswith('__%s' % op):
                         k = k[:-4]
                         operator = op
+                if not isinstance(v, (list, tuple)):
+                    v = [v]
                 filters.append(' or '.join("%s %s %s" % (k, operator, build_value(v_)) for v_ in v))
 
         if filters:
-            request_kwargs['params']['$filter'] = ' and '.join(filters)
+            request_kwargs['params']['$filter'] = ' and '.join('(%s)' % f for f in filters)
 
         if 'orderby' in kwargs:
             request_kwargs['params']['$orderby'] = kwargs['orderby']
