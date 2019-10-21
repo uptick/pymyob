@@ -62,10 +62,10 @@ class EndpointTests(TestCase):
             "      all() - Return a list of company files.\n"
             "    get(id) - List endpoints available for a company file."
         ))
-        # Don't expect companyfile credentials here as this endpoint is not companyfile specific.
+        self.assertEndpointReached(self.myob.companyfiles.get, {'id': CID}, 'GET', f'/{CID}/')
+        # Don't expect companyfile credentials here as the next endpoint is not companyfile specific.
         self.expected_request_headers['x-myobapi-cftoken'] = ''
         self.assertEndpointReached(self.myob.companyfiles.all, {}, 'GET', '/')
-        self.assertEndpointReached(self.myob.companyfiles.get, {'id': CID}, 'GET', f'/{CID}/')
 
     def test_companyfile(self):
         self.assertEqual(repr(self.companyfile), (
