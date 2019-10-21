@@ -40,7 +40,13 @@ class CompanyFiles:
 
     def get(self, id, call=True):
         if call:
-            raw_companyfile = self._manager.get(id=id)['CompanyFile']
+            # raw_companyfile = self._manager.get(id=id)['CompanyFile']
+            # NOTE: Annoyingly, we need to pass company_id to the manager, else we won't have permission
+            # on the GET endpoint. The only way we currently allow passing company_id is by setting it on the manager,
+            # and we can't do that on init, as this is a manager for company files plural..
+            # Reluctant to change manager code, as it would add confusion if the inner method let you override the company_id.
+            manager = Manager('', self.credentials, raw_endpoints=[(GET, '', '')], company_id=id)
+            raw_companyfile = manager.get(id=id)['CompanyFile']
         else:
             raw_companyfile = {'Id': id}
         return CompanyFile(raw_companyfile, self.credentials)
