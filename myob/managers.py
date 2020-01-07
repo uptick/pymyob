@@ -8,6 +8,7 @@ from .exceptions import (
     MyobBadRequest,
     MyobExceptionUnknown,
     MyobForbidden,
+    MyobGatewayTimeout,
     MyobNotFound,
     MyobUnauthorized
 )
@@ -99,6 +100,8 @@ class Manager:
                 raise MyobForbidden(response)
             elif response.status_code == 404:
                 raise MyobNotFound(response)
+            elif response.status_code == 504:
+                raise MyobGatewayTimeout(response)
             else:
                 raise MyobExceptionUnknown(response)
 

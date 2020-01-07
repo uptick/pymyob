@@ -31,6 +31,11 @@ class MyobNotFound(MyobException):
     pass
 
 
+class MyobGatewayTimeout(MyobException):
+    # HTTP 504: Gateway Timeout
+    pass
+
+
 class MyobExceptionUnknown(MyobException):
     # Any other exception.
     pass
