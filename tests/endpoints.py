@@ -76,6 +76,7 @@ class EndpointTests(TestCase):
             "    general_ledger\n"
             "    inventory\n"
             "    invoices\n"
+            "    quotes\n"
             "    orders\n"
             "    purchase_bills\n"
             "    purchase_orders"
