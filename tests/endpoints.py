@@ -78,7 +78,8 @@ class EndpointTests(TestCase):
             "    invoices\n"
             "    orders\n"
             "    purchase_bills\n"
-            "    purchase_orders"
+            "    purchase_orders\n"
+            "    quotes"
         ))
 
     def test_banking(self):
@@ -171,6 +172,33 @@ class EndpointTests(TestCase):
         self.assertEndpointReached(self.companyfile.invoices.put_service, {'uid': UID, 'data': DATA}, 'PUT', f'/{CID}/Sale/Invoice/Service/{UID}/')
         self.assertEndpointReached(self.companyfile.invoices.post_service, {'data': DATA}, 'POST', f'/{CID}/Sale/Invoice/Service/')
         self.assertEndpointReached(self.companyfile.invoices.delete_service, {'uid': UID}, 'DELETE', f'/{CID}/Sale/Invoice/Service/{UID}/')
+
+    def test_quotes(self):
+        self.assertEqual(repr(self.companyfile.quotes), (
+            "Sale_QuoteManager:\n"
+            "                     all() - Return all sale quote types for an AccountRight company file.\n"
+            "          delete_item(uid) - Delete selected item type sale quote.\n"
+            "       delete_service(uid) - Delete selected service type sale quote.\n"
+            "             get_item(uid) - Return selected item type sale quote.\n"
+            "          get_service(uid) - Return selected service type sale quote.\n"
+            "                    item() - Return all item type sale quotes for an AccountRight company file.\n"
+            "           post_item(data) - Create new item type sale quote.\n"
+            "        post_service(data) - Create new service type sale quote.\n"
+            "       put_item(uid, data) - Update selected item type sale quote.\n"
+            "    put_service(uid, data) - Update selected service type sale quote.\n"
+            "                 service() - Return all service type sale quotes for an AccountRight company file."
+        ))
+        self.assertEndpointReached(self.companyfile.quotes.all, {}, 'GET', f'/{CID}/Sale/Quote/')
+        self.assertEndpointReached(self.companyfile.quotes.item, {}, 'GET', f'/{CID}/Sale/Quote/Item/')
+        self.assertEndpointReached(self.companyfile.quotes.get_item, {'uid': UID}, 'GET', f'/{CID}/Sale/Quote/Item/{UID}/')
+        self.assertEndpointReached(self.companyfile.quotes.put_item, {'uid': UID, 'data': DATA}, 'PUT', f'/{CID}/Sale/Quote/Item/{UID}/')
+        self.assertEndpointReached(self.companyfile.quotes.post_item, {'data': DATA}, 'POST', f'/{CID}/Sale/Quote/Item/')
+        self.assertEndpointReached(self.companyfile.quotes.delete_item, {'uid': UID}, 'DELETE', f'/{CID}/Sale/Quote/Item/{UID}/')
+        self.assertEndpointReached(self.companyfile.quotes.service, {}, 'GET', f'/{CID}/Sale/Quote/Service/')
+        self.assertEndpointReached(self.companyfile.quotes.get_service, {'uid': UID}, 'GET', f'/{CID}/Sale/Quote/Service/{UID}/')
+        self.assertEndpointReached(self.companyfile.quotes.put_service, {'uid': UID, 'data': DATA}, 'PUT', f'/{CID}/Sale/Quote/Service/{UID}/')
+        self.assertEndpointReached(self.companyfile.quotes.post_service, {'data': DATA}, 'POST', f'/{CID}/Sale/Quote/Service/')
+        self.assertEndpointReached(self.companyfile.quotes.delete_service, {'uid': UID}, 'DELETE', f'/{CID}/Sale/Quote/Service/{UID}/')
 
     def test_orders(self):
         self.assertEqual(repr(self.companyfile.orders), (
