@@ -1,10 +1,9 @@
 # PyMYOB
-[![PyPI version](https://badge.fury.io/py/pymyob.svg)](https://badge.fury.io/py/pymyob)
+[![PyPI version](https://badge.fury.io/py/pymyob.svg)](https://pypi.org/project/pymyob/)
+[![versions](https://img.shields.io/pypi/pyversions/pymyob.svg)](https://pypi.org/project/pymyob/)
 [![Build Status](https://travis-ci.org/uptick/pymyob.svg?branch=master)](https://travis-ci.org/uptick/pymyob)
 
 A Python API around [MYOB's AccountRight Live API](http://developer.myob.com/api/accountright/v2/).
-
-This project supports Python 3 only.
 
 ## Pre-getting started
 
