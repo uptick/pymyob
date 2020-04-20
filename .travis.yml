@@ -12,6 +12,7 @@ env:
     - TASK=flake8
 
 install:
+  - if [ $TASK = tests ]; then pip install requests-oauthlib; fi
   - if [ $TASK == isort ]; then pip install isort; fi
   - if [ $TASK == flake8 ]; then pip install flake8; fi
 
