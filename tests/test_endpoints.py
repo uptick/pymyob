@@ -269,11 +269,16 @@ class EndpointTests(TestCase):
     def test_inventory(self):
         self.assertEqual(repr(self.companyfile.inventory), (
             "InventoryManager:\n"
-            "       delete_item(uid) - Delete selected inventory item.\n"
-            "          get_item(uid) - Return selected inventory item.\n"
-            "                 item() - Return all inventory items for an AccountRight company file.\n"
-            "        post_item(data) - Create new inventory item.\n"
-            "    put_item(uid, data) - Update selected inventory item."
+            "           delete_item(uid) - Delete selected inventory item.\n"
+            "       delete_location(uid) - Delete selected inventory location.\n"
+            "              get_item(uid) - Return selected inventory item.\n"
+            "          get_location(uid) - Return selected inventory location.\n"
+            "                     item() - Return all inventory items for an AccountRight company file.\n"
+            "                 location() - Return all inventory locations for an AccountRight company file.\n"
+            "            post_item(data) - Create new inventory item.\n"
+            "        post_location(data) - Create new inventory location.\n"
+            "        put_item(uid, data) - Update selected inventory item.\n"
+            "    put_location(uid, data) - Update selected inventory location."
         ))
         self.assertEndpointReached(self.companyfile.inventory.item, {}, 'GET', f'/{CID}/Inventory/Item/')
         self.assertEndpointReached(self.companyfile.inventory.get_item, {'uid': UID}, 'GET', f'/{CID}/Inventory/Item/{UID}/')
