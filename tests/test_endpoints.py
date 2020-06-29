@@ -280,6 +280,11 @@ class EndpointTests(TestCase):
         self.assertEndpointReached(self.companyfile.inventory.put_item, {'uid': UID, 'data': DATA}, 'PUT', f'/{CID}/Inventory/Item/{UID}/')
         self.assertEndpointReached(self.companyfile.inventory.post_item, {'data': DATA}, 'POST', f'/{CID}/Inventory/Item/')
         self.assertEndpointReached(self.companyfile.inventory.delete_item, {'uid': UID}, 'DELETE', f'/{CID}/Inventory/Item/{UID}/')
+        self.assertEndpointReached(self.companyfile.inventory.location, {}, 'GET', f'/{CID}/Inventory/Location/')
+        self.assertEndpointReached(self.companyfile.inventory.get_location, {'uid': UID}, 'GET', f'/{CID}/Inventory/Location/{UID}/')
+        self.assertEndpointReached(self.companyfile.inventory.put_location, {'uid': UID, 'data': DATA}, 'PUT', f'/{CID}/Inventory/Location/{UID}/')
+        self.assertEndpointReached(self.companyfile.inventory.post_location, {'data': DATA}, 'POST', f'/{CID}/Inventory/Location/')
+        self.assertEndpointReached(self.companyfile.inventory.delete_location, {'uid': UID}, 'DELETE', f'/{CID}/Inventory/Location/{UID}/')
 
     def test_purchase_orders(self):
         self.assertEqual(repr(self.companyfile.purchase_orders), (

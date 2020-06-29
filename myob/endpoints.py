@@ -64,6 +64,7 @@ ENDPOINTS = {
         'name': 'inventory',
         'methods': [
             (CRUD, 'Item/', 'inventory item'),
+            (CRUD, 'Location/', 'inventory location')
         ]
     },
     'Purchase/Order/': {
