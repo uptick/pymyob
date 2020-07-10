@@ -34,12 +34,12 @@ jobs:
       - name: Isort
         run: isort --diff --check-only
 
-  superlinter:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Run Superlinter
-        uses: docker://github/super-linter:latest
-        env:
-          VALIDATE_PYTHON: true
+  # superlinter:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v2
+  #     - name: Run Superlinter
+  #       uses: docker://github/super-linter:latest
+  #       env:
+  #         VALIDATE_PYTHON: true
