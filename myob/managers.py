@@ -11,7 +11,7 @@ from .exceptions import (
     MyobGatewayTimeout,
     MyobNotFound,
     MyobRateLimitExceeded,
-    MyobUnauthorized,
+    MyobUnauthorized
 )
 
 
