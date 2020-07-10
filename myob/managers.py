@@ -10,7 +10,8 @@ from .exceptions import (
     MyobForbidden,
     MyobGatewayTimeout,
     MyobNotFound,
-    MyobUnauthorized
+    MyobRateLimitExceeded,
+    MyobUnauthorized,
 )
 
 
@@ -97,6 +98,8 @@ class Manager:
             elif response.status_code == 401:
                 raise MyobUnauthorized(response)
             elif response.status_code == 403:
+                if response.json()['Errors'][0]['Name'] == 'RateLimitError':
+                    raise MyobRateLimitExceeded(response)
                 raise MyobForbidden(response)
             elif response.status_code == 404:
                 raise MyobNotFound(response)

@@ -3,6 +3,15 @@ from unittest.mock import patch
 
 from myob import Myob
 from myob.credentials import PartnerCredentials
+from myob.exceptions import (
+    MyobBadRequest,
+    MyobExceptionUnknown,
+    MyobForbidden,
+    MyobGatewayTimeout,
+    MyobNotFound,
+    MyobRateLimitExceeded,
+    MyobUnauthorized,
+)
 
 # Reusable dummy data
 CID = 'DummyCompanyId'
@@ -44,6 +53,13 @@ class EndpointTests(TestCase):
             **({'json': DATA} if method in ['PUT', 'POST'] else {}),
             timeout=timeout,
         )
+
+    @patch('myob.managers.requests.request')
+    def assertExceptionHandled(self, status_code, response_json, exception, mock_request):
+        mock_request.return_value.status_code = status_code
+        mock_request.return_value.json.return_value = response_json
+        with self.assertRaises(exception):
+            self.myob.info()
 
     def test_base(self):
         self.assertEqual(repr(self.myob), (
@@ -354,3 +370,12 @@ class EndpointTests(TestCase):
 
     def test_timeout(self):
         self.assertEndpointReached(self.companyfile.contacts.all, {'timeout': 5}, 'GET', f'/{CID}/Contact/', timeout=5)
+
+    def test_exceptions(self):
+        self.assertExceptionHandled(400, {}, MyobBadRequest)
+        self.assertExceptionHandled(401, {}, MyobUnauthorized)
+        self.assertExceptionHandled(403, {'Errors': [{'Name': 'Something'}]}, MyobForbidden)
+        self.assertExceptionHandled(403, {'Errors': [{'Name': 'RateLimitError'}]}, MyobRateLimitExceeded)
+        self.assertExceptionHandled(404, {}, MyobNotFound)
+        self.assertExceptionHandled(504, {}, MyobGatewayTimeout)
+        self.assertExceptionHandled(418, {}, MyobExceptionUnknown)
