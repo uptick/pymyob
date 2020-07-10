@@ -1,10 +1,4 @@
-name: Lint Code Base
-
-#
-# Documentation:
-# https://help.github.com/en/articles/workflow-syntax-for-github-actions
-#
-
+name: Lint
 on:
   push:
     branches:
@@ -12,17 +6,40 @@ on:
   pull_request: ~
 
 jobs:
-  build:
-    # Name the Job
-    name: Lint Code Base
-    # Set the agent to run on
+  flake8:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v2
+      - name: Install Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - name: Install deps
+        run: pip install flake8
+      - name: Flake8
+        run: flake8
 
-      - name: Lint Code Base
+  isort:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Install Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - name: Install deps
+        run: pip install isort
+      - name: Isort
+        run: isort --diff --check-only
+
+  superlinter:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Run Superlinter
         uses: docker://github/super-linter:v3
         env:
           VALIDATE_PYTHON: true
