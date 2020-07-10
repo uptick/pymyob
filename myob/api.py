@@ -3,7 +3,7 @@ from .endpoints import ALL, ENDPOINTS, GET
 from .managers import Manager
 
 
-class Myob :
+class Myob:
     """ An ORM-like interface to the MYOB API. """
     def __init__(self, credentials):
         if not isinstance(credentials, PartnerCredentials):
