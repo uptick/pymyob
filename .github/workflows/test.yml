@@ -1,0 +1,38 @@
+name: Test
+on:
+  push:
+    branches:
+      - master
+  pull_request: ~
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - name: Install deps
+        run: pip install isort flake8
+      - name: Lint
+        run: flake8
+      - name: Isort
+        run: isort --diff --check-only
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.4", "3.5", "3.6", "3.7", "3.8"]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install deps
+        run: pip install requests-oauthlib
+      - name: Run tests...
+        run: python setup.py test
