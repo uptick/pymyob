@@ -1,7 +1,8 @@
 # PyMYOB
 [![PyPI version](https://badge.fury.io/py/pymyob.svg)](https://pypi.org/project/pymyob/)
 [![versions](https://img.shields.io/pypi/pyversions/pymyob.svg)](https://pypi.org/project/pymyob/)
-[![Build Status](https://travis-ci.org/uptick/pymyob.svg?branch=master)](https://travis-ci.org/uptick/pymyob)
+[![Test](https://github.com/uptick/pymyob/workflows/Test/badge.svg)](https://github.com/uptick/pymyob/actions?query=workflow%3ATest)
+[![Lint](https://github.com/uptick/pymyob/workflows/Lint/badge.svg)](https://github.com/uptick/pymyob/actions?query=workflow%3ALint)
 
 A Python API around [MYOB's AccountRight Live API](http://developer.myob.com/api/accountright/v2/).
 
