@@ -53,7 +53,6 @@ class PartnerCredentials:
 
     def expired(self, now=None):
         """ Determine whether the current access token has expired. """
-        
         # Expiry might be unset if the user hasn't finished authenticating.
         if self.oauth_expires_at is None:
             return False
