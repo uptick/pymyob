@@ -25,6 +25,8 @@ class PartnerCredentials:
         self.companyfile_credentials = companyfile_credentials
         self.oauth_token = oauth_token
         self.refresh_token = refresh_token
+
+        assert isinstance(oauth_expires_at, datetime.datetime), "'oauth_expires_at' must be a datetime instance."
         self.oauth_expires_at = oauth_expires_at
 
         self._oauth = OAuth2Session(consumer_key, redirect_uri=callback_uri)
@@ -41,15 +43,15 @@ class PartnerCredentials:
     @property
     def state(self):
         """ Get a representation of this credentials object from which it can be reconstructed. """
-        return dict(
-            (attr, getattr(self, attr))
+        return {
+            attr: getattr(self, attr)
             for attr in (
                 'consumer_key', 'consumer_secret', 'callback_uri',
                 'verified', 'companyfile_credentials', 'oauth_token', 'refresh_token',
                 'oauth_expires_at'
             )
             if getattr(self, attr) is not None
-        )
+        }
 
     def expired(self, now=None):
         """ Determine whether the current access token has expired. """
