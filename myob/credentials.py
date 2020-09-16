@@ -28,7 +28,7 @@ class PartnerCredentials:
 
         if oauth_expires_at is not None:
             assert isinstance(oauth_expires_at, datetime.datetime), "'oauth_expires_at' must be a datetime instance."
-            self.oauth_expires_at = oauth_expires_at
+        self.oauth_expires_at = oauth_expires_at
 
         self._oauth = OAuth2Session(consumer_key, redirect_uri=callback_uri)
         url, _ = self._oauth.authorization_url(MYOB_PARTNER_BASE_URL + AUTHORIZE_URL)
