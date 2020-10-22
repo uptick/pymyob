@@ -15,7 +15,8 @@ class PartnerCredentials:
         oauth_token=None,
         refresh_token=None,
         oauth_expires_at=None,
-        scope=None
+        scope=None,
+        state=None,
     ):
         self.consumer_key = consumer_key
         self.consumer_secret = consumer_secret
@@ -31,7 +32,7 @@ class PartnerCredentials:
         self.oauth_expires_at = oauth_expires_at
 
         self._oauth = OAuth2Session(consumer_key, redirect_uri=callback_uri)
-        url, _ = self._oauth.authorization_url(MYOB_PARTNER_BASE_URL + AUTHORIZE_URL)
+        url, _ = self._oauth.authorization_url(MYOB_PARTNER_BASE_URL + AUTHORIZE_URL, state=state)
         self.url = url + '&scope=CompanyFile'
 
     # TODO: Add `verify` kwarg here, which will quickly throw the provided credentials at a
