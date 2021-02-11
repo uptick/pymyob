@@ -43,6 +43,14 @@ ENDPOINTS = {
             (CRUD, 'Service/', 'service type sale order'),
         ]
     },
+    'Sale/Quote/': {
+        'name': 'quotes',
+        'methods': [
+            (ALL, '', 'sale quote type'),
+            (CRUD, 'Item/', 'item type sale quote'),
+            (CRUD, 'Service/', 'service type sale quote'),
+        ]
+    },
     'GeneralLedger/': {
         'name': 'general_ledger',
         'methods': [
@@ -56,6 +64,7 @@ ENDPOINTS = {
         'name': 'inventory',
         'methods': [
             (CRUD, 'Item/', 'inventory item'),
+            (CRUD, 'Location/', 'inventory location')
         ]
     },
     'Purchase/Order/': {

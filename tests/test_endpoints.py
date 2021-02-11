@@ -3,6 +3,15 @@ from unittest.mock import patch
 
 from myob import Myob
 from myob.credentials import PartnerCredentials
+from myob.exceptions import (
+    MyobBadRequest,
+    MyobExceptionUnknown,
+    MyobForbidden,
+    MyobGatewayTimeout,
+    MyobNotFound,
+    MyobRateLimitExceeded,
+    MyobUnauthorized,
+)
 
 # Reusable dummy data
 CID = 'DummyCompanyId'
@@ -32,7 +41,6 @@ class EndpointTests(TestCase):
     @patch('myob.managers.requests.request')
     def assertEndpointReached(self, func, params, method, endpoint, mock_request, timeout=None):
         mock_request.return_value.status_code = 200
-        print(endpoint)
         if endpoint == '/%s/' % CID:
             mock_request.return_value.json.return_value = {'CompanyFile': {'Id': CID}}
         func(**params)
@@ -45,6 +53,13 @@ class EndpointTests(TestCase):
             **({'json': DATA} if method in ['PUT', 'POST'] else {}),
             timeout=timeout,
         )
+
+    @patch('myob.managers.requests.request')
+    def assertExceptionHandled(self, status_code, response_json, exception, mock_request):
+        mock_request.return_value.status_code = status_code
+        mock_request.return_value.json.return_value = response_json
+        with self.assertRaises(exception):
+            self.myob.info()
 
     def test_base(self):
         self.assertEqual(repr(self.myob), (
@@ -62,10 +77,10 @@ class EndpointTests(TestCase):
             "      all() - Return a list of company files.\n"
             "    get(id) - List endpoints available for a company file."
         ))
-        # Don't expect companyfile credentials here as this endpoint is not companyfile specific.
+        self.assertEndpointReached(self.myob.companyfiles.get, {'id': CID}, 'GET', f'/{CID}/')
+        # Don't expect companyfile credentials here as the next endpoint is not companyfile specific.
         self.expected_request_headers['x-myobapi-cftoken'] = ''
         self.assertEndpointReached(self.myob.companyfiles.all, {}, 'GET', '/')
-        self.assertEndpointReached(self.myob.companyfiles.get, {'id': CID}, 'GET', f'/{CID}/')
 
     def test_companyfile(self):
         self.assertEqual(repr(self.companyfile), (
@@ -78,7 +93,8 @@ class EndpointTests(TestCase):
             "    invoices\n"
             "    orders\n"
             "    purchase_bills\n"
-            "    purchase_orders"
+            "    purchase_orders\n"
+            "    quotes"
         ))
 
     def test_banking(self):
@@ -172,6 +188,33 @@ class EndpointTests(TestCase):
         self.assertEndpointReached(self.companyfile.invoices.post_service, {'data': DATA}, 'POST', f'/{CID}/Sale/Invoice/Service/')
         self.assertEndpointReached(self.companyfile.invoices.delete_service, {'uid': UID}, 'DELETE', f'/{CID}/Sale/Invoice/Service/{UID}/')
 
+    def test_quotes(self):
+        self.assertEqual(repr(self.companyfile.quotes), (
+            "Sale_QuoteManager:\n"
+            "                     all() - Return all sale quote types for an AccountRight company file.\n"
+            "          delete_item(uid) - Delete selected item type sale quote.\n"
+            "       delete_service(uid) - Delete selected service type sale quote.\n"
+            "             get_item(uid) - Return selected item type sale quote.\n"
+            "          get_service(uid) - Return selected service type sale quote.\n"
+            "                    item() - Return all item type sale quotes for an AccountRight company file.\n"
+            "           post_item(data) - Create new item type sale quote.\n"
+            "        post_service(data) - Create new service type sale quote.\n"
+            "       put_item(uid, data) - Update selected item type sale quote.\n"
+            "    put_service(uid, data) - Update selected service type sale quote.\n"
+            "                 service() - Return all service type sale quotes for an AccountRight company file."
+        ))
+        self.assertEndpointReached(self.companyfile.quotes.all, {}, 'GET', f'/{CID}/Sale/Quote/')
+        self.assertEndpointReached(self.companyfile.quotes.item, {}, 'GET', f'/{CID}/Sale/Quote/Item/')
+        self.assertEndpointReached(self.companyfile.quotes.get_item, {'uid': UID}, 'GET', f'/{CID}/Sale/Quote/Item/{UID}/')
+        self.assertEndpointReached(self.companyfile.quotes.put_item, {'uid': UID, 'data': DATA}, 'PUT', f'/{CID}/Sale/Quote/Item/{UID}/')
+        self.assertEndpointReached(self.companyfile.quotes.post_item, {'data': DATA}, 'POST', f'/{CID}/Sale/Quote/Item/')
+        self.assertEndpointReached(self.companyfile.quotes.delete_item, {'uid': UID}, 'DELETE', f'/{CID}/Sale/Quote/Item/{UID}/')
+        self.assertEndpointReached(self.companyfile.quotes.service, {}, 'GET', f'/{CID}/Sale/Quote/Service/')
+        self.assertEndpointReached(self.companyfile.quotes.get_service, {'uid': UID}, 'GET', f'/{CID}/Sale/Quote/Service/{UID}/')
+        self.assertEndpointReached(self.companyfile.quotes.put_service, {'uid': UID, 'data': DATA}, 'PUT', f'/{CID}/Sale/Quote/Service/{UID}/')
+        self.assertEndpointReached(self.companyfile.quotes.post_service, {'data': DATA}, 'POST', f'/{CID}/Sale/Quote/Service/')
+        self.assertEndpointReached(self.companyfile.quotes.delete_service, {'uid': UID}, 'DELETE', f'/{CID}/Sale/Quote/Service/{UID}/')
+
     def test_orders(self):
         self.assertEqual(repr(self.companyfile.orders), (
             "Sale_OrderManager:\n"
@@ -242,17 +285,27 @@ class EndpointTests(TestCase):
     def test_inventory(self):
         self.assertEqual(repr(self.companyfile.inventory), (
             "InventoryManager:\n"
-            "       delete_item(uid) - Delete selected inventory item.\n"
-            "          get_item(uid) - Return selected inventory item.\n"
-            "                 item() - Return all inventory items for an AccountRight company file.\n"
-            "        post_item(data) - Create new inventory item.\n"
-            "    put_item(uid, data) - Update selected inventory item."
+            "           delete_item(uid) - Delete selected inventory item.\n"
+            "       delete_location(uid) - Delete selected inventory location.\n"
+            "              get_item(uid) - Return selected inventory item.\n"
+            "          get_location(uid) - Return selected inventory location.\n"
+            "                     item() - Return all inventory items for an AccountRight company file.\n"
+            "                 location() - Return all inventory locations for an AccountRight company file.\n"
+            "            post_item(data) - Create new inventory item.\n"
+            "        post_location(data) - Create new inventory location.\n"
+            "        put_item(uid, data) - Update selected inventory item.\n"
+            "    put_location(uid, data) - Update selected inventory location."
         ))
         self.assertEndpointReached(self.companyfile.inventory.item, {}, 'GET', f'/{CID}/Inventory/Item/')
         self.assertEndpointReached(self.companyfile.inventory.get_item, {'uid': UID}, 'GET', f'/{CID}/Inventory/Item/{UID}/')
         self.assertEndpointReached(self.companyfile.inventory.put_item, {'uid': UID, 'data': DATA}, 'PUT', f'/{CID}/Inventory/Item/{UID}/')
         self.assertEndpointReached(self.companyfile.inventory.post_item, {'data': DATA}, 'POST', f'/{CID}/Inventory/Item/')
         self.assertEndpointReached(self.companyfile.inventory.delete_item, {'uid': UID}, 'DELETE', f'/{CID}/Inventory/Item/{UID}/')
+        self.assertEndpointReached(self.companyfile.inventory.location, {}, 'GET', f'/{CID}/Inventory/Location/')
+        self.assertEndpointReached(self.companyfile.inventory.get_location, {'uid': UID}, 'GET', f'/{CID}/Inventory/Location/{UID}/')
+        self.assertEndpointReached(self.companyfile.inventory.put_location, {'uid': UID, 'data': DATA}, 'PUT', f'/{CID}/Inventory/Location/{UID}/')
+        self.assertEndpointReached(self.companyfile.inventory.post_location, {'data': DATA}, 'POST', f'/{CID}/Inventory/Location/')
+        self.assertEndpointReached(self.companyfile.inventory.delete_location, {'uid': UID}, 'DELETE', f'/{CID}/Inventory/Location/{UID}/')
 
     def test_purchase_orders(self):
         self.assertEqual(repr(self.companyfile.purchase_orders), (
@@ -317,3 +370,12 @@ class EndpointTests(TestCase):
 
     def test_timeout(self):
         self.assertEndpointReached(self.companyfile.contacts.all, {'timeout': 5}, 'GET', f'/{CID}/Contact/', timeout=5)
+
+    def test_exceptions(self):
+        self.assertExceptionHandled(400, {}, MyobBadRequest)
+        self.assertExceptionHandled(401, {}, MyobUnauthorized)
+        self.assertExceptionHandled(403, {'Errors': [{'Name': 'Something'}]}, MyobForbidden)
+        self.assertExceptionHandled(403, {'Errors': [{'Name': 'RateLimitError'}]}, MyobRateLimitExceeded)
+        self.assertExceptionHandled(404, {}, MyobNotFound)
+        self.assertExceptionHandled(504, {}, MyobGatewayTimeout)
+        self.assertExceptionHandled(418, {}, MyobExceptionUnknown)

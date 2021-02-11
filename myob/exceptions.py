@@ -26,8 +26,18 @@ class MyobForbidden(MyobException):
     pass
 
 
+class MyobRateLimitExceeded(MyobForbidden):
+    # HTTP 403: Forbidden, with response.json()['Errors'][0]['Name'] == 'RateLimitError'
+    pass
+
+
 class MyobNotFound(MyobException):
     # HTTP 404: Not Found
+    pass
+
+
+class MyobGatewayTimeout(MyobException):
+    # HTTP 504: Gateway Timeout
     pass
 
 
