@@ -16,6 +16,7 @@ ENDPOINTS = {
             (ALL, '', 'banking type'),
             (CRUD, 'SpendMoneyTxn/', 'spend money transaction'),
             (CRUD, 'ReceiveMoneyTxn/', 'receive money transaction'),
+            (CRUD, 'TransferMoneyTxn/', 'transfer money transaction'),
         ],
     },
     'Contact/': {
