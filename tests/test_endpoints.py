@@ -88,6 +88,7 @@ class EndpointTests(TestCase):
             "    banking\n"
             "    company\n"
             "    contacts\n"
+            "    customer_payments\n"
             "    general_ledger\n"
             "    inventory\n"
             "    invoices\n"
@@ -187,6 +188,13 @@ class EndpointTests(TestCase):
         self.assertEndpointReached(self.companyfile.invoices.put_service, {'uid': UID, 'data': DATA}, 'PUT', f'/{CID}/Sale/Invoice/Service/{UID}/')
         self.assertEndpointReached(self.companyfile.invoices.post_service, {'data': DATA}, 'POST', f'/{CID}/Sale/Invoice/Service/')
         self.assertEndpointReached(self.companyfile.invoices.delete_service, {'uid': UID}, 'DELETE', f'/{CID}/Sale/Invoice/Service/{UID}/')
+
+    def test_customer_payments(self):
+        self.assertEqual(repr(self.companyfile.customer_payments), (
+            "Sale_CustomerPaymentManager:\n"
+            "    all() - Return all sale customer payment types for an AccountRight company file."
+        ))
+        self.assertEndpointReached(self.companyfile.customer_payments.all, {}, 'GET', f'/{CID}/Sale/CustomerPayment/')
 
     def test_quotes(self):
         self.assertEqual(repr(self.companyfile.quotes), (

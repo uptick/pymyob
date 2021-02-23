@@ -27,6 +27,12 @@ ENDPOINTS = {
             (CRUD, 'Supplier/', 'supplier contact'),
         ],
     },
+    'Sale/CustomerPayment/': {
+        'name': 'customer_payments',
+        'methods': [
+            (ALL, '', 'sale customer payment type')
+        ]
+    },
     'Sale/Invoice/': {
         'name': 'invoices',
         'methods': [
