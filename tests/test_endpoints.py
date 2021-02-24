@@ -98,7 +98,6 @@ class EndpointTests(TestCase):
         ))
 
     def test_banking(self):
-        print(repr(self.companyfile.banking))
         self.assertEqual(repr(self.companyfile.banking), (
             "BankingManager:\n"
             "                              all() - Return all banking types for an AccountRight company file.\n"
