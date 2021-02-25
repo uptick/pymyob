@@ -115,7 +115,7 @@ class EndpointTests(TestCase):
             "    put_transfermoneytxn(uid, data) - Update selected transfer money transaction.\n"
             "                  receivemoneytxn() - Return all receive money transactions for an AccountRight company file.\n"
             "                    spendmoneytxn() - Return all spend money transactions for an AccountRight company file.\n"
-            "                 transfermoneytxn() - Return all transfer money transactions for an AccountRight company file.\n"
+            "                 transfermoneytxn() - Return all transfer money transactions for an AccountRight company file."
         ))
         self.assertEndpointReached(self.companyfile.banking.all, {}, 'GET', f'/{CID}/Banking/')
         self.assertEndpointReached(self.companyfile.banking.spendmoneytxn, {}, 'GET', f'/{CID}/Banking/SpendMoneyTxn/')
