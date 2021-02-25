@@ -101,17 +101,22 @@ class EndpointTests(TestCase):
     def test_banking(self):
         self.assertEqual(repr(self.companyfile.banking), (
             "BankingManager:\n"
-            "                             all() - Return all banking types for an AccountRight company file.\n"
-            "       delete_receivemoneytxn(uid) - Delete selected receive money transaction.\n"
-            "         delete_spendmoneytxn(uid) - Delete selected spend money transaction.\n"
-            "          get_receivemoneytxn(uid) - Return selected receive money transaction.\n"
-            "            get_spendmoneytxn(uid) - Return selected spend money transaction.\n"
-            "        post_receivemoneytxn(data) - Create new receive money transaction.\n"
-            "          post_spendmoneytxn(data) - Create new spend money transaction.\n"
-            "    put_receivemoneytxn(uid, data) - Update selected receive money transaction.\n"
-            "      put_spendmoneytxn(uid, data) - Update selected spend money transaction.\n"
-            "                 receivemoneytxn() - Return all receive money transactions for an AccountRight company file.\n"
-            "                   spendmoneytxn() - Return all spend money transactions for an AccountRight company file."
+            "                              all() - Return all banking types for an AccountRight company file.\n"
+            "        delete_receivemoneytxn(uid) - Delete selected receive money transaction.\n"
+            "          delete_spendmoneytxn(uid) - Delete selected spend money transaction.\n"
+            "       delete_transfermoneytxn(uid) - Delete selected transfer money transaction.\n"
+            "           get_receivemoneytxn(uid) - Return selected receive money transaction.\n"
+            "             get_spendmoneytxn(uid) - Return selected spend money transaction.\n"
+            "          get_transfermoneytxn(uid) - Return selected transfer money transaction.\n"
+            "         post_receivemoneytxn(data) - Create new receive money transaction.\n"
+            "           post_spendmoneytxn(data) - Create new spend money transaction.\n"
+            "        post_transfermoneytxn(data) - Create new transfer money transaction.\n"
+            "     put_receivemoneytxn(uid, data) - Update selected receive money transaction.\n"
+            "       put_spendmoneytxn(uid, data) - Update selected spend money transaction.\n"
+            "    put_transfermoneytxn(uid, data) - Update selected transfer money transaction.\n"
+            "                  receivemoneytxn() - Return all receive money transactions for an AccountRight company file.\n"
+            "                    spendmoneytxn() - Return all spend money transactions for an AccountRight company file.\n"
+            "                 transfermoneytxn() - Return all transfer money transactions for an AccountRight company file."
         ))
         self.assertEndpointReached(self.companyfile.banking.all, {}, 'GET', f'/{CID}/Banking/')
         self.assertEndpointReached(self.companyfile.banking.spendmoneytxn, {}, 'GET', f'/{CID}/Banking/SpendMoneyTxn/')
@@ -124,6 +129,11 @@ class EndpointTests(TestCase):
         self.assertEndpointReached(self.companyfile.banking.put_receivemoneytxn, {'uid': UID, 'data': DATA}, 'PUT', f'/{CID}/Banking/ReceiveMoneyTxn/{UID}/')
         self.assertEndpointReached(self.companyfile.banking.post_receivemoneytxn, {'data': DATA}, 'POST', f'/{CID}/Banking/ReceiveMoneyTxn/')
         self.assertEndpointReached(self.companyfile.banking.delete_receivemoneytxn, {'uid': UID}, 'DELETE', f'/{CID}/Banking/ReceiveMoneyTxn/{UID}/')
+        self.assertEndpointReached(self.companyfile.banking.transfermoneytxn, {}, 'GET', f'/{CID}/Banking/TransferMoneyTxn/')
+        self.assertEndpointReached(self.companyfile.banking.get_transfermoneytxn, {'uid': UID}, 'GET', f'/{CID}/Banking/TransferMoneyTxn/{UID}/')
+        self.assertEndpointReached(self.companyfile.banking.put_transfermoneytxn, {'uid': UID, 'data': DATA}, 'PUT', f'/{CID}/Banking/TransferMoneyTxn/{UID}/')
+        self.assertEndpointReached(self.companyfile.banking.post_transfermoneytxn, {'data': DATA}, 'POST', f'/{CID}/Banking/TransferMoneyTxn/')
+        self.assertEndpointReached(self.companyfile.banking.delete_transfermoneytxn, {'uid': UID}, 'DELETE', f'/{CID}/Banking/TransferMoneyTxn/{UID}/')
 
     def test_contacts(self):
         self.assertEqual(repr(self.companyfile.contacts), (
