@@ -1,4 +1,4 @@
-from requests import Response
+from json import JSONDecodeError
 from unittest import TestCase
 from unittest.mock import patch
 
@@ -73,16 +73,44 @@ class EndpointTests(TestCase):
         self.assertEndpointReached(self.myob.info, {}, 'GET', '/Info/')
 
     @patch('myob.managers.requests.request')
-    def test_empty_delete_response(self, mock_request):
+    def test_json_error(self, mock_request):
         mock_request.return_value.status_code = 200
 
         def response_json():
-            return Response().json()
+            raise JSONDecodeError('Some error message', '', 0)
 
-        mock_request.return_value.content = b''
         mock_request.return_value.json = response_json
+
+        # Empty response to DELETE returns empty dict
+        mock_request.return_value.content = b''
         result = self.companyfile.banking.delete_transfermoneytxn(uid=UID)
         self.assertEqual(result, {})
+
+        # JSON error from non-empty DELETE response gets raised
+        mock_request.return_value.content = '{'
+        with self.assertRaises(JSONDecodeError):
+            self.companyfile.banking.delete_transfermoneytxn(uid=UID)
+
+        # JSON error from non-DELETE request gets raised, regardless of content
+        mock_request.return_value.content = b''
+        with self.assertRaises(JSONDecodeError):
+            self.companyfile.banking.all()
+
+        with self.assertRaises(JSONDecodeError):
+            self.companyfile.banking.post_spendmoneytxn(data=DATA)
+
+        with self.assertRaises(JSONDecodeError):
+            self.companyfile.banking.put_transfermoneytxn(uid=UID, data=DATA)
+
+        mock_request.return_value.content = '{'
+        with self.assertRaises(JSONDecodeError):
+            self.companyfile.banking.all()
+
+        with self.assertRaises(JSONDecodeError):
+            self.companyfile.banking.post_spendmoneytxn(data=DATA)
+
+        with self.assertRaises(JSONDecodeError):
+            self.companyfile.banking.put_transfermoneytxn(uid=UID, data=DATA)
 
     def test_companyfiles(self):
         self.assertEqual(repr(self.myob.companyfiles), (

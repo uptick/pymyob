@@ -94,7 +94,7 @@ class Manager:
                 try:
                     return response.json()
                 except JSONDecodeError:
-                    # Handle possible empty string response
+                    # Handle possible empty string response to DELETE request
                     if method == 'DELETE' and response.content == b'':
                         return {}
                     raise
