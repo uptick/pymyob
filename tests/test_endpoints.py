@@ -56,26 +56,6 @@ class EndpointTests(TestCase):
         )
 
     @patch('myob.managers.requests.request')
-    def assertEmptyDeleteResponseHandled(self, func, params, endpoint, mock_request, timeout=None):
-        mock_request.return_value.status_code = 200
-
-        def response_json():
-            return Response().json()
-
-        mock_request.return_value.content = b''
-        mock_request.return_value.json = response_json
-        func(**params)
-        full_endpoint = 'https://api.myob.com/accountright' + endpoint
-        mock_request.assert_called_once_with(
-            'DELETE',
-            full_endpoint,
-            headers=self.expected_request_headers,
-            params={},
-            **({}),
-            timeout=timeout,
-        )
-
-    @patch('myob.managers.requests.request')
     def assertExceptionHandled(self, status_code, response_json, exception, mock_request):
         mock_request.return_value.status_code = status_code
         mock_request.return_value.json.return_value = response_json
@@ -91,6 +71,18 @@ class EndpointTests(TestCase):
         # Don't expect companyfile credentials here as this endpoint is not companyfile specific.
         self.expected_request_headers['x-myobapi-cftoken'] = ''
         self.assertEndpointReached(self.myob.info, {}, 'GET', '/Info/')
+
+    @patch('myob.managers.requests.request')
+    def test_empty_delete_response(self, mock_request):
+        mock_request.return_value.status_code = 200
+
+        def response_json():
+            return Response().json()
+
+        mock_request.return_value.content = b''
+        mock_request.return_value.json = response_json
+        result = self.companyfile.banking.delete_transfermoneytxn(uid=UID)
+        self.assertEqual(result, {})
 
     def test_companyfiles(self):
         self.assertEqual(repr(self.myob.companyfiles), (
@@ -155,7 +147,6 @@ class EndpointTests(TestCase):
         self.assertEndpointReached(self.companyfile.banking.put_transfermoneytxn, {'uid': UID, 'data': DATA}, 'PUT', f'/{CID}/Banking/TransferMoneyTxn/{UID}/')
         self.assertEndpointReached(self.companyfile.banking.post_transfermoneytxn, {'data': DATA}, 'POST', f'/{CID}/Banking/TransferMoneyTxn/')
         self.assertEndpointReached(self.companyfile.banking.delete_transfermoneytxn, {'uid': UID}, 'DELETE', f'/{CID}/Banking/TransferMoneyTxn/{UID}/')
-        self.assertEmptyDeleteResponseHandled(self.companyfile.banking.delete_transfermoneytxn, {'uid': UID}, f'/{CID}/Banking/TransferMoneyTxn/{UID}/')
 
     def test_contacts(self):
         self.assertEqual(repr(self.companyfile.contacts), (
@@ -193,7 +184,6 @@ class EndpointTests(TestCase):
         self.assertEndpointReached(self.companyfile.contacts.put_supplier, {'uid': UID, 'data': DATA}, 'PUT', f'/{CID}/Contact/Supplier/{UID}/')
         self.assertEndpointReached(self.companyfile.contacts.post_supplier, {'data': DATA}, 'POST', f'/{CID}/Contact/Supplier/')
         self.assertEndpointReached(self.companyfile.contacts.delete_supplier, {'uid': UID}, 'DELETE', f'/{CID}/Contact/Supplier/{UID}/')
-        self.assertEmptyDeleteResponseHandled(self.companyfile.contacts.delete_supplier, {'uid': UID}, f'/{CID}/Contact/Supplier/{UID}/')
 
     def test_invoices(self):
         self.assertEqual(repr(self.companyfile.invoices), (
@@ -221,7 +211,6 @@ class EndpointTests(TestCase):
         self.assertEndpointReached(self.companyfile.invoices.put_service, {'uid': UID, 'data': DATA}, 'PUT', f'/{CID}/Sale/Invoice/Service/{UID}/')
         self.assertEndpointReached(self.companyfile.invoices.post_service, {'data': DATA}, 'POST', f'/{CID}/Sale/Invoice/Service/')
         self.assertEndpointReached(self.companyfile.invoices.delete_service, {'uid': UID}, 'DELETE', f'/{CID}/Sale/Invoice/Service/{UID}/')
-        self.assertEmptyDeleteResponseHandled(self.companyfile.invoices.delete_service, {'uid': UID}, f'/{CID}/Sale/Invoice/Service/{UID}/')
 
     def test_customer_payments(self):
         self.assertEqual(repr(self.companyfile.customer_payments), (
@@ -256,7 +245,6 @@ class EndpointTests(TestCase):
         self.assertEndpointReached(self.companyfile.quotes.put_service, {'uid': UID, 'data': DATA}, 'PUT', f'/{CID}/Sale/Quote/Service/{UID}/')
         self.assertEndpointReached(self.companyfile.quotes.post_service, {'data': DATA}, 'POST', f'/{CID}/Sale/Quote/Service/')
         self.assertEndpointReached(self.companyfile.quotes.delete_service, {'uid': UID}, 'DELETE', f'/{CID}/Sale/Quote/Service/{UID}/')
-        self.assertEmptyDeleteResponseHandled(self.companyfile.quotes.delete_service, {'uid': UID}, f'/{CID}/Sale/Quote/Service/{UID}/')
 
     def test_orders(self):
         self.assertEqual(repr(self.companyfile.orders), (
@@ -284,7 +272,6 @@ class EndpointTests(TestCase):
         self.assertEndpointReached(self.companyfile.invoices.put_service, {'uid': UID, 'data': DATA}, 'PUT', f'/{CID}/Sale/Invoice/Service/{UID}/')
         self.assertEndpointReached(self.companyfile.invoices.post_service, {'data': DATA}, 'POST', f'/{CID}/Sale/Invoice/Service/')
         self.assertEndpointReached(self.companyfile.invoices.delete_service, {'uid': UID}, 'DELETE', f'/{CID}/Sale/Invoice/Service/{UID}/')
-        self.assertEmptyDeleteResponseHandled(self.companyfile.invoices.delete_service, {'uid': UID}, f'/{CID}/Sale/Invoice/Service/{UID}/')
 
     def test_general_ledger(self):
         self.assertEqual(repr(self.companyfile.general_ledger), (
@@ -325,7 +312,6 @@ class EndpointTests(TestCase):
         self.assertEndpointReached(self.companyfile.general_ledger.put_category, {'uid': UID, 'data': DATA}, 'PUT', f'/{CID}/GeneralLedger/Category/{UID}/')
         self.assertEndpointReached(self.companyfile.general_ledger.post_category, {'data': DATA}, 'POST', f'/{CID}/GeneralLedger/Category/')
         self.assertEndpointReached(self.companyfile.general_ledger.delete_category, {'uid': UID}, 'DELETE', f'/{CID}/GeneralLedger/Category/{UID}/')
-        self.assertEmptyDeleteResponseHandled(self.companyfile.general_ledger.delete_category, {'uid': UID}, f'/{CID}/GeneralLedger/Category/{UID}/')
 
     def test_inventory(self):
         self.assertEqual(repr(self.companyfile.inventory), (
@@ -351,7 +337,6 @@ class EndpointTests(TestCase):
         self.assertEndpointReached(self.companyfile.inventory.put_location, {'uid': UID, 'data': DATA}, 'PUT', f'/{CID}/Inventory/Location/{UID}/')
         self.assertEndpointReached(self.companyfile.inventory.post_location, {'data': DATA}, 'POST', f'/{CID}/Inventory/Location/')
         self.assertEndpointReached(self.companyfile.inventory.delete_location, {'uid': UID}, 'DELETE', f'/{CID}/Inventory/Location/{UID}/')
-        self.assertEmptyDeleteResponseHandled(self.companyfile.inventory.delete_location, {'uid': UID}, f'/{CID}/Inventory/Location/{UID}/')
 
     def test_purchase_orders(self):
         self.assertEqual(repr(self.companyfile.purchase_orders), (
@@ -369,7 +354,6 @@ class EndpointTests(TestCase):
         self.assertEndpointReached(self.companyfile.purchase_orders.put_item, {'uid': UID, 'data': DATA}, 'PUT', f'/{CID}/Purchase/Order/Item/{UID}/')
         self.assertEndpointReached(self.companyfile.purchase_orders.post_item, {'data': DATA}, 'POST', f'/{CID}/Purchase/Order/Item/')
         self.assertEndpointReached(self.companyfile.purchase_orders.delete_item, {'uid': UID}, 'DELETE', f'/{CID}/Purchase/Order/Item/{UID}/')
-        self.assertEmptyDeleteResponseHandled(self.companyfile.purchase_orders.delete_item, {'uid': UID}, f'/{CID}/Purchase/Order/Item/{UID}/')
 
     def test_purchase_bills(self):
         self.assertEqual(repr(self.companyfile.purchase_bills), (
@@ -407,7 +391,6 @@ class EndpointTests(TestCase):
         self.assertEndpointReached(self.companyfile.purchase_bills.put_miscellaneous, {'uid': UID, 'data': DATA}, 'PUT', f'/{CID}/Purchase/Bill/Miscellaneous/{UID}/')
         self.assertEndpointReached(self.companyfile.purchase_bills.post_miscellaneous, {'data': DATA}, 'POST', f'/{CID}/Purchase/Bill/Miscellaneous/')
         self.assertEndpointReached(self.companyfile.purchase_bills.delete_miscellaneous, {'uid': UID}, 'DELETE', f'/{CID}/Purchase/Bill/Miscellaneous/{UID}/')
-        self.assertEmptyDeleteResponseHandled(self.companyfile.purchase_bills.delete_miscellaneous, {'uid': UID}, f'/{CID}/Purchase/Bill/Miscellaneous/{UID}/')
 
     def test_company(self):
         self.assertEqual(repr(self.companyfile.company), (
