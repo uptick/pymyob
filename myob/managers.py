@@ -1,6 +1,7 @@
 import re
 import requests
 from datetime import date
+from json import JSONDecodeError
 
 from .constants import DEFAULT_PAGE_SIZE, MYOB_BASE_URL
 from .endpoints import CRUD, METHOD_MAPPING, METHOD_ORDER
@@ -90,7 +91,13 @@ class Manager:
                 if not response.headers.get('content-type', '').startswith('application/json'):
                     return response.content
 
-                return response.json()
+                try:
+                    return response.json()
+                except JSONDecodeError:
+                    # Handle possible empty string response
+                    if method == 'DELETE' and response.content == b'':
+                        return {}
+                    raise
             elif response.status_code == 201:
                 return response.json()
             elif response.status_code == 400:
