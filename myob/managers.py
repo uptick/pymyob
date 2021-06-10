@@ -2,6 +2,7 @@ import re
 import requests
 from datetime import date
 from json import JSONDecodeError
+
 try:
     from simplejson.errors import JSONDecodeError as SimpleJSONDecodeError
 except ImportError:
