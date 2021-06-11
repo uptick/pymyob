@@ -1,3 +1,4 @@
+from json import JSONDecodeError
 from unittest import TestCase
 from unittest.mock import patch
 
@@ -76,7 +77,7 @@ class EndpointTests(TestCase):
         mock_request.return_value.status_code = 200
 
         def response_json():
-            raise ValueError
+            raise JSONDecodeError('Some error message', '', 0)
 
         mock_request.return_value.json = response_json
 
