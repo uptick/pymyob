@@ -5,7 +5,7 @@
 [![Test](https://github.com/uptick/pymyob/workflows/Test/badge.svg)](https://github.com/uptick/pymyob/actions?query=workflow%3ATest)
 [![Lint](https://github.com/uptick/pymyob/workflows/Lint/badge.svg)](https://github.com/uptick/pymyob/actions?query=workflow%3ALint)
 
-A Python API around [MYOB's AccountRight Live API](http://developer.myob.com/api/accountright/v2/).
+A Python API around [MYOB's AccountRight and Essentials APIs](http://developer.myob.com/api/accountright/v2/).
 
 ## Pre-getting started
 
