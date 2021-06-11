@@ -88,28 +88,28 @@ class EndpointTests(TestCase):
 
         # JSON error from non-empty DELETE response gets raised
         mock_request.return_value.content = '{'
-        with self.assertRaises(JSONDecodeError):
+        with self.assertRaises(ValueError):
             self.companyfile.banking.delete_transfermoneytxn(uid=UID)
 
         # JSON error from non-DELETE request gets raised, regardless of content
         mock_request.return_value.content = b''
-        with self.assertRaises(JSONDecodeError):
+        with self.assertRaises(ValueError):
             self.companyfile.banking.all()
 
-        with self.assertRaises(JSONDecodeError):
+        with self.assertRaises(ValueError):
             self.companyfile.banking.post_spendmoneytxn(data=DATA)
 
-        with self.assertRaises(JSONDecodeError):
+        with self.assertRaises(ValueError):
             self.companyfile.banking.put_transfermoneytxn(uid=UID, data=DATA)
 
         mock_request.return_value.content = '{'
-        with self.assertRaises(JSONDecodeError):
+        with self.assertRaises(ValueError):
             self.companyfile.banking.all()
 
-        with self.assertRaises(JSONDecodeError):
+        with self.assertRaises(ValueError):
             self.companyfile.banking.post_spendmoneytxn(data=DATA)
 
-        with self.assertRaises(JSONDecodeError):
+        with self.assertRaises(ValueError):
             self.companyfile.banking.put_transfermoneytxn(uid=UID, data=DATA)
 
     def test_companyfiles(self):

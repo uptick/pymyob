@@ -1,7 +1,6 @@
 import re
 import requests
 from datetime import date
-from json import JSONDecodeError
 
 from .constants import DEFAULT_PAGE_SIZE, MYOB_BASE_URL
 from .endpoints import CRUD, METHOD_MAPPING, METHOD_ORDER
@@ -93,7 +92,7 @@ class Manager:
 
                 try:
                     return response.json()
-                except JSONDecodeError:
+                except ValueError:
                     # Handle possible empty string response to DELETE request
                     if method == 'DELETE' and response.content == b'':
                         return {}
