@@ -344,16 +344,21 @@ class EndpointTests(TestCase):
     def test_inventory(self):
         self.assertEqual(repr(self.companyfile.inventory), (
             "InventoryManager:\n"
-            "           delete_item(uid) - Delete selected inventory item.\n"
-            "       delete_location(uid) - Delete selected inventory location.\n"
-            "              get_item(uid) - Return selected inventory item.\n"
-            "          get_location(uid) - Return selected inventory location.\n"
-            "                     item() - Return all inventory items for an AccountRight company file.\n"
-            "                 location() - Return all inventory locations for an AccountRight company file.\n"
-            "            post_item(data) - Create new inventory item.\n"
-            "        post_location(data) - Create new inventory location.\n"
-            "        put_item(uid, data) - Update selected inventory item.\n"
-            "    put_location(uid, data) - Update selected inventory location."
+            "                 adjustment() - Return all inventory adjustments for an AccountRight company file.\n"
+            "       delete_adjustment(uid) - Delete selected inventory adjustment.\n"
+            "             delete_item(uid) - Delete selected inventory item.\n"
+            "         delete_location(uid) - Delete selected inventory location.\n"
+            "          get_adjustment(uid) - Return selected inventory adjustment.\n"
+            "                get_item(uid) - Return selected inventory item.\n"
+            "            get_location(uid) - Return selected inventory location.\n"
+            "                       item() - Return all inventory items for an AccountRight company file.\n"
+            "                   location() - Return all inventory locations for an AccountRight company file.\n"
+            "        post_adjustment(data) - Create new inventory adjustment.\n"
+            "              post_item(data) - Create new inventory item.\n"
+            "          post_location(data) - Create new inventory location.\n"
+            "    put_adjustment(uid, data) - Update selected inventory adjustment.\n"
+            "          put_item(uid, data) - Update selected inventory item.\n"
+            "      put_location(uid, data) - Update selected inventory location."
         ))
         self.assertEndpointReached(self.companyfile.inventory.item, {}, 'GET', f'/{CID}/Inventory/Item/')
         self.assertEndpointReached(self.companyfile.inventory.get_item, {'uid': UID}, 'GET', f'/{CID}/Inventory/Item/{UID}/')
@@ -365,6 +370,11 @@ class EndpointTests(TestCase):
         self.assertEndpointReached(self.companyfile.inventory.put_location, {'uid': UID, 'data': DATA}, 'PUT', f'/{CID}/Inventory/Location/{UID}/')
         self.assertEndpointReached(self.companyfile.inventory.post_location, {'data': DATA}, 'POST', f'/{CID}/Inventory/Location/')
         self.assertEndpointReached(self.companyfile.inventory.delete_location, {'uid': UID}, 'DELETE', f'/{CID}/Inventory/Location/{UID}/')
+        self.assertEndpointReached(self.companyfile.inventory.adjustment, {}, 'GET', f'/{CID}/Inventory/Adjustment/')
+        self.assertEndpointReached(self.companyfile.inventory.get_adjustment, {'uid': UID}, 'GET', f'/{CID}/Inventory/Adjustment/{UID}/')
+        self.assertEndpointReached(self.companyfile.inventory.put_adjustment, {'uid': UID, 'data': DATA}, 'PUT', f'/{CID}/Inventory/Adjustment/{UID}/')
+        self.assertEndpointReached(self.companyfile.inventory.post_adjustment, {'data': DATA}, 'POST', f'/{CID}/Inventory/Adjustment/')
+        self.assertEndpointReached(self.companyfile.inventory.delete_adjustment, {'uid': UID}, 'DELETE', f'/{CID}/Inventory/Adjustment/{UID}/')
 
     def test_purchase_orders(self):
         self.assertEqual(repr(self.companyfile.purchase_orders), (
