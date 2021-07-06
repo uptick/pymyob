@@ -71,7 +71,7 @@ ENDPOINTS = {
         'name': 'inventory',
         'methods': [
             (CRUD, 'Item/', 'inventory item'),
-            (ALL, 'ItemPriceMatrix/', 'inventory item price matrice'),
+            (ALL, 'ItemPriceMatrix/', 'inventory item price matrix'),
             (GET, 'ItemPriceMatrix/', 'inventory item price matrix'),
             (PUT, 'ItemPriceMatrix/', 'inventory item price matrix'),
             (CRUD, 'Location/', 'inventory location'),
