@@ -32,8 +32,8 @@ ENDPOINTS = {
         'name': 'customer_payments',
         'methods': [
             (ALL, '', 'sale customer payment'),
-            (GET,    '', 'sale customer payment'),
-            (POST,   '', 'sale customer payment'),
+            (GET, '', 'sale customer payment'),
+            (POST, '', 'sale customer payment'),
             (DELETE, '', 'sale customer payment'),
         ]
     },
