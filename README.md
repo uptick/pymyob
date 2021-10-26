@@ -120,7 +120,7 @@ inventory = comp.inventory.item()
 
 # Use endswith, startswith, or substringof filters
 search_text = 'Acme'
-customers = comp.contacts.customer(f"substringof('{search_text}', CompanyName)")
+customers = comp.contacts.customer(raw_filter=f"substringof('{search_text}', CompanyName)")
 ```
 
 If you don't know what you're looking for, the reprs of most objects (eg. `myob`, `comp`, `comp.invoices` above) will yield info on what managers/methods are available.
