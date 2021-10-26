@@ -28,6 +28,7 @@ class QueryParamTests(TestCase):
         self.assertParamsEqual({'DateOccurred__lt': '2013-08-30T19:00:59.043'}, {'$filter': "(DateOccurred lt '2013-08-30T19:00:59.043')"})
         self.assertParamsEqual({'Type': ('Customer', 'Supplier'), 'DisplayID__gt': '5-0000'}, {'$filter': "(Type eq 'Customer' or Type eq 'Supplier') and (DisplayID gt '5-0000')"})
         self.assertParamsEqual({'raw_filter': "(Type eq 'Customer' or Type eq 'Supplier') or DisplayID gt '5-0000'", 'DateOccurred__lt': '2013-08-30T19:00:59.043'}, {'$filter': "((Type eq 'Customer' or Type eq 'Supplier') or DisplayID gt '5-0000') and (DateOccurred lt '2013-08-30T19:00:59.043')"})
+        self.assertParamsEqual({'raw_filter': "substringof('Company Substring', CompanyName)"}, {'$filter': "(substringof('Company Substring', CompanyName))"})
         self.assertParamsEqual({'IsActive': True}, {'$filter': "(IsActive eq true)"})
         self.assertParamsEqual({'IsActive': False}, {'$filter': "(IsActive eq false)"})
 
