@@ -36,6 +36,11 @@ class MyobNotFound(MyobException):
     pass
 
 
+class MyobConflict(MyobException):
+    # HTTP 409: Conflict
+    pass
+
+
 class MyobGatewayTimeout(MyobException):
     # HTTP 504: Gateway Timeout
     pass

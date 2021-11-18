@@ -6,6 +6,7 @@ from .constants import DEFAULT_PAGE_SIZE, MYOB_BASE_URL
 from .endpoints import CRUD, METHOD_MAPPING, METHOD_ORDER
 from .exceptions import (
     MyobBadRequest,
+    MyobConflict,
     MyobExceptionUnknown,
     MyobForbidden,
     MyobGatewayTimeout,
@@ -109,6 +110,8 @@ class Manager:
                 raise MyobForbidden(response)
             elif response.status_code == 404:
                 raise MyobNotFound(response)
+            elif response.status_code == 409:
+                raise MyobConflict(response)
             elif response.status_code == 504:
                 raise MyobGatewayTimeout(response)
             else:
