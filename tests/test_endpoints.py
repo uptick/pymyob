@@ -69,7 +69,7 @@ class EndpointTests(TestCase):
             "    info"
         ))
         # Don't expect companyfile credentials here as this endpoint is not companyfile specific.
-        self.expected_request_headers['x-myobapi-cftoken'] = ''
+        del self.expected_request_headers['x-myobapi-cftoken']
         self.assertEndpointReached(self.myob.info, {}, 'GET', '/Info/')
 
     @patch('myob.managers.requests.request')
@@ -120,7 +120,7 @@ class EndpointTests(TestCase):
         ))
         self.assertEndpointReached(self.myob.companyfiles.get, {'id': CID}, 'GET', f'/{CID}/')
         # Don't expect companyfile credentials here as the next endpoint is not companyfile specific.
-        self.expected_request_headers['x-myobapi-cftoken'] = ''
+        del self.expected_request_headers['x-myobapi-cftoken']
         self.assertEndpointReached(self.myob.companyfiles.all, {}, 'GET', '/')
 
     def test_companyfile(self):
