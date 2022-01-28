@@ -142,6 +142,9 @@ class Manager:
         }
         if self.company_id:
             try:
+                # Try to look up credentials for the companyfile if they've been set up. Else,
+                # pass through silently, as the user is likely to have been set up with SSO,
+                # in which case the credentials are not required.
                 companyfile_credentials = self.credentials.companyfile_credentials[self.company_id]
                 request_kwargs['headers'].update({
                     'x-myobapi-cftoken': companyfile_credentials,

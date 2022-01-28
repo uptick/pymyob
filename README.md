@@ -80,7 +80,8 @@ comp.name  # Company Name
 comp.data  # Remaining data as a raw dict.
 ```
 
-Render a dropdown for your user to let them select which of the company files they wish to use. Usually there will only be one against their account, but best to check. If authentication against the company file is needed, prompt them for the username and password for that company file and save this as follows:
+Render a dropdown for your user to let them select which of the company files they wish to use. Usually there will only be one against their account, but best to check.
+If additional authentication against the company file is needed (ie when the company file account isn't tied via SSO to a my.myob account), prompt them for the username and password for that company file and save this as follows:
 
 ```
 cred.authenticate_companyfile(<company_id>, <username>, <password>)
