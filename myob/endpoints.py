@@ -72,6 +72,13 @@ ENDPOINTS = {
             (GET, 'JournalTransaction/', 'transaction journal'),
         ]
     },
+    'Report/': {
+        'name': 'report',
+        'methods': [
+            (GET, 'BalanceSheetSummary/', 'balance sheet summary'),
+            (GET, 'ProfitAndLossSummary/', 'profit loss summary'),
+        ]
+    },
     'Inventory/': {
         'name': 'inventory',
         'methods': [
