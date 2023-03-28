@@ -116,9 +116,14 @@ class Manager:
                 raise MyobGatewayTimeout(response)
             else:
                 raise MyobExceptionUnknown(response)
+                
+        # Build method name and consider query_string handling
+        if '?' in endpoint:
+            method_name_raw = endpoint.split("?")[0]
+        else:
+            method_name_raw = endpoint
+        method_name = '_'.join(p for p in method_name_raw.rstrip('/').split('/') if '[' not in p).lower()
 
-        # Build method name
-        method_name = '_'.join(p for p in endpoint.rstrip('/').split('/') if '[' not in p).lower()
         # If it has no name, use method.
         if not method_name:
             method_name = method.lower()
