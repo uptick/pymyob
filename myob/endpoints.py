@@ -75,8 +75,8 @@ ENDPOINTS = {
     'Report/': {
         'name': 'report',
         'methods': [
-            (GET, 'BalanceSheetSummary/', 'balance sheet summary'),
-            (GET, 'ProfitAndLossSummary/', 'profit loss summary'),
+            (ALL, 'BalanceSheetSummary/', 'balance sheet summary'),
+            (ALL, 'ProfitAndLossSummary/', 'profit loss summary'),
         ]
     },
     'Inventory/': {
