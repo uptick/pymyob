@@ -70,7 +70,7 @@ ENDPOINTS = {
             (CRUD, 'Job/', 'job'),
             (ALL, 'JournalTransaction/', 'transaction journal'),
             (GET, 'JournalTransaction/', 'transaction journal'),
-            (ALL, 'AccountRegister/', 'transaction journal'),
+            (ALL, 'AccountRegister/', 'account register'),
         ]
     },
     'Inventory/': {

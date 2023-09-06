@@ -308,6 +308,7 @@ class EndpointTests(TestCase):
         self.assertEqual(repr(self.companyfile.general_ledger), (
             "GeneralLedgerManager:\n"
             "                      account() - Return all accounts for an AccountRight company file.\n"
+            "              accountregister() - Return all account registers for an AccountRight company file.\n"
             "                     category() - Return all cost center tracking categories for an AccountRight company file.\n"
             "            delete_account(uid) - Delete selected account.\n"
             "           delete_category(uid) - Delete selected cost center tracking category.\n"
@@ -346,7 +347,7 @@ class EndpointTests(TestCase):
         self.assertEndpointReached(self.companyfile.general_ledger.post_category, {'data': DATA}, 'POST', f'/{CID}/GeneralLedger/Category/')
         self.assertEndpointReached(self.companyfile.general_ledger.delete_category, {'uid': UID}, 'DELETE', f'/{CID}/GeneralLedger/Category/{UID}/')
         self.assertEndpointReached(self.companyfile.general_ledger.journaltransaction, {}, 'GET', f'/{CID}/GeneralLedger/JournalTransaction/')
-        self.assertEndpointReached(self.companyfile.general_ledger.accountregister, {}, 'ALL', f'/{CID}/GeneralLedger/AccountRegister/')
+        self.assertEndpointReached(self.companyfile.general_ledger.accountregister, {}, 'GET', f'/{CID}/GeneralLedger/AccountRegister/')
 
 
     def test_inventory(self):
