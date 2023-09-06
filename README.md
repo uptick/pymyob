@@ -33,6 +33,8 @@ cred = PartnerCredentials(
 ```
 
 Cache `cred.state` somewhere. You'll use this to rebuild the `PartnerCredentials` instance later.
+This object includes a datetime object, so if your cache does not serialise datetime objects, you'll need to find an alternative, such as pickling and saving to a binary database column.
+
 Redirect the user to `cred.url`. There, they will need to log in to MYOB and authorise partnership with your app<sup id="a1">[1](#f1)</sup>. Once they do, they'll be redirected to the Redirect Uri you supplied.
 
 At the url they're redirected to, rebuild the `PartnerCredentials` then pick the verifier out of the request and use it to verify the credentials.
@@ -79,6 +81,7 @@ comp.id  # Company Id
 comp.name  # Company Name
 comp.data  # Remaining data as a raw dict.
 ```
+Tip: the companyfiles object specifies all supported managers (that is, endpoints).
 
 Render a dropdown for your user to let them select which of the company files they wish to use. Usually there will only be one against their account, but best to check.
 If additional authentication against the company file is needed (ie when the company file account isn't tied via SSO to a my.myob account), prompt them for the username and password for that company file and save this as follows:

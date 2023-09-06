@@ -71,6 +71,7 @@ ENDPOINTS = {
             (ALL, 'JournalTransaction/', 'transaction journal'),
             (GET, 'JournalTransaction/', 'transaction journal'),
             (ALL, 'AccountRegister/', 'account register'),
+            (ALL, 'AccountingProperties/', 'accounting property setting'),
         ]
     },
     'Inventory/': {
