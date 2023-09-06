@@ -346,6 +346,8 @@ class EndpointTests(TestCase):
         self.assertEndpointReached(self.companyfile.general_ledger.post_category, {'data': DATA}, 'POST', f'/{CID}/GeneralLedger/Category/')
         self.assertEndpointReached(self.companyfile.general_ledger.delete_category, {'uid': UID}, 'DELETE', f'/{CID}/GeneralLedger/Category/{UID}/')
         self.assertEndpointReached(self.companyfile.general_ledger.journaltransaction, {}, 'GET', f'/{CID}/GeneralLedger/JournalTransaction/')
+        self.assertEndpointReached(self.companyfile.general_ledger.accountregister, {}, 'ALL', f'/{CID}/GeneralLedger/AccountRegister/')
+
 
     def test_inventory(self):
         self.assertEqual(repr(self.companyfile.inventory), (
