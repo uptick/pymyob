@@ -1,7 +1,7 @@
 from .utils import pluralise
 
 ALL = 'ALL'
-GET = 'GET'
+GET = 'GET' # this method expects a UID as a keyword
 POST = 'POST'
 PUT = 'PUT'
 DELETE = 'DELETE'
@@ -70,6 +70,7 @@ ENDPOINTS = {
             (CRUD, 'Job/', 'job'),
             (ALL, 'JournalTransaction/', 'transaction journal'),
             (GET, 'JournalTransaction/', 'transaction journal'),
+            (ALL, 'AccountRegister/', 'transaction journal'),
         ]
     },
     'Inventory/': {
