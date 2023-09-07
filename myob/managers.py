@@ -10,6 +10,7 @@ from .exceptions import (
     MyobExceptionUnknown,
     MyobForbidden,
     MyobGatewayTimeout,
+    MyobInternalServerError,
     MyobNotFound,
     MyobRateLimitExceeded,
     MyobUnauthorized,
@@ -112,6 +113,8 @@ class Manager:
                 raise MyobNotFound(response)
             elif response.status_code == 409:
                 raise MyobConflict(response)
+            elif response.status_code == 500:
+                raise MyobInternalServerError(response)
             elif response.status_code == 504:
                 raise MyobGatewayTimeout(response)
             else:

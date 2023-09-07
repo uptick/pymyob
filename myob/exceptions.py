@@ -41,6 +41,11 @@ class MyobConflict(MyobException):
     pass
 
 
+class MyobInternalServerError(MyobException):
+    # HTTP 500: Internal Server Error
+    pass
+
+
 class MyobGatewayTimeout(MyobException):
     # HTTP 504: Gateway Timeout
     pass
