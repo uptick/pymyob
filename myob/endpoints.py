@@ -1,7 +1,7 @@
 from .utils import pluralise
 
 ALL = 'ALL'
-GET = 'GET' # this method expects a UID as a keyword
+GET = 'GET'  # this method expects a UID as a keyword
 POST = 'POST'
 PUT = 'PUT'
 DELETE = 'DELETE'
