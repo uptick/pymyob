@@ -308,8 +308,8 @@ class EndpointTests(TestCase):
         self.assertEqual(repr(self.companyfile.general_ledger), (
             "GeneralLedgerManager:\n"
             "                      account() - Return all accounts for an AccountRight company file.\n"
-            "              accountregister() - Return all account registers for an AccountRight company file.\n"
             "         accountingproperties() - Return all accounting property settings for an AccountRight company file.\n"
+            "              accountregister() - Return all account registers for an AccountRight company file.\n"
             "                     category() - Return all cost center tracking categories for an AccountRight company file.\n"
             "            delete_account(uid) - Delete selected account.\n"
             "           delete_category(uid) - Delete selected cost center tracking category.\n"
