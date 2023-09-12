@@ -68,6 +68,8 @@ ENDPOINTS = {
             (CRUD, 'Account/', 'account'),
             (CRUD, 'Category/', 'cost center tracking category'),
             (CRUD, 'Job/', 'job'),
+            (ALL, 'GeneralJournal/', 'general journal'),
+            (GET, 'GeneralJournal/', 'general journal'),
             (ALL, 'JournalTransaction/', 'transaction journal'),
             (GET, 'JournalTransaction/', 'transaction journal'),
             (ALL, 'AccountRegister/', 'account register'),
