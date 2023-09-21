@@ -129,6 +129,8 @@ class EndpointTests(TestCase):
             "    banking\n"
             "    company\n"
             "    contacts\n"
+            "    credit_refunds\n"
+            "    credit_settlements\n"
             "    customer_payments\n"
             "    general_ledger\n"
             "    inventory\n"
@@ -249,6 +251,43 @@ class EndpointTests(TestCase):
             "     post(data) - Create new sale customer payment."
         ))
         self.assertEndpointReached(self.companyfile.customer_payments.all, {}, 'GET', f'/{CID}/Sale/CustomerPayment/')
+        self.assertEndpointReached(self.companyfile.customer_payments.get, {'uid': UID}, 'GET', f'/{CID}/Sale/CustomerPayment/{UID}/')
+        self.assertEndpointReached(self.companyfile.customer_payments.delete, {'uid': UID}, 'DELETE',
+                                   f'/{CID}/Sale/CustomerPayment/{UID}/')
+        self.assertEndpointReached(self.companyfile.customer_payments.post, {'data': DATA}, 'POST',
+                                   f'/{CID}/Sale/CustomerPayment/')
+
+    def test_credit_refunds(self):
+        self.assertEqual(repr(self.companyfile.credit_refunds), (
+            "Sale_CreditRefundManager:\n"
+            "          all() - Return all sale credit refunds for an AccountRight company file.\n"
+            "    delete(uid) - Delete selected sale credit refund.\n"
+            "       get(uid) - Return selected sale credit refund.\n"
+            "     post(data) - Create new sale credit refund."
+        ))
+        self.assertEndpointReached(self.companyfile.credit_refunds.all, {}, 'GET', f'/{CID}/Sale/CreditRefund/')
+        self.assertEndpointReached(self.companyfile.credit_refunds.get, {'uid': UID}, 'GET',
+                                   f'/{CID}/Sale/CreditRefund/{UID}/')
+        self.assertEndpointReached(self.companyfile.credit_refunds.delete, {'uid': UID}, 'DELETE',
+                                   f'/{CID}/Sale/CreditRefund/{UID}/')
+        self.assertEndpointReached(self.companyfile.credit_refunds.post, {'data': DATA}, 'POST',
+                                   f'/{CID}/Sale/CreditRefund/')
+
+    def test_credit_settlements(self):
+        self.assertEqual(repr(self.companyfile.credit_settlements), (
+            "Sale_CreditSettlementManager:\n"
+            "          all() - Return all sale credit settlements for an AccountRight company file.\n"
+            "    delete(uid) - Delete selected sale credit settlement.\n"
+            "       get(uid) - Return selected sale credit settlement.\n"
+            "     post(data) - Create new sale credit settlement."
+        ))
+        self.assertEndpointReached(self.companyfile.credit_settlements.all, {}, 'GET', f'/{CID}/Sale/CreditSettlement/')
+        self.assertEndpointReached(self.companyfile.credit_settlements.get, {'uid': UID}, 'GET',
+                                   f'/{CID}/Sale/CreditSettlement/{UID}/')
+        self.assertEndpointReached(self.companyfile.credit_settlements.delete, {'uid': UID}, 'DELETE',
+                                   f'/{CID}/Sale/CreditSettlement/{UID}/')
+        self.assertEndpointReached(self.companyfile.credit_settlements.post, {'data': DATA}, 'POST',
+                                   f'/{CID}/Sale/CreditSettlement/')
 
     def test_quotes(self):
         self.assertEqual(repr(self.companyfile.quotes), (
