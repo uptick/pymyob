@@ -129,6 +129,8 @@ class EndpointTests(TestCase):
             "    banking\n"
             "    company\n"
             "    contacts\n"
+            "    credit_refunds\n"
+            "    credit_settlements\n"
             "    customer_payments\n"
             "    general_ledger\n"
             "    inventory\n"
@@ -249,7 +251,44 @@ class EndpointTests(TestCase):
             "     post(data) - Create new sale customer payment."
         ))
         self.assertEndpointReached(self.companyfile.customer_payments.all, {}, 'GET', f'/{CID}/Sale/CustomerPayment/')
+        self.assertEndpointReached(self.companyfile.customer_payments.get, {'uid': UID}, 'GET', f'/{CID}/Sale/CustomerPayment/{UID}/')
+        self.assertEndpointReached(self.companyfile.customer_payments.delete, {'uid': UID}, 'DELETE',
+                                   f'/{CID}/Sale/CustomerPayment/{UID}/')
+        self.assertEndpointReached(self.companyfile.customer_payments.post, {'data': DATA}, 'POST',
+                                   f'/{CID}/Sale/CustomerPayment/')
 
+
+    def test_credit_refunds(self):
+        self.assertEqual(repr(self.companyfile.credit_refunds), (
+            "Sale_CreditRefundManager:\n"
+            "          all() - Return all sale credit refunds for an AccountRight company file.\n"
+            "    delete(uid) - Delete selected sale credit refund.\n"
+            "       get(uid) - Return selected sale credit refund.\n"
+            "     post(data) - Create new sale credit refund."
+        ))
+        self.assertEndpointReached(self.companyfile.credit_refunds.all, {}, 'GET', f'/{CID}/Sale/CreditRefund/')
+        self.assertEndpointReached(self.companyfile.credit_refunds.get, {'uid': UID}, 'GET',
+                                   f'/{CID}/Sale/CreditRefund/{UID}/')
+        self.assertEndpointReached(self.companyfile.credit_refunds.delete, {'uid': UID}, 'DELETE',
+                                   f'/{CID}/Sale/CreditRefund/{UID}/')
+        self.assertEndpointReached(self.companyfile.credit_refunds.post, {'data': DATA}, 'POST',
+                                   f'/{CID}/Sale/CreditRefund/')
+
+    def test_credit_settlements(self):
+        self.assertEqual(repr(self.companyfile.credit_settlements), (
+            "Sale_CreditSettlementManager:\n"
+            "          all() - Return all sale credit settlements for an AccountRight company file.\n"
+            "    delete(uid) - Delete selected sale credit settlement.\n"
+            "       get(uid) - Return selected sale credit settlement.\n"
+            "     post(data) - Create new sale credit settlement."
+        ))
+        self.assertEndpointReached(self.companyfile.credit_settlements.all, {}, 'GET', f'/{CID}/Sale/CreditSettlement/')
+        self.assertEndpointReached(self.companyfile.credit_settlements.get, {'uid': UID}, 'GET',
+                                   f'/{CID}/Sale/CreditSettlement/{UID}/')
+        self.assertEndpointReached(self.companyfile.credit_settlements.delete, {'uid': UID}, 'DELETE',
+                                   f'/{CID}/Sale/CreditSettlement/{UID}/')
+        self.assertEndpointReached(self.companyfile.credit_settlements.post, {'data': DATA}, 'POST',
+                                   f'/{CID}/Sale/CreditSettlement/')
     def test_quotes(self):
         self.assertEqual(repr(self.companyfile.quotes), (
             "Sale_QuoteManager:\n"
@@ -307,32 +346,35 @@ class EndpointTests(TestCase):
     def test_general_ledger(self):
         self.assertEqual(repr(self.companyfile.general_ledger), (
             "GeneralLedgerManager:\n"
-            "                      account() - Return all accounts for an AccountRight company file.\n"
-            "         accountingproperties() - Return all accounting property settings for an AccountRight company file.\n"
-            "              accountregister() - Return all account registers for an AccountRight company file.\n"
-            "                     category() - Return all cost center tracking categories for an AccountRight company file.\n"
-            "            delete_account(uid) - Delete selected account.\n"
-            "           delete_category(uid) - Delete selected cost center tracking category.\n"
-            "                delete_job(uid) - Delete selected job.\n"
-            "            delete_taxcode(uid) - Delete selected tax code.\n"
-            "               generaljournal() - Return all general journals for an AccountRight company file.\n"
-            "               get_account(uid) - Return selected account.\n"
-            "              get_category(uid) - Return selected cost center tracking category.\n"
-            "        get_generaljournal(uid) - Return selected general journal.\n"
-            "                   get_job(uid) - Return selected job.\n"
-            "    get_journaltransaction(uid) - Return selected transaction journal.\n"
-            "               get_taxcode(uid) - Return selected tax code.\n"
-            "                          job() - Return all jobs for an AccountRight company file.\n"
-            "           journaltransaction() - Return all transaction journals for an AccountRight company file.\n"
-            "             post_account(data) - Create new account.\n"
-            "            post_category(data) - Create new cost center tracking category.\n"
-            "                 post_job(data) - Create new job.\n"
-            "             post_taxcode(data) - Create new tax code.\n"
-            "         put_account(uid, data) - Update selected account.\n"
-            "        put_category(uid, data) - Update selected cost center tracking category.\n"
-            "             put_job(uid, data) - Update selected job.\n"
-            "         put_taxcode(uid, data) - Update selected tax code.\n"
-            "                      taxcode() - Return all tax codes for an AccountRight company file."
+            "                        account() - Return all accounts for an AccountRight company file.\n"
+            "           accountingproperties() - Return all accounting property settings for an AccountRight company file.\n"
+            "                accountregister() - Return all account registers for an AccountRight company file.\n"
+            "                       category() - Return all cost center tracking categories for an AccountRight company file.\n"
+            "              delete_account(uid) - Delete selected account.\n"
+            "             delete_category(uid) - Delete selected cost center tracking category.\n"
+            "       delete_generaljournal(uid) - Delete selected general journal.\n"
+            "                  delete_job(uid) - Delete selected job.\n"
+            "              delete_taxcode(uid) - Delete selected tax code.\n"
+            "                 generaljournal() - Return all general journals for an AccountRight company file.\n"
+            "                 get_account(uid) - Return selected account.\n"
+            "                get_category(uid) - Return selected cost center tracking category.\n"
+            "          get_generaljournal(uid) - Return selected general journal.\n"
+            "                     get_job(uid) - Return selected job.\n"
+            "      get_journaltransaction(uid) - Return selected transaction journal.\n"
+            "                 get_taxcode(uid) - Return selected tax code.\n"
+            "                            job() - Return all jobs for an AccountRight company file.\n"
+            "             journaltransaction() - Return all transaction journals for an AccountRight company file.\n"
+            "               post_account(data) - Create new account.\n"
+            "              post_category(data) - Create new cost center tracking category.\n"
+            "        post_generaljournal(data) - Create new general journal.\n"
+            "                   post_job(data) - Create new job.\n"
+            "               post_taxcode(data) - Create new tax code.\n"
+            "           put_account(uid, data) - Update selected account.\n"
+            "          put_category(uid, data) - Update selected cost center tracking category.\n"
+            "    put_generaljournal(uid, data) - Update selected general journal.\n"
+            "               put_job(uid, data) - Update selected job.\n"
+            "           put_taxcode(uid, data) - Update selected tax code.\n"
+            "                        taxcode() - Return all tax codes for an AccountRight company file."
         ))
         self.assertEndpointReached(self.companyfile.general_ledger.taxcode, {}, 'GET', f'/{CID}/GeneralLedger/TaxCode/')
         self.assertEndpointReached(self.companyfile.general_ledger.get_taxcode, {'uid': UID}, 'GET', f'/{CID}/GeneralLedger/TaxCode/{UID}/')
