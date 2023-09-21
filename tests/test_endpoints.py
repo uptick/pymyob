@@ -257,7 +257,6 @@ class EndpointTests(TestCase):
         self.assertEndpointReached(self.companyfile.customer_payments.post, {'data': DATA}, 'POST',
                                    f'/{CID}/Sale/CustomerPayment/')
 
-
     def test_credit_refunds(self):
         self.assertEqual(repr(self.companyfile.credit_refunds), (
             "Sale_CreditRefundManager:\n"
@@ -289,6 +288,7 @@ class EndpointTests(TestCase):
                                    f'/{CID}/Sale/CreditSettlement/{UID}/')
         self.assertEndpointReached(self.companyfile.credit_settlements.post, {'data': DATA}, 'POST',
                                    f'/{CID}/Sale/CreditSettlement/')
+
     def test_quotes(self):
         self.assertEqual(repr(self.companyfile.quotes), (
             "Sale_QuoteManager:\n"
