@@ -37,6 +37,24 @@ ENDPOINTS = {
             (DELETE, '', 'sale customer payment'),
         ]
     },
+    'Sale/CreditRefund/': {
+        'name': 'credit_refunds',
+        'methods': [
+            (ALL, '', 'sale credit refund'),
+            (GET, '', 'sale credit refund'),
+            (POST, '', 'sale credit refund'),
+            (DELETE, '', 'sale credit refund'),
+        ]
+    },
+    'Sale/CreditSettlement/': {
+        'name': 'credit_settlements',
+        'methods': [
+            (ALL, '', 'sale credit settlement'),
+            (GET, '', 'sale credit settlement'),
+            (POST, '', 'sale credit settlement'),
+            (DELETE, '', 'sale credit settlement'),
+        ]
+    },
     'Sale/Invoice/': {
         'name': 'invoices',
         'methods': [
@@ -45,6 +63,7 @@ ENDPOINTS = {
             (CRUD, 'Service/', 'service type sale invoice'),
         ]
     },
+
     'Sale/Order/': {
         'name': 'orders',
         'methods': [
