@@ -105,13 +105,6 @@ ENDPOINTS = {
             (CRUD, 'Adjustment/', 'inventory adjustment')
         ]
     },
-    'Purchase/Order/': {
-        'name': 'purchase_orders',
-        'methods': [
-            (ALL, '', 'purchase order type'),
-            (CRUD, 'Item/', 'item type purchase order'),
-        ]
-    },
     'Purchase/Bill/': {
         'name': 'purchase_bills',
         'methods': [
@@ -121,6 +114,38 @@ ENDPOINTS = {
             (CRUD, 'Miscellaneous/', 'miscellaneous type purchase bill'),
         ]
     },
+    'Purchase/DebitRefund/': {
+        'name': 'debit_refunds',
+        'methods': [
+            (ALL, '', 'purchase debit refund'),
+            (GET, '', 'purchase debit refund'),
+            (POST, '', 'purchase debit refund'),
+            (DELETE, '', 'purchase debit refund'),
+        ]
+    },
+    'Purchase/DebitSettlement/': {
+        'name': 'debit_settlements',
+        'methods': [
+            (ALL, '', 'purchase debit settlement'),
+            (GET, '', 'purchase debit settlement'),
+            (POST, '', 'purchase debit settlement'),
+            (DELETE, '', 'purchase debit settlement'),
+        ]
+    },
+    'Purchase/Order/': {
+        'name': 'purchase_orders',
+        'methods': [
+            (ALL, '', 'purchase order type'),
+            (CRUD, 'Item/', 'item type purchase order'),
+        ]
+    },
+    'Purchase/SupplierPayment/': {
+        'name': 'supplier_payments',
+        'methods': [
+            (CRUD, '', 'purchase supplier payment'),
+        ]
+    },
+
     'Company/': {
         'name': 'company',
         'methods': [
