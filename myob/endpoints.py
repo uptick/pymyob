@@ -37,6 +37,24 @@ ENDPOINTS = {
             (DELETE, '', 'sale customer payment'),
         ]
     },
+    'Sale/CreditRefund/': {
+        'name': 'credit_refunds',
+        'methods': [
+            (ALL, '', 'sale credit refund'),
+            (GET, '', 'sale credit refund'),
+            (POST, '', 'sale credit refund'),
+            (DELETE, '', 'sale credit refund'),
+        ]
+    },
+    'Sale/CreditSettlement/': {
+        'name': 'credit_settlements',
+        'methods': [
+            (ALL, '', 'sale credit settlement'),
+            (GET, '', 'sale credit settlement'),
+            (POST, '', 'sale credit settlement'),
+            (DELETE, '', 'sale credit settlement'),
+        ]
+    },
     'Sale/Invoice/': {
         'name': 'invoices',
         'methods': [
@@ -45,6 +63,7 @@ ENDPOINTS = {
             (CRUD, 'Service/', 'service type sale invoice'),
         ]
     },
+
     'Sale/Order/': {
         'name': 'orders',
         'methods': [
@@ -86,13 +105,6 @@ ENDPOINTS = {
             (CRUD, 'Adjustment/', 'inventory adjustment')
         ]
     },
-    'Purchase/Order/': {
-        'name': 'purchase_orders',
-        'methods': [
-            (ALL, '', 'purchase order type'),
-            (CRUD, 'Item/', 'item type purchase order'),
-        ]
-    },
     'Purchase/Bill/': {
         'name': 'purchase_bills',
         'methods': [
@@ -102,6 +114,38 @@ ENDPOINTS = {
             (CRUD, 'Miscellaneous/', 'miscellaneous type purchase bill'),
         ]
     },
+    'Purchase/DebitRefund/': {
+        'name': 'debit_refunds',
+        'methods': [
+            (ALL, '', 'purchase debit refund'),
+            (GET, '', 'purchase debit refund'),
+            (POST, '', 'purchase debit refund'),
+            (DELETE, '', 'purchase debit refund'),
+        ]
+    },
+    'Purchase/DebitSettlement/': {
+        'name': 'debit_settlements',
+        'methods': [
+            (ALL, '', 'purchase debit settlement'),
+            (GET, '', 'purchase debit settlement'),
+            (POST, '', 'purchase debit settlement'),
+            (DELETE, '', 'purchase debit settlement'),
+        ]
+    },
+    'Purchase/Order/': {
+        'name': 'purchase_orders',
+        'methods': [
+            (ALL, '', 'purchase order type'),
+            (CRUD, 'Item/', 'item type purchase order'),
+        ]
+    },
+    'Purchase/SupplierPayment/': {
+        'name': 'supplier_payments',
+        'methods': [
+            (CRUD, '', 'purchase supplier payment'),
+        ]
+    },
+
     'Company/': {
         'name': 'company',
         'methods': [
