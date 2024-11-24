@@ -10,7 +10,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python: [3.7, 3.8]
+        python:
+          - "3.8"
+          - "3.9"
+          - "3.10"
+          - "3.11"
+          - "3.12"
+          - "3.13"
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -18,7 +24,9 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python }}
-      - name: Install deps
-        run: pip install requests-oauthlib
+      - name: Install deps & the package itself
+        run: |
+          pip install requests-oauthlib
+          pip install -e .
       - name: Run tests...
-        run: python setup.py test
+        run: python -m unittest discover

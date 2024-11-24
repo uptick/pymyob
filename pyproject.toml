@@ -1,0 +1,38 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pymyob"
+version = "1.2.24"
+dependencies = [
+  "requests>=2.32.0",
+  "requests-oauthlib>=2.0.0",
+]
+requires-python = ">= 3.8"
+authors = [
+  {name = "Jarek Głowacki", email = "jarekwg@gmail.com"}
+]
+maintainers = [
+  {name = "Jarek Głowacki", email = "jarekwg@gmail.com"}
+]
+description = "A Python SDK for the MYOB Business (formerly AccountRight Live, and New Essentials) API."
+readme = "README.md"
+keywords = ["myob"]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Environment :: Web Environment",
+  "Intended Audience :: Developers",
+  "Topic :: Office/Business :: Financial :: Accounting",
+  "License :: OSI Approved :: BSD License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+]
+
+[project.urls]
+source = "https://github.com/uptick/pymyob"
+releasenotes = "https://github.com/uptick/pymyob/releases"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/myob"]
