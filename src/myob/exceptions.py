@@ -4,11 +4,12 @@ class MyobException(Exception):
         try:
             self.errors = response.json()["Errors"]
             e = self.errors[0]
-            self.problem = "%s: %s %s" % (
+            name, message, details = (
                 e["Name"],
                 e["Message"] or "",
                 e["AdditionalDetails"],
             )
+            self.problem = f"{name}: {message} {details}"
         except Exception:
             self.errors = []
             self.problem = response.reason

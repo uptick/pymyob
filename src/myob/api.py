@@ -9,8 +9,7 @@ class Myob:
     def __init__(self, credentials):
         if not isinstance(credentials, PartnerCredentials):
             raise TypeError(
-                "Expected a Credentials instance, got %s."
-                % (type(credentials).__name__,)
+                f"Expected a Credentials instance, got {type(credentials).__name__}."
             )
         self.credentials = credentials
         self.companyfiles = CompanyFiles(credentials)
@@ -30,7 +29,8 @@ class Myob:
         return self._manager.info()
 
     def __repr__(self):
-        return "Myob:\n    %s" % "\n    ".join(["companyfiles", "info"])
+        options = "\n    ".join(["companyfiles", "info"])
+        return f"Myob:\n    {options}"
 
 
 class CompanyFiles:
@@ -86,6 +86,5 @@ class CompanyFile:
             )
 
     def __repr__(self):
-        return "CompanyFile:\n    %s" % "\n    ".join(
-            sorted(v["name"] for v in ENDPOINTS.values())
-        )
+        options = "\n    ".join(sorted(v["name"] for v in ENDPOINTS.values()))
+        return f"CompanyFile:\n    {options}"

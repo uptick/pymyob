@@ -47,9 +47,9 @@ class PartnerCredentials:
     # protected endpoint to ensure they are valid. If not, raise appropriate error.
     def authenticate_companyfile(self, company_id, username, password):
         """Store hashed username-password for logging into company file."""
-        userpass = base64.b64encode(
-            bytes("%s:%s" % (username, password), "utf-8")
-        ).decode("utf-8")
+        userpass = base64.b64encode(bytes(f"{username}:{password}", "utf-8")).decode(
+            "utf-8"
+        )
         self.companyfile_credentials[company_id] = userpass
 
     @property

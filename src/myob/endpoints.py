@@ -155,20 +155,22 @@ ENDPOINTS = {
 METHOD_MAPPING = {
     ALL: {
         "endpoint": lambda base: base,
-        "hint": lambda name: "Return all %s for an AccountRight company file."
-        % pluralise(name),
+        "hint": lambda name: f"Return all {pluralise(name)} for an AccountRight company file.",
     },
     GET: {
         "endpoint": lambda base: base + "[uid]/",
-        "hint": lambda name: "Return selected %s." % name,
+        "hint": lambda name: f"Return selected {name}.",
     },
     PUT: {
         "endpoint": lambda base: base + "[uid]/",
-        "hint": lambda name: "Update selected %s." % name,
+        "hint": lambda name: f"Update selected {name}.",
     },
-    POST: {"endpoint": lambda base: base, "hint": lambda name: "Create new %s." % name},
+    POST: {
+        "endpoint": lambda base: base,
+        "hint": lambda name: f"Create new {name}.",
+    },
     DELETE: {
         "endpoint": lambda base: base + "[uid]/",
-        "hint": lambda name: "Delete selected %s." % name,
+        "hint": lambda name: f"Delete selected {name}.",
     },
 }
