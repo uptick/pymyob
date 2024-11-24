@@ -9,7 +9,7 @@ dependencies = [
   "requests>=2.32.0",
   "requests-oauthlib>=2.0.0",
 ]
-requires-python = ">= 3.8"
+requires-python = ">= 3.10"
 authors = [
   {name = "Jarek Głowacki", email = "jarekwg@gmail.com"}
 ]
@@ -36,3 +36,30 @@ releasenotes = "https://github.com/uptick/pymyob/releases"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/myob"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = [
+  "F",      # Pyflakes
+  "E",      # pycodestyle
+  "W",      # pycodestyle
+  "I",      # isort
+  "N",      # pep8-naming
+  "UP",     # pyupgrade
+  # "ANN",    # flake8-annotations
+  "B",      # flake8-bugbear
+  "S",      # flake8-bandit
+  "T10",    # debugger
+  "TID",    # flake8-tidy-imports
+]
+ignore = [
+  "E501"
+]
+
+[tool.ruff.lint.isort]
+extra-standard-library = [
+    "requests",
+]

@@ -15,7 +15,7 @@ class PartnerCredentials:
         consumer_secret,
         callback_uri,
         verified=False,
-        companyfile_credentials={},
+        companyfile_credentials={},  # noqa: B006
         oauth_token=None,
         refresh_token=None,
         oauth_expires_at=None,
@@ -32,24 +32,19 @@ class PartnerCredentials:
         self.refresh_token = refresh_token
 
         if oauth_expires_at is not None:
-            assert isinstance(
-                oauth_expires_at, datetime.datetime
-            ), "'oauth_expires_at' must be a datetime instance."
+            if not isinstance(oauth_expires_at, datetime.datetime):
+                raise ValueError("'oauth_expires_at' must be a datetime instance.")
         self.oauth_expires_at = oauth_expires_at
 
         self._oauth = OAuth2Session(consumer_key, redirect_uri=callback_uri)
-        url, _ = self._oauth.authorization_url(
-            MYOB_PARTNER_BASE_URL + AUTHORIZE_URL, state=state
-        )
+        url, _ = self._oauth.authorization_url(MYOB_PARTNER_BASE_URL + AUTHORIZE_URL, state=state)
         self.url = url + "&scope=CompanyFile"
 
     # TODO: Add `verify` kwarg here, which will quickly throw the provided credentials at a
     # protected endpoint to ensure they are valid. If not, raise appropriate error.
     def authenticate_companyfile(self, company_id, username, password):
         """Store hashed username-password for logging into company file."""
-        userpass = base64.b64encode(bytes(f"{username}:{password}", "utf-8")).decode(
-            "utf-8"
-        )
+        userpass = base64.b64encode(bytes(f"{username}:{password}", "utf-8")).decode("utf-8")
         self.companyfile_credentials[company_id] = userpass
 
     @property
@@ -79,12 +74,10 @@ class PartnerCredentials:
         # Allow a bit of time for clock differences and round trip times
         # to prevent false negatives. If users want the precise expiry,
         # they can use self.oauth_expires_at
-        CONSERVATIVE_SECONDS = 30
+        CONSERVATIVE_SECONDS = 30  # noqa: N806
 
         now = now or datetime.datetime.now()
-        return self.oauth_expires_at <= (
-            now + datetime.timedelta(seconds=CONSERVATIVE_SECONDS)
-        )
+        return self.oauth_expires_at <= (now + datetime.timedelta(seconds=CONSERVATIVE_SECONDS))
 
     def verify(self, code):
         """Verify an OAuth session, retrieving an access token."""

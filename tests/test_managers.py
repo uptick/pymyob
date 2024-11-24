@@ -10,37 +10,31 @@ class QueryParamTests(TestCase):
     def setUp(self):
         cred = PartnerCredentials(
             consumer_key="KeyToTheKingdom",
-            consumer_secret="TellNoOne",
+            consumer_secret="TellNoOne",  # noqa: S106
             callback_uri="CallOnlyWhenCalledTo",
         )
         self.manager = Manager("", credentials=cred)
 
-    def assertParamsEqual(self, raw_kwargs, expected_params, method="GET"):
+    def assertParamsEqual(self, raw_kwargs, expected_params, method="GET"):  # noqa: N802
         self.assertEqual(
             self.manager.build_request_kwargs(method, {}, **raw_kwargs)["params"],
             expected_params,
         )
 
     def test_filter(self):
-        self.assertParamsEqual(
-            {"Type": "Customer"}, {"$filter": "(Type eq 'Customer')"}
-        )
+        self.assertParamsEqual({"Type": "Customer"}, {"$filter": "(Type eq 'Customer')"})
         self.assertParamsEqual(
             {"Type": ["Customer", "Supplier"]},
             {"$filter": "(Type eq 'Customer' or Type eq 'Supplier')"},
         )
-        self.assertParamsEqual(
-            {"DisplayID__gt": "5-0000"}, {"$filter": "(DisplayID gt '5-0000')"}
-        )
+        self.assertParamsEqual({"DisplayID__gt": "5-0000"}, {"$filter": "(DisplayID gt '5-0000')"})
         self.assertParamsEqual(
             {"DateOccurred__lt": "2013-08-30T19:00:59.043"},
             {"$filter": "(DateOccurred lt '2013-08-30T19:00:59.043')"},
         )
         self.assertParamsEqual(
             {"Type": ("Customer", "Supplier"), "DisplayID__gt": "5-0000"},
-            {
-                "$filter": "(Type eq 'Customer' or Type eq 'Supplier') and (DisplayID gt '5-0000')"
-            },
+            {"$filter": "(Type eq 'Customer' or Type eq 'Supplier') and (DisplayID gt '5-0000')"},
         )
         self.assertParamsEqual(
             {
@@ -48,7 +42,10 @@ class QueryParamTests(TestCase):
                 "DateOccurred__lt": "2013-08-30T19:00:59.043",
             },
             {
-                "$filter": "((Type eq 'Customer' or Type eq 'Supplier') or DisplayID gt '5-0000') and (DateOccurred lt '2013-08-30T19:00:59.043')"
+                "$filter": (
+                    "((Type eq 'Customer' or Type eq 'Supplier') or DisplayID gt '5-0000') "
+                    "and (DateOccurred lt '2013-08-30T19:00:59.043')"
+                )
             },
         )
         self.assertParamsEqual(
@@ -85,7 +82,7 @@ class QueryParamTests(TestCase):
             {"templatename": "InvoiceTemplate - 7"},
         )
 
-    def test_returnBody(self):
+    def test_returnbody(self):
         self.assertParamsEqual({}, {"returnBody": "true"}, method="PUT")
         self.assertParamsEqual({}, {"returnBody": "true"}, method="POST")
 
