@@ -1,0 +1,1 @@
+To publish, run `hatch build -t wheel && hatch publish` from the root directory.
