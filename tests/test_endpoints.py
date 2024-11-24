@@ -26,7 +26,7 @@ class EndpointTests(TestCase):
     def setUp(self):
         cred = PartnerCredentials(
             consumer_key="KeyToTheKingdom",
-            consumer_secret="TellNoOne",
+            consumer_secret="TellNoOne",  # noqa: S106
             callback_uri="CallOnlyWhenCalledTo",
             companyfile_credentials={CID: "!encoded-userpass="},
         )
@@ -40,9 +40,7 @@ class EndpointTests(TestCase):
         }
 
     @patch("myob.managers.requests.request")
-    def assertEndpointReached(
-        self, func, params, method, endpoint, mock_request, timeout=None
-    ):
+    def assertEndpointReached(self, func, params, method, endpoint, mock_request, timeout=None):  # noqa: N802
         mock_request.return_value.status_code = 200
         if endpoint == f"/{CID}/":
             mock_request.return_value.json.return_value = {"CompanyFile": {"Id": CID}}
@@ -58,9 +56,7 @@ class EndpointTests(TestCase):
         )
 
     @patch("myob.managers.requests.request")
-    def assertExceptionHandled(
-        self, status_code, response_json, exception, mock_request
-    ):
+    def assertExceptionHandled(self, status_code, response_json, exception, mock_request):  # noqa: N802
         mock_request.return_value.status_code = status_code
         mock_request.return_value.json.return_value = response_json
         with self.assertRaises(exception):
@@ -121,9 +117,7 @@ class EndpointTests(TestCase):
                 "    get(id) - List endpoints available for a company file."
             ),
         )
-        self.assertEndpointReached(
-            self.myob.companyfiles.get, {"id": CID}, "GET", f"/{CID}/"
-        )
+        self.assertEndpointReached(self.myob.companyfiles.get, {"id": CID}, "GET", f"/{CID}/")
         # Don't expect companyfile credentials here as the next endpoint is not companyfile specific.
         del self.expected_request_headers["x-myobapi-cftoken"]
         self.assertEndpointReached(self.myob.companyfiles.all, {}, "GET", "/")
@@ -175,9 +169,7 @@ class EndpointTests(TestCase):
                 "                 transfermoneytxn() - Return all transfer money transactions for an AccountRight company file."
             ),
         )
-        self.assertEndpointReached(
-            self.companyfile.banking.all, {}, "GET", f"/{CID}/Banking/"
-        )
+        self.assertEndpointReached(self.companyfile.banking.all, {}, "GET", f"/{CID}/Banking/")
         self.assertEndpointReached(
             self.companyfile.banking.spendmoneytxn,
             {},
@@ -292,9 +284,7 @@ class EndpointTests(TestCase):
                 "                 supplier() - Return all supplier contacts for an AccountRight company file."
             ),
         )
-        self.assertEndpointReached(
-            self.companyfile.contacts.all, {}, "GET", f"/{CID}/Contact/"
-        )
+        self.assertEndpointReached(self.companyfile.contacts.all, {}, "GET", f"/{CID}/Contact/")
         self.assertEndpointReached(
             self.companyfile.contacts.customer, {}, "GET", f"/{CID}/Contact/Customer/"
         )
@@ -579,9 +569,7 @@ class EndpointTests(TestCase):
                 "                 service() - Return all service type sale quotes for an AccountRight company file."
             ),
         )
-        self.assertEndpointReached(
-            self.companyfile.quotes.all, {}, "GET", f"/{CID}/Sale/Quote/"
-        )
+        self.assertEndpointReached(self.companyfile.quotes.all, {}, "GET", f"/{CID}/Sale/Quote/")
         self.assertEndpointReached(
             self.companyfile.quotes.item, {}, "GET", f"/{CID}/Sale/Quote/Item/"
         )
@@ -1298,9 +1286,7 @@ class EndpointTests(TestCase):
     def test_exceptions(self):
         self.assertExceptionHandled(400, {}, MyobBadRequest)
         self.assertExceptionHandled(401, {}, MyobUnauthorized)
-        self.assertExceptionHandled(
-            403, {"Errors": [{"Name": "Something"}]}, MyobForbidden
-        )
+        self.assertExceptionHandled(403, {"Errors": [{"Name": "Something"}]}, MyobForbidden)
         self.assertExceptionHandled(
             403, {"Errors": [{"Name": "RateLimitError"}]}, MyobRateLimitExceeded
         )

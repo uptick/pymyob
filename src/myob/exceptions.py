@@ -1,4 +1,4 @@
-class MyobException(Exception):
+class MyobException(Exception):  # noqa: N818
     def __init__(self, response, msg=None):
         self.response = response
         try:

@@ -8,9 +8,7 @@ class Myob:
 
     def __init__(self, credentials):
         if not isinstance(credentials, PartnerCredentials):
-            raise TypeError(
-                f"Expected a Credentials instance, got {type(credentials).__name__}."
-            )
+            raise TypeError(f"Expected a Credentials instance, got {type(credentials).__name__}.")
         self.credentials = credentials
         self.companyfiles = CompanyFiles(credentials)
         self._manager = Manager(
@@ -49,8 +47,7 @@ class CompanyFiles:
     def all(self):
         raw_companyfiles = self._manager.all()
         return [
-            CompanyFile(raw_companyfile, self.credentials)
-            for raw_companyfile in raw_companyfiles
+            CompanyFile(raw_companyfile, self.credentials) for raw_companyfile in raw_companyfiles
         ]
 
     def get(self, id, call=True):
@@ -60,9 +57,7 @@ class CompanyFiles:
             # on the GET endpoint. The only way we currently allow passing company_id is by setting it on the manager,
             # and we can't do that on init, as this is a manager for company files plural..
             # Reluctant to change manager code, as it would add confusion if the inner method let you override the company_id.
-            manager = Manager(
-                "", self.credentials, raw_endpoints=[(GET, "", "")], company_id=id
-            )
+            manager = Manager("", self.credentials, raw_endpoints=[(GET, "", "")], company_id=id)
             raw_companyfile = manager.get()["CompanyFile"]
         else:
             raw_companyfile = {"Id": id}

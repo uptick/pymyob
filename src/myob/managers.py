@@ -18,7 +18,7 @@ from .exceptions import (
 
 
 class Manager:
-    def __init__(self, name, credentials, company_id=None, endpoints=[], raw_endpoints=[]):
+    def __init__(self, name, credentials, company_id=None, endpoints=[], raw_endpoints=[]):  # noqa: B006
         self.credentials = credentials
         self.name = "_".join(p for p in name.rstrip("/").split("/") if "[" not in p)
         self.base_url = MYOB_BASE_URL
@@ -192,7 +192,7 @@ class Manager:
                     if k.endswith(f"__{op}"):
                         k = k[:-4]
                         operator = op
-                if not isinstance(v, (list, tuple)):
+                if not isinstance(v, list | tuple):
                     v = [v]
                 filters.append(" or ".join(f"{k} {operator} {build_value(v_)}" for v_ in v))
 

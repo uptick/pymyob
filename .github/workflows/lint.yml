@@ -6,40 +6,8 @@ on:
   pull_request: ~
 
 jobs:
-  flake8:
+  ruff:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Install Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
-      - name: Install deps
-        run: pip install flake8
-      - name: Flake8
-        run: flake8
-
-  isort:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Install Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
-      - name: Install deps
-        run: pip install isort
-      - name: Isort
-        run: isort --diff --check-only .
-
-  # superlinter:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v2
-  #     - name: Run Superlinter
-  #       uses: docker://github/super-linter:latest
-  #       env:
-  #         VALIDATE_PYTHON: true
+      - uses: actions/checkout@v4
+      - uses: astral-sh/ruff-action@v1

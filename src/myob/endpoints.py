@@ -5,9 +5,7 @@ GET = "GET"  # this method expects a UID as a keyword
 POST = "POST"
 PUT = "PUT"
 DELETE = "DELETE"
-CRUD = (
-    "CRUD"  # shorthand for creating the ALL|GET|POST|PUT|DELETE endpoints in one swoop
-)
+CRUD = "CRUD"  # shorthand for creating the ALL|GET|POST|PUT|DELETE endpoints in one swoop
 
 METHOD_ORDER = [ALL, GET, POST, PUT, DELETE]
 
