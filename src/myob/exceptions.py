@@ -1,5 +1,8 @@
+from requests import Response
+
+
 class MyobException(Exception):  # noqa: N818
-    def __init__(self, response, msg=None):
+    def __init__(self, response: Response, msg: str | None = None) -> None:
         self.response = response
         try:
             self.errors = response.json()["Errors"]

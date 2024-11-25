@@ -1,13 +1,14 @@
+from .types import Method
 from .utils import pluralise
 
-ALL = "ALL"
-GET = "GET"  # this method expects a UID as a keyword
-POST = "POST"
-PUT = "PUT"
-DELETE = "DELETE"
+ALL: Method = "ALL"
+GET: Method = "GET"  # this method expects a UID as a keyword
+POST: Method = "POST"
+PUT: Method = "PUT"
+DELETE: Method = "DELETE"
 CRUD = "CRUD"  # shorthand for creating the ALL|GET|POST|PUT|DELETE endpoints in one swoop
 
-METHOD_ORDER = [ALL, GET, POST, PUT, DELETE]
+METHOD_ORDER: list[Method] = [ALL, GET, POST, PUT, DELETE]
 
 ENDPOINTS = {
     "Banking/": {
