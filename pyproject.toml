@@ -40,6 +40,11 @@ packages = ["src/myob"]
 [tool.ruff]
 target-version = "py312"
 line-length = 100
+exclude = [
+  "build",
+  "dist",
+  "tests"
+]
 
 [tool.ruff.lint]
 select = [
@@ -49,14 +54,15 @@ select = [
   "I",      # isort
   "N",      # pep8-naming
   "UP",     # pyupgrade
-  # "ANN",    # flake8-annotations
+  "ANN",    # flake8-annotations
   "B",      # flake8-bugbear
   "S",      # flake8-bandit
   "T10",    # debugger
   "TID",    # flake8-tidy-imports
 ]
 ignore = [
-  "E501"
+  "E501",
+  "ANN401",
 ]
 
 [tool.ruff.lint.isort]

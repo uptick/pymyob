@@ -1,9 +1,11 @@
 import re
 import requests
 from datetime import date
+from typing import Any
 
 from .constants import DEFAULT_PAGE_SIZE, MYOB_BASE_URL
-from .endpoints import CRUD, METHOD_MAPPING, METHOD_ORDER
+from .credentials import PartnerCredentials
+from .endpoints import ALL, CRUD, GET, METHOD_MAPPING, METHOD_ORDER, POST, PUT, Method
 from .exceptions import (
     MyobBadRequest,
     MyobConflict,
@@ -15,10 +17,18 @@ from .exceptions import (
     MyobRateLimitExceeded,
     MyobUnauthorized,
 )
+from .types import MethodDetails
 
 
 class Manager:
-    def __init__(self, name, credentials, company_id=None, endpoints=[], raw_endpoints=[]):  # noqa: B006
+    def __init__(
+        self,
+        name: str,
+        credentials: PartnerCredentials,
+        company_id: str | None = None,
+        endpoints: list = [],  # noqa: B006
+        raw_endpoints: list = [],  # noqa: B006
+    ) -> None:
         self.credentials = credentials
         self.name = "_".join(p for p in name.rstrip("/").split("/") if "[" not in p)
         self.base_url = MYOB_BASE_URL
@@ -26,7 +36,7 @@ class Manager:
             self.base_url += company_id + "/"
         if name:
             self.base_url += name
-        self.method_details = {}
+        self.method_details: dict[str, MethodDetails] = {}
         self.company_id = company_id
 
         # Build ORM methods from given url endpoints.
@@ -48,16 +58,16 @@ class Manager:
         for method, endpoint, hint in raw_endpoints:
             self.build_method(method, endpoint, hint)
 
-    def build_method(self, method, endpoint, hint):
+    def build_method(self, method: Method, endpoint: str, hint: str) -> None:
         full_endpoint = self.base_url + endpoint
         url_keys = re.findall(r"\[([^\]]*)\]", full_endpoint)
         template = full_endpoint.replace("[", "{").replace("]", "}")
 
         required_kwargs = url_keys.copy()
-        if method in ("PUT", "POST"):
+        if method in (PUT, POST):
             required_kwargs.append("data")
 
-        def inner(*args, timeout=None, **kwargs):
+        def inner(*args: Any, timeout: int | None = None, **kwargs: Any) -> str | dict:
             if args:
                 raise AttributeError("Unnamed args provided. Only keyword args accepted.")
 
@@ -78,7 +88,7 @@ class Manager:
                     request_kwargs_raw[k] = v
 
             # Determine request method.
-            request_method = "GET" if method == "ALL" else method
+            request_method = GET if method == ALL else method
 
             # Build url.
             url = template.format(**url_kwargs)
@@ -130,13 +140,13 @@ class Manager:
         # If it already exists, prepend with method to disambiguate.
         elif hasattr(self, method_name):
             method_name = f"{method.lower()}_{method_name}"
-        self.method_details[method_name] = {
-            "kwargs": required_kwargs,
-            "hint": hint,
-        }
+        self.method_details[method_name] = MethodDetails(
+            kwargs=required_kwargs,
+            hint=hint,
+        )
         setattr(self, method_name, inner)
 
-    def build_request_kwargs(self, method, data=None, **kwargs):
+    def build_request_kwargs(self, method: Method, data: dict | None = None, **kwargs: Any) -> dict:
         request_kwargs = {}
 
         # Build headers.
@@ -166,7 +176,7 @@ class Manager:
         request_kwargs["params"] = {}
         filters = []
 
-        def build_value(value):
+        def build_value(value: Any) -> str:
             if issubclass(type(value), date):
                 return f"datetime'{value}'"
             if isinstance(value, bool):
@@ -205,10 +215,10 @@ class Manager:
         page_size = DEFAULT_PAGE_SIZE
         if "limit" in kwargs:
             page_size = int(kwargs["limit"])
-            request_kwargs["params"]["$top"] = page_size
+            request_kwargs["params"]["$top"] = page_size  # type: ignore[assignment]
 
         if "page" in kwargs:
-            request_kwargs["params"]["$skip"] = (int(kwargs["page"]) - 1) * page_size
+            request_kwargs["params"]["$skip"] = (int(kwargs["page"]) - 1) * page_size  # type: ignore[assignment]
 
         if "format" in kwargs:
             request_kwargs["params"]["format"] = kwargs["format"]
@@ -225,16 +235,16 @@ class Manager:
 
         return request_kwargs
 
-    def __repr__(self):
-        def _get_signature(name, kwargs):
+    def __repr__(self) -> str:
+        def _get_signature(name: str, kwargs: list[str]) -> str:
             return f"{name}({', '.join(kwargs)})"
 
-        def print_method(name, kwargs, hint, offset):
+        def _print_method(name: str, kwargs: list[str], hint: str, offset: int) -> str:
             return f"{_get_signature(name, kwargs):>{offset}} - {hint}"
 
         offset = max(len(_get_signature(k, v["kwargs"])) for k, v in self.method_details.items())
         options = "\n    ".join(
-            print_method(k, v["kwargs"], v["hint"], offset)
+            _print_method(k, v["kwargs"], v["hint"], offset)
             for k, v in sorted(self.method_details.items())
         )
         return f"{self.name}{self.__class__.__name__}:\n    {options}"
