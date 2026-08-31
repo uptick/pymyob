@@ -100,14 +100,6 @@ Tip: the companyfile object specifies all supported managers (that is, endpoints
 
 The user picks their business on MYOB's consent screen, so there's no list to choose from on your end.
 
-If additional authentication against the company file is needed (ie when the company file account isn't tied via SSO to a my.myob account), prompt them for the username and password for that company file and save this as follows:
-
-```
-cred.authenticate_companyfile(<company_id>, <username>, <password>)
-```
-
-Save the new `cred.state` back to your persistent storage.
-
 Now you can access stuff!
 
 ```
