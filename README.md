@@ -20,17 +20,26 @@ Install:
 pip install pymyob
 ```
 
-Create a `PartnerCredentials` instance and provide the Key, Secret and Redirect Uri as you've set up in MYOB:
+Create a `PartnerCredentials` instance and provide the Key, Secret and Redirect Uri as you've set up in MYOB, along with the data scopes your integration needs:
 
 ```
+from myob.constants import AuthScope
 from myob.credentials import PartnerCredentials
 
 cred = PartnerCredentials(
     consumer_key=<Key>,
     consumer_secret=<Secret>,
     callback_uri=<Redirect Uri>,
+    scopes=(
+        AuthScope.COMPANY_FILE,
+        AuthScope.GENERAL_LEDGER,
+        AuthScope.CONTACTS_CUSTOMER,
+        AuthScope.SALES,
+    ),
 )
 ```
+
+MYOB grants access per data scope, so ask only for what you need: your users are shown each one on the consent screen, and are more likely to grant a short list. `AuthScope` enumerates all of them; `AuthScope.COMPANY_FILE` is needed by anything that resolves a business, so most integrations will want it alongside their data scopes.
 
 Cache `cred.state` somewhere. You'll use this to rebuild the `PartnerCredentials` instance later.
 This object includes a datetime object, so if your cache does not serialise datetime objects, you'll need to find an alternative, such as pickling and saving to a binary database column.
@@ -39,11 +48,15 @@ Redirect the user to `cred.url`. There, they will need to log in to MYOB and aut
 
 At the url they're redirected to, rebuild the `PartnerCredentials` then pick the verifier out of the request and use it to verify the credentials.
 
+Alongside the verifier, MYOB hands back the `businessId` and `businessName` of the business the user consented to. Hang on to the `businessId`: it identifies the business for every subsequent call, and this redirect is the only place you're given it.
+
 ```
 from myob.credentials import PartnerCredentials
 
 def myob_authorisation_complete_view(request):
     verifier = request.GET.get('code', None)
+    business_id = request.GET.get('businessId', None)
+    business_name = request.GET.get('businessName', None)
     if verifier:
         state = <cached_state_from_earlier>
         if state:
@@ -71,19 +84,22 @@ cred = PartnerCredentials(**<persistently_saved_state_from_verified_credentials>
 myob = Myob(cred)
 ```
 
-You're almost there! MYOB has this thing called company files. Even though you've authorised against a user now, you need to collect a further set of credentials for getting into the company file.
+You're almost there! MYOB has this thing called company files, and every call is made against one. Build it from the `businessId` you saved off the redirect:
 
 ```
-companyfiles = myob.companyfiles.all()
+comp = myob.companyfiles.get(<business_id>, call=False)
 
 # Each company file has the following attrs:
 comp.id  # Company Id
 comp.name  # Company Name
 comp.data  # Remaining data as a raw dict.
 ```
-Tip: the companyfiles object specifies all supported managers (that is, endpoints).
+Tip: the companyfile object specifies all supported managers (that is, endpoints).
 
-Render a dropdown for your user to let them select which of the company files they wish to use. Usually there will only be one against their account, but best to check.
+`call=False` builds the company file locally, without hitting MYOB. Drop it to fetch the file's details too (its name and product version, say), which needs `AuthScope.COMPANY_FILE`.
+
+The user picks their business on MYOB's consent screen, so there's no list to choose from on your end.
+
 If additional authentication against the company file is needed (ie when the company file account isn't tied via SSO to a my.myob account), prompt them for the username and password for that company file and save this as follows:
 
 ```
@@ -101,11 +117,9 @@ from myob.credentials import PartnerCredentials
 cred = PartnerCredentials(**<persistently_saved_state_from_verified_credentials>)
 myob = Myob(cred)
 
-# Obtain list of company files. Here you will also find their IDs, which you'll need to retrieve a given company file later.
-company_files = myob.companyfiles.all()
-
-# Obtain a specific company file. Use `call=False` to just prep it for calling other endpoints without actually making a call yet at this stage.
-comp = myob.companyfiles.get(<company_id>, call=False)
+# Obtain a company file, from the businessId saved during authorisation. Use `call=False` to just
+# prep it for calling other endpoints without actually making a call yet at this stage.
+comp = myob.companyfiles.get(<business_id>, call=False)
 
 # Obtain a list of customers (two ways to go about this).
 customers = comp.contacts.all(Type='Customer')
