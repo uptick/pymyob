@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import StrEnum
 
 MYOB_BASE_URL = "https://api.myob.com/accountright/"
 MYOB_PARTNER_BASE_URL = "https://secure.myob.com/oauth2/"
@@ -13,8 +13,7 @@ DEFAULT_PAGE_SIZE = 400
 DATETIME_FORMATS = ["YYYY-MM-DDTHH:mm:ss", "YYYY-MM-DDTHH:mm:ss.SSS"]
 
 
-# `enum.StrEnum` would be the natural fit, but it needs python 3.11; this package supports 3.10.
-class AuthScope(str, Enum):  # noqa: UP042
+class AuthScope(StrEnum):
     """Granular data scopes accepted by the authorisation endpoint.
 
     Each scope grants access to one family of endpoints; request only those your
@@ -23,9 +22,6 @@ class AuthScope(str, Enum):  # noqa: UP042
 
     https://developer.myob.com/api/myob-business-api/api-overview/granular_data_scopes/
     """
-
-    # So that a member renders as its scope string, as `enum.StrEnum` would.
-    __str__ = str.__str__
 
     BANKING = "sme-banking"
     COMPANY_FILE = "sme-company-file"
