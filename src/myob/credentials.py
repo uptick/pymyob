@@ -1,10 +1,11 @@
 import base64
 from datetime import datetime, timedelta
 from typing import Any
+from urllib.parse import quote
 
 from requests_oauthlib import OAuth2Session
 
-from .constants import ACCESS_TOKEN_URL, AUTHORIZE_URL, MYOB_PARTNER_BASE_URL
+from .constants import ACCESS_TOKEN_URL, AUTHORIZE_URL, MYOB_PARTNER_BASE_URL, AuthScope
 
 
 class PartnerCredentials:
@@ -20,7 +21,7 @@ class PartnerCredentials:
         oauth_token: str | None = None,
         refresh_token: str | None = None,
         oauth_expires_at: datetime | None = None,
-        scope: None = None,  # TODO: Review if used.
+        scopes: tuple[AuthScope, ...] = (),
         state: str | None = None,
     ) -> None:
         self.consumer_key = consumer_key
@@ -37,9 +38,12 @@ class PartnerCredentials:
                 raise ValueError("'oauth_expires_at' must be a datetime instance.")
         self.oauth_expires_at = oauth_expires_at
 
+        self.scopes = scopes
         self._oauth = OAuth2Session(consumer_key, redirect_uri=callback_uri)
         url, _ = self._oauth.authorization_url(MYOB_PARTNER_BASE_URL + AUTHORIZE_URL, state=state)
-        self.url = url + "&scope=CompanyFile"
+        # `prompt=consent` is what makes the authorisation redirect carry the `businessId` of
+        # the business the user picked, which is how every subsequent call identifies it.
+        self.url = f"{url}&scope={quote(' '.join(self.scopes))}&prompt=consent"
 
     # TODO: Add `verify` kwarg here, which will quickly throw the provided credentials at a
     # protected endpoint to ensure they are valid. If not, raise appropriate error.

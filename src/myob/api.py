@@ -1,7 +1,7 @@
 from typing import Any
 
 from .credentials import PartnerCredentials
-from .endpoints import ALL, ENDPOINTS, GET
+from .endpoints import ENDPOINTS, GET
 from .managers import Manager
 
 
@@ -40,17 +40,10 @@ class CompanyFiles:
             "",
             self.credentials,
             raw_endpoints=[
-                (ALL, "", "Return a list of company files."),
                 (GET, "[id]/", "List endpoints available for a company file."),
             ],
         )
         self._manager.name = "CompanyFile"
-
-    def all(self) -> list["CompanyFile"]:
-        raw_companyfiles = self._manager.all()  # type: ignore[attr-defined]
-        return [
-            CompanyFile(raw_companyfile, self.credentials) for raw_companyfile in raw_companyfiles
-        ]
 
     def get(self, id: str, call: bool = True) -> "CompanyFile":
         if call:
