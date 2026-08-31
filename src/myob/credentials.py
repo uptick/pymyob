@@ -1,4 +1,3 @@
-import base64
 from datetime import datetime, timedelta
 from typing import Any
 from urllib.parse import quote
@@ -17,7 +16,10 @@ class PartnerCredentials:
         consumer_secret: str,
         callback_uri: str,
         verified: bool = False,
-        companyfile_credentials: dict[str, str] = {},  # noqa: B006
+        # Accepted and ignored. `state` dicts persisted by earlier versions carry this key, and
+        # rebuilding credentials from one shouldn't fail; `state` no longer writes it, so a saved
+        # set of credentials sheds it. Removed in the release after next.
+        companyfile_credentials: dict[str, str] | None = None,
         oauth_token: str | None = None,
         refresh_token: str | None = None,
         oauth_expires_at: datetime | None = None,
@@ -29,7 +31,6 @@ class PartnerCredentials:
         self.callback_uri = callback_uri
 
         self.verified = verified
-        self.companyfile_credentials = companyfile_credentials
         self.oauth_token = oauth_token
         self.refresh_token = refresh_token
 
@@ -45,13 +46,6 @@ class PartnerCredentials:
         # the business the user picked, which is how every subsequent call identifies it.
         self.url = f"{url}&scope={quote(' '.join(self.scopes))}&prompt=consent"
 
-    # TODO: Add `verify` kwarg here, which will quickly throw the provided credentials at a
-    # protected endpoint to ensure they are valid. If not, raise appropriate error.
-    def authenticate_companyfile(self, company_id: str, username: str, password: str) -> None:
-        """Store hashed username-password for logging into company file."""
-        userpass = base64.b64encode(bytes(f"{username}:{password}", "utf-8")).decode("utf-8")
-        self.companyfile_credentials[company_id] = userpass
-
     @property
     def state(self) -> dict[str, Any]:
         """Get a representation of this credentials object from which it can be reconstructed."""
@@ -62,7 +56,6 @@ class PartnerCredentials:
                 "consumer_secret",
                 "callback_uri",
                 "verified",
-                "companyfile_credentials",
                 "oauth_token",
                 "refresh_token",
                 "oauth_expires_at",

@@ -74,41 +74,7 @@ def myob_authorisation_complete_view(request):
 
 Save `cred.state` once more, but this time you want it in persistent storage. So plonk it somewhere in your database.
 
-With your application partnered with MYOB, you can now create a `Myob` instance, supplying the verified credentials:
-
-```
-from myob import Myob
-from myob.credentials import PartnerCredentials
-
-cred = PartnerCredentials(**<persistently_saved_state_from_verified_credentials>)
-myob = Myob(cred)
-```
-
-You're almost there! MYOB has this thing called company files, and every call is made against one. Build it from the `businessId` you saved off the redirect:
-
-```
-comp = myob.companyfiles.get(<business_id>, call=False)
-
-# Each company file has the following attrs:
-comp.id  # Company Id
-comp.name  # Company Name
-comp.data  # Remaining data as a raw dict.
-```
-Tip: the companyfile object specifies all supported managers (that is, endpoints).
-
-`call=False` builds the company file locally, without hitting MYOB. Drop it to fetch the file's details too (its name and product version, say), which needs `AuthScope.COMPANY_FILE`.
-
-The user picks their business on MYOB's consent screen, so there's no list to choose from on your end.
-
-If additional authentication against the company file is needed (ie when the company file account isn't tied via SSO to a my.myob account), prompt them for the username and password for that company file and save this as follows:
-
-```
-cred.authenticate_companyfile(<company_id>, <username>, <password>)
-```
-
-Save the new `cred.state` back to your persistent storage.
-
-Now you can access stuff!
+With your application partnered with MYOB, you can now create a `Myob` instance from the verified credentials, and get at your data. Every call is made against a company file, which you build from the `businessId` saved off the redirect.
 
 ```
 from myob import Myob
@@ -117,8 +83,9 @@ from myob.credentials import PartnerCredentials
 cred = PartnerCredentials(**<persistently_saved_state_from_verified_credentials>)
 myob = Myob(cred)
 
-# Obtain a company file, from the businessId saved during authorisation. Use `call=False` to just
-# prep it for calling other endpoints without actually making a call yet at this stage.
+# Obtain a company file. `call=False` preps it for calling other endpoints without making a call
+# yet; drop it to fetch the file's own details too (its name and product version), which needs
+# `AuthScope.COMPANY_FILE`.
 comp = myob.companyfiles.get(<business_id>, call=False)
 
 # Obtain a list of customers (two ways to go about this).

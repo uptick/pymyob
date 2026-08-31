@@ -28,13 +28,11 @@ class EndpointTests(TestCase):
             consumer_key="KeyToTheKingdom",
             consumer_secret="TellNoOne",  # noqa: S106
             callback_uri="CallOnlyWhenCalledTo",
-            companyfile_credentials={CID: "!encoded-userpass="},
         )
         self.myob = Myob(cred)
         self.companyfile = self.myob.companyfiles.get(CID, call=False)
         self.expected_request_headers = {
             "Authorization": "Bearer None",
-            "x-myobapi-cftoken": "!encoded-userpass=",
             "x-myobapi-key": "KeyToTheKingdom",
             "x-myobapi-version": "v2",
         }
@@ -64,8 +62,6 @@ class EndpointTests(TestCase):
 
     def test_base(self):
         self.assertEqual(repr(self.myob), ("Myob:\n" "    companyfiles\n" "    info"))
-        # Don't expect companyfile credentials here as this endpoint is not companyfile specific.
-        del self.expected_request_headers["x-myobapi-cftoken"]
         self.assertEndpointReached(self.myob.info, {}, "GET", "/Info/")
 
     @patch("myob.managers.requests.request")
