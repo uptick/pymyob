@@ -39,7 +39,7 @@ cred = PartnerCredentials(
 )
 ```
 
-MYOB grants access per data scope, so ask only for what you need: your users are shown each one on the consent screen, and are more likely to grant a short list. `AuthScope` enumerates all of them; `AuthScope.COMPANY_FILE` is needed by anything that resolves a business, so most integrations will want it alongside their data scopes.
+MYOB grants access per data scope, so ask only for what you need: your users are shown each one on the consent screen, and are more likely to grant a short list. `AuthScope` enumerates all of them; `AuthScope.COMPANY_FILE` covers reading the business's own name and product version.
 
 Cache `cred.state` somewhere. You'll use this to rebuild the `PartnerCredentials` instance later.
 This object includes a datetime object, so if your cache does not serialise datetime objects, you'll need to find an alternative, such as pickling and saving to a binary database column.
@@ -48,7 +48,7 @@ Redirect the user to `cred.url`. There, they will need to log in to MYOB and aut
 
 At the url they're redirected to, rebuild the `PartnerCredentials` then pick the verifier out of the request and use it to verify the credentials.
 
-Alongside the verifier, MYOB hands back the `businessId` and `businessName` of the business the user consented to. Hang on to the `businessId`: it identifies the business for every subsequent call, and this redirect is the only place you're given it.
+Alongside the verifier, MYOB hands back the `businessId` of the business the user consented to. Set it on the credentials: it identifies the business for every subsequent call, and this redirect is the only place you're given it. `cred.state` carries it from there, so the credentials you save below are all you need to keep.
 
 ```
 from myob.credentials import PartnerCredentials
@@ -56,12 +56,12 @@ from myob.credentials import PartnerCredentials
 def myob_authorisation_complete_view(request):
     verifier = request.GET.get('code', None)
     business_id = request.GET.get('businessId', None)
-    business_name = request.GET.get('businessName', None)
     if verifier:
         state = <cached_state_from_earlier>
         if state:
             cred = PartnerCredentials(**state)
             cred.verify(verifier)
+            cred.business_id = business_id
             if cred.verified:
                 messages.success(request, 'OAuth verification successful.')
             else:
@@ -74,7 +74,7 @@ def myob_authorisation_complete_view(request):
 
 Save `cred.state` once more, but this time you want it in persistent storage. So plonk it somewhere in your database.
 
-With your application partnered with MYOB, you can now create a `Myob` instance from the verified credentials, and get at your data. Every call is made against a company file, which you build from the `businessId` saved off the redirect.
+With your application partnered with MYOB, you can now create a `Myob` instance from the verified credentials, and get at your data. Every call is made against the business the credentials cover, so there's nothing further to pass in.
 
 ```
 from myob import Myob
@@ -83,40 +83,39 @@ from myob.credentials import PartnerCredentials
 cred = PartnerCredentials(**<persistently_saved_state_from_verified_credentials>)
 myob = Myob(cred)
 
-# Obtain a company file. `call=False` preps it for calling other endpoints without making a call
-# yet; drop it to fetch the file's own details too (its name and product version), which needs
-# `AuthScope.COMPANY_FILE`.
-comp = myob.companyfiles.get(<business_id>, call=False)
+# Obtain the business's own details, such as its name and product version.
+# (This is the only call here that needs `AuthScope.COMPANY_FILE`.)
+business = myob.business()
 
 # Obtain a list of customers (two ways to go about this).
-customers = comp.contacts.all(Type='Customer')
-customers = comp.contacts.customer()
+customers = myob.contacts.all(Type='Customer')
+customers = myob.contacts.customer()
 
 # Obtain a list of sale invoices (two ways to go about this).
-invoices = comp.invoices.all(InvoiceType='Item', orderby='Number desc')
-invoices = comp.invoices.item(orderby='Number desc')
+invoices = myob.invoices.all(InvoiceType='Item', orderby='Number desc')
+invoices = myob.invoices.item(orderby='Number desc')
 
 # Create an invoice.
-comp.invoices.post_item(data=data)
+myob.invoices.post_item(data=data)
 
 # Obtain a specific invoice.
-invoice = comp.invoices.get_item(uid=<invoice_uid>)
+invoice = myob.invoices.get_item(uid=<invoice_uid>)
 
 # Download PDF for a specific invoice.
-invoice_pdf = comp.invoices.get_item(uid=<invoice_uid>, headers={'Accept': 'application/pdf'})
+invoice_pdf = myob.invoices.get_item(uid=<invoice_uid>, headers={'Accept': 'application/pdf'})
 
 # Obtain a list of tax codes.
-taxcodes = comp.general_ledger.taxcode()
+taxcodes = myob.general_ledger.taxcode()
 
 # Obtain a list of inventory items.
-inventory = comp.inventory.item()
+inventory = myob.inventory.item()
 
 # Use endswith, startswith, or substringof filters
 search_text = 'Acme'
-customers = comp.contacts.customer(raw_filter=f"substringof('{search_text}', CompanyName)")
+customers = myob.contacts.customer(raw_filter=f"substringof('{search_text}', CompanyName)")
 ```
 
-If you don't know what you're looking for, the reprs of most objects (eg. `myob`, `comp`, `comp.invoices` above) will yield info on what managers/methods are available.
+If you don't know what you're looking for, the reprs of most objects (eg. `myob`, `myob.invoices` above) will yield info on what managers/methods are available.
 Each method corresponds to one API call to MYOB.
 
 Note that not all endpoints are covered here yet; we've just been adding them on an as-needed basis. If there's a particular endpoint you'd like added, please feel free to throw it into the endpoints.py file and open up a PR. All contributions are welcome and will be reviewed promptly. :)

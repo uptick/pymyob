@@ -25,15 +25,15 @@ class Manager:
         self,
         name: str,
         credentials: PartnerCredentials,
-        company_id: str | None = None,
+        business_id: str | None = None,
         endpoints: list = [],  # noqa: B006
         raw_endpoints: list = [],  # noqa: B006
     ) -> None:
         self.credentials = credentials
         self.name = "_".join(p for p in name.rstrip("/").split("/") if "[" not in p)
         self.base_url = MYOB_BASE_URL
-        if company_id is not None:
-            self.base_url += company_id + "/"
+        if business_id is not None:
+            self.base_url += business_id + "/"
         if name:
             self.base_url += name
         self.method_details: dict[str, MethodDetails] = {}

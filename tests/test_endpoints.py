@@ -15,7 +15,7 @@ from myob.exceptions import (
 )
 
 # Reusable dummy data
-CID = "DummyCompanyId"
+BID = "DummyBusinessId"
 UID = "DummyResourceUid"
 DATA = {"dummy": "data"}
 
@@ -28,9 +28,9 @@ class EndpointTests(TestCase):
             consumer_key="KeyToTheKingdom",
             consumer_secret="TellNoOne",  # noqa: S106
             callback_uri="CallOnlyWhenCalledTo",
+            business_id=BID,
         )
         self.myob = Myob(cred)
-        self.companyfile = self.myob.companyfiles.get(CID, call=False)
         self.expected_request_headers = {
             "Authorization": "Bearer None",
             "x-myobapi-key": "KeyToTheKingdom",
@@ -40,8 +40,8 @@ class EndpointTests(TestCase):
     @patch("myob.managers.requests.request")
     def assertEndpointReached(self, func, params, method, endpoint, mock_request, timeout=None):  # noqa: N802
         mock_request.return_value.status_code = 200
-        if endpoint == f"/{CID}/":
-            mock_request.return_value.json.return_value = {"CompanyFile": {"Id": CID}}
+        if endpoint == f"/{BID}/":
+            mock_request.return_value.json.return_value = {"CompanyFile": {"Id": BID}}
         func(**params)
         full_endpoint = "https://api.myob.com/accountright" + endpoint
         mock_request.assert_called_once_with(
@@ -61,7 +61,30 @@ class EndpointTests(TestCase):
             self.myob.info()
 
     def test_base(self):
-        self.assertEqual(repr(self.myob), ("Myob:\n" "    companyfiles\n" "    info"))
+        self.assertEqual(
+            repr(self.myob),
+            (
+                "Myob:\n"
+                "    banking\n"
+                "    business\n"
+                "    company\n"
+                "    contacts\n"
+                "    credit_refunds\n"
+                "    credit_settlements\n"
+                "    customer_payments\n"
+                "    debit_refunds\n"
+                "    debit_settlements\n"
+                "    general_ledger\n"
+                "    info\n"
+                "    inventory\n"
+                "    invoices\n"
+                "    orders\n"
+                "    purchase_bills\n"
+                "    purchase_orders\n"
+                "    quotes\n"
+                "    supplier_payments"
+            ),
+        )
         self.assertEndpointReached(self.myob.info, {}, "GET", "/Info/")
 
     @patch("myob.managers.requests.request")
@@ -75,72 +98,59 @@ class EndpointTests(TestCase):
 
         # Empty response to DELETE returns empty dict
         mock_request.return_value.content = b""
-        result = self.companyfile.banking.delete_transfermoneytxn(uid=UID)
+        result = self.myob.banking.delete_transfermoneytxn(uid=UID)
         self.assertEqual(result, {})
 
         # JSON error from non-empty DELETE response gets raised
         mock_request.return_value.content = "{"
         with self.assertRaises(ValueError):
-            self.companyfile.banking.delete_transfermoneytxn(uid=UID)
+            self.myob.banking.delete_transfermoneytxn(uid=UID)
 
         # JSON error from non-DELETE request gets raised, regardless of content
         mock_request.return_value.content = b""
         with self.assertRaises(ValueError):
-            self.companyfile.banking.all()
+            self.myob.banking.all()
 
         with self.assertRaises(ValueError):
-            self.companyfile.banking.post_spendmoneytxn(data=DATA)
+            self.myob.banking.post_spendmoneytxn(data=DATA)
 
         with self.assertRaises(ValueError):
-            self.companyfile.banking.put_transfermoneytxn(uid=UID, data=DATA)
+            self.myob.banking.put_transfermoneytxn(uid=UID, data=DATA)
 
         mock_request.return_value.content = "{"
         with self.assertRaises(ValueError):
-            self.companyfile.banking.all()
+            self.myob.banking.all()
 
         with self.assertRaises(ValueError):
-            self.companyfile.banking.post_spendmoneytxn(data=DATA)
+            self.myob.banking.post_spendmoneytxn(data=DATA)
 
         with self.assertRaises(ValueError):
-            self.companyfile.banking.put_transfermoneytxn(uid=UID, data=DATA)
+            self.myob.banking.put_transfermoneytxn(uid=UID, data=DATA)
 
-    def test_companyfiles(self):
-        self.assertEqual(
-            repr(self.myob.companyfiles),
-            ("CompanyFileManager:\n    get(id) - List endpoints available for a company file."),
-        )
-        self.assertEndpointReached(self.myob.companyfiles.get, {"id": CID}, "GET", f"/{CID}/")
+    def test_business(self):
+        self.assertEndpointReached(self.myob.business, {}, "GET", f"/{BID}/")
 
-    def test_companyfile(self):
-        self.assertEqual(
-            repr(self.companyfile),
-            (
-                "CompanyFile:\n"
-                "    banking\n"
-                "    company\n"
-                "    contacts\n"
-                "    credit_refunds\n"
-                "    credit_settlements\n"
-                "    customer_payments\n"
-                "    debit_refunds\n"
-                "    debit_settlements\n"
-                "    general_ledger\n"
-                "    inventory\n"
-                "    invoices\n"
-                "    orders\n"
-                "    purchase_bills\n"
-                "    purchase_orders\n"
-                "    quotes\n"
-                "    supplier_payments"
-            ),
+    @patch("myob.managers.requests.request")
+    def test_business_unwraps_the_response_envelope(self, mock_request):
+        mock_request.return_value.status_code = 200
+        mock_request.return_value.json.return_value = {"CompanyFile": {"Id": BID, "Name": "Acme"}}
+        self.assertEqual(self.myob.business(), {"Id": BID, "Name": "Acme"})
+
+    def test_credentials_without_a_business_are_rejected(self):
+        cred = PartnerCredentials(
+            consumer_key="KeyToTheKingdom",
+            consumer_secret="TellNoOne",  # noqa: S106
+            callback_uri="CallOnlyWhenCalledTo",
         )
+        with self.assertRaises(ValueError):
+            Myob(cred)
 
     def test_banking(self):
         self.assertEqual(
-            repr(self.companyfile.banking),
+            repr(self.myob.banking),
             (
                 "BankingManager:\n"
-                "                              all() - Return all banking types for an AccountRight company file.\n"
+                "                              all() - Return all banking types for a business.\n"
                 "        delete_receivemoneytxn(uid) - Delete selected receive money transaction.\n"
                 "          delete_spendmoneytxn(uid) - Delete selected spend money transaction.\n"
                 "       delete_transfermoneytxn(uid) - Delete selected transfer money transaction.\n"
@@ -153,114 +163,114 @@ class EndpointTests(TestCase):
                 "     put_receivemoneytxn(uid, data) - Update selected receive money transaction.\n"
                 "       put_spendmoneytxn(uid, data) - Update selected spend money transaction.\n"
                 "    put_transfermoneytxn(uid, data) - Update selected transfer money transaction.\n"
-                "                  receivemoneytxn() - Return all receive money transactions for an AccountRight company file.\n"
-                "                    spendmoneytxn() - Return all spend money transactions for an AccountRight company file.\n"
-                "                 transfermoneytxn() - Return all transfer money transactions for an AccountRight company file."
+                "                  receivemoneytxn() - Return all receive money transactions for a business.\n"
+                "                    spendmoneytxn() - Return all spend money transactions for a business.\n"
+                "                 transfermoneytxn() - Return all transfer money transactions for a business."
             ),
         )
-        self.assertEndpointReached(self.companyfile.banking.all, {}, "GET", f"/{CID}/Banking/")
+        self.assertEndpointReached(self.myob.banking.all, {}, "GET", f"/{BID}/Banking/")
         self.assertEndpointReached(
-            self.companyfile.banking.spendmoneytxn,
+            self.myob.banking.spendmoneytxn,
             {},
             "GET",
-            f"/{CID}/Banking/SpendMoneyTxn/",
+            f"/{BID}/Banking/SpendMoneyTxn/",
         )
         self.assertEndpointReached(
-            self.companyfile.banking.get_spendmoneytxn,
+            self.myob.banking.get_spendmoneytxn,
             {"uid": UID},
             "GET",
-            f"/{CID}/Banking/SpendMoneyTxn/{UID}/",
+            f"/{BID}/Banking/SpendMoneyTxn/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.banking.put_spendmoneytxn,
+            self.myob.banking.put_spendmoneytxn,
             {"uid": UID, "data": DATA},
             "PUT",
-            f"/{CID}/Banking/SpendMoneyTxn/{UID}/",
+            f"/{BID}/Banking/SpendMoneyTxn/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.banking.post_spendmoneytxn,
+            self.myob.banking.post_spendmoneytxn,
             {"data": DATA},
             "POST",
-            f"/{CID}/Banking/SpendMoneyTxn/",
+            f"/{BID}/Banking/SpendMoneyTxn/",
         )
         self.assertEndpointReached(
-            self.companyfile.banking.delete_spendmoneytxn,
+            self.myob.banking.delete_spendmoneytxn,
             {"uid": UID},
             "DELETE",
-            f"/{CID}/Banking/SpendMoneyTxn/{UID}/",
+            f"/{BID}/Banking/SpendMoneyTxn/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.banking.receivemoneytxn,
+            self.myob.banking.receivemoneytxn,
             {},
             "GET",
-            f"/{CID}/Banking/ReceiveMoneyTxn/",
+            f"/{BID}/Banking/ReceiveMoneyTxn/",
         )
         self.assertEndpointReached(
-            self.companyfile.banking.get_receivemoneytxn,
+            self.myob.banking.get_receivemoneytxn,
             {"uid": UID},
             "GET",
-            f"/{CID}/Banking/ReceiveMoneyTxn/{UID}/",
+            f"/{BID}/Banking/ReceiveMoneyTxn/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.banking.put_receivemoneytxn,
+            self.myob.banking.put_receivemoneytxn,
             {"uid": UID, "data": DATA},
             "PUT",
-            f"/{CID}/Banking/ReceiveMoneyTxn/{UID}/",
+            f"/{BID}/Banking/ReceiveMoneyTxn/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.banking.post_receivemoneytxn,
+            self.myob.banking.post_receivemoneytxn,
             {"data": DATA},
             "POST",
-            f"/{CID}/Banking/ReceiveMoneyTxn/",
+            f"/{BID}/Banking/ReceiveMoneyTxn/",
         )
         self.assertEndpointReached(
-            self.companyfile.banking.delete_receivemoneytxn,
+            self.myob.banking.delete_receivemoneytxn,
             {"uid": UID},
             "DELETE",
-            f"/{CID}/Banking/ReceiveMoneyTxn/{UID}/",
+            f"/{BID}/Banking/ReceiveMoneyTxn/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.banking.transfermoneytxn,
+            self.myob.banking.transfermoneytxn,
             {},
             "GET",
-            f"/{CID}/Banking/TransferMoneyTxn/",
+            f"/{BID}/Banking/TransferMoneyTxn/",
         )
         self.assertEndpointReached(
-            self.companyfile.banking.get_transfermoneytxn,
+            self.myob.banking.get_transfermoneytxn,
             {"uid": UID},
             "GET",
-            f"/{CID}/Banking/TransferMoneyTxn/{UID}/",
+            f"/{BID}/Banking/TransferMoneyTxn/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.banking.put_transfermoneytxn,
+            self.myob.banking.put_transfermoneytxn,
             {"uid": UID, "data": DATA},
             "PUT",
-            f"/{CID}/Banking/TransferMoneyTxn/{UID}/",
+            f"/{BID}/Banking/TransferMoneyTxn/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.banking.post_transfermoneytxn,
+            self.myob.banking.post_transfermoneytxn,
             {"data": DATA},
             "POST",
-            f"/{CID}/Banking/TransferMoneyTxn/",
+            f"/{BID}/Banking/TransferMoneyTxn/",
         )
         self.assertEndpointReached(
-            self.companyfile.banking.delete_transfermoneytxn,
+            self.myob.banking.delete_transfermoneytxn,
             {"uid": UID},
             "DELETE",
-            f"/{CID}/Banking/TransferMoneyTxn/{UID}/",
+            f"/{BID}/Banking/TransferMoneyTxn/{UID}/",
         )
 
     def test_contacts(self):
         self.assertEqual(
-            repr(self.companyfile.contacts),
+            repr(self.myob.contacts),
             (
                 "ContactManager:\n"
-                "                      all() - Return all contact types for an AccountRight company file.\n"
-                "                 customer() - Return all customer contacts for an AccountRight company file.\n"
+                "                      all() - Return all contact types for a business.\n"
+                "                 customer() - Return all customer contacts for a business.\n"
                 "       delete_customer(uid) - Delete selected customer contact.\n"
                 "       delete_employee(uid) - Delete selected employee card.\n"
                 "       delete_supplier(uid) - Delete selected supplier contact.\n"
-                "                 employee() - Return all employee cards for an AccountRight company file.\n"
+                "                 employee() - Return all employee cards for a business.\n"
                 "          get_customer(uid) - Return selected customer contact.\n"
                 "          get_employee(uid) - Return selected employee card.\n"
                 "          get_supplier(uid) - Return selected supplier contact.\n"
@@ -270,452 +280,452 @@ class EndpointTests(TestCase):
                 "    put_customer(uid, data) - Update selected customer contact.\n"
                 "    put_employee(uid, data) - Update selected employee card.\n"
                 "    put_supplier(uid, data) - Update selected supplier contact.\n"
-                "                 supplier() - Return all supplier contacts for an AccountRight company file."
+                "                 supplier() - Return all supplier contacts for a business."
             ),
         )
-        self.assertEndpointReached(self.companyfile.contacts.all, {}, "GET", f"/{CID}/Contact/")
+        self.assertEndpointReached(self.myob.contacts.all, {}, "GET", f"/{BID}/Contact/")
         self.assertEndpointReached(
-            self.companyfile.contacts.customer, {}, "GET", f"/{CID}/Contact/Customer/"
+            self.myob.contacts.customer, {}, "GET", f"/{BID}/Contact/Customer/"
         )
         self.assertEndpointReached(
-            self.companyfile.contacts.get_customer,
+            self.myob.contacts.get_customer,
             {"uid": UID},
             "GET",
-            f"/{CID}/Contact/Customer/{UID}/",
+            f"/{BID}/Contact/Customer/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.contacts.put_customer,
+            self.myob.contacts.put_customer,
             {"uid": UID, "data": DATA},
             "PUT",
-            f"/{CID}/Contact/Customer/{UID}/",
+            f"/{BID}/Contact/Customer/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.contacts.post_customer,
+            self.myob.contacts.post_customer,
             {"data": DATA},
             "POST",
-            f"/{CID}/Contact/Customer/",
+            f"/{BID}/Contact/Customer/",
         )
         self.assertEndpointReached(
-            self.companyfile.contacts.delete_customer,
+            self.myob.contacts.delete_customer,
             {"uid": UID},
             "DELETE",
-            f"/{CID}/Contact/Customer/{UID}/",
+            f"/{BID}/Contact/Customer/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.contacts.employee, {}, "GET", f"/{CID}/Contact/Employee/"
+            self.myob.contacts.employee, {}, "GET", f"/{BID}/Contact/Employee/"
         )
         self.assertEndpointReached(
-            self.companyfile.contacts.get_employee,
+            self.myob.contacts.get_employee,
             {"uid": UID},
             "GET",
-            f"/{CID}/Contact/Employee/{UID}/",
+            f"/{BID}/Contact/Employee/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.contacts.put_employee,
+            self.myob.contacts.put_employee,
             {"uid": UID, "data": DATA},
             "PUT",
-            f"/{CID}/Contact/Employee/{UID}/",
+            f"/{BID}/Contact/Employee/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.contacts.post_employee,
+            self.myob.contacts.post_employee,
             {"data": DATA},
             "POST",
-            f"/{CID}/Contact/Employee/",
+            f"/{BID}/Contact/Employee/",
         )
         self.assertEndpointReached(
-            self.companyfile.contacts.delete_employee,
+            self.myob.contacts.delete_employee,
             {"uid": UID},
             "DELETE",
-            f"/{CID}/Contact/Employee/{UID}/",
+            f"/{BID}/Contact/Employee/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.contacts.supplier, {}, "GET", f"/{CID}/Contact/Supplier/"
+            self.myob.contacts.supplier, {}, "GET", f"/{BID}/Contact/Supplier/"
         )
         self.assertEndpointReached(
-            self.companyfile.contacts.get_supplier,
+            self.myob.contacts.get_supplier,
             {"uid": UID},
             "GET",
-            f"/{CID}/Contact/Supplier/{UID}/",
+            f"/{BID}/Contact/Supplier/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.contacts.put_supplier,
+            self.myob.contacts.put_supplier,
             {"uid": UID, "data": DATA},
             "PUT",
-            f"/{CID}/Contact/Supplier/{UID}/",
+            f"/{BID}/Contact/Supplier/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.contacts.post_supplier,
+            self.myob.contacts.post_supplier,
             {"data": DATA},
             "POST",
-            f"/{CID}/Contact/Supplier/",
+            f"/{BID}/Contact/Supplier/",
         )
         self.assertEndpointReached(
-            self.companyfile.contacts.delete_supplier,
+            self.myob.contacts.delete_supplier,
             {"uid": UID},
             "DELETE",
-            f"/{CID}/Contact/Supplier/{UID}/",
+            f"/{BID}/Contact/Supplier/{UID}/",
         )
 
     def test_invoices(self):
         self.assertEqual(
-            repr(self.companyfile.invoices),
+            repr(self.myob.invoices),
             (
                 "Sale_InvoiceManager:\n"
-                "                     all() - Return all sale invoice types for an AccountRight company file.\n"
+                "                     all() - Return all sale invoice types for a business.\n"
                 "          delete_item(uid) - Delete selected item type sale invoice.\n"
                 "       delete_service(uid) - Delete selected service type sale invoice.\n"
                 "             get_item(uid) - Return selected item type sale invoice.\n"
                 "          get_service(uid) - Return selected service type sale invoice.\n"
-                "                    item() - Return all item type sale invoices for an AccountRight company file.\n"
+                "                    item() - Return all item type sale invoices for a business.\n"
                 "           post_item(data) - Create new item type sale invoice.\n"
                 "        post_service(data) - Create new service type sale invoice.\n"
                 "       put_item(uid, data) - Update selected item type sale invoice.\n"
                 "    put_service(uid, data) - Update selected service type sale invoice.\n"
-                "                 service() - Return all service type sale invoices for an AccountRight company file."
+                "                 service() - Return all service type sale invoices for a business."
             ),
         )
         self.assertEndpointReached(
-            self.companyfile.invoices.all, {}, "GET", f"/{CID}/Sale/Invoice/"
+            self.myob.invoices.all, {}, "GET", f"/{BID}/Sale/Invoice/"
         )
         self.assertEndpointReached(
-            self.companyfile.invoices.item, {}, "GET", f"/{CID}/Sale/Invoice/Item/"
+            self.myob.invoices.item, {}, "GET", f"/{BID}/Sale/Invoice/Item/"
         )
         self.assertEndpointReached(
-            self.companyfile.invoices.get_item,
+            self.myob.invoices.get_item,
             {"uid": UID},
             "GET",
-            f"/{CID}/Sale/Invoice/Item/{UID}/",
+            f"/{BID}/Sale/Invoice/Item/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.invoices.put_item,
+            self.myob.invoices.put_item,
             {"uid": UID, "data": DATA},
             "PUT",
-            f"/{CID}/Sale/Invoice/Item/{UID}/",
+            f"/{BID}/Sale/Invoice/Item/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.invoices.post_item,
+            self.myob.invoices.post_item,
             {"data": DATA},
             "POST",
-            f"/{CID}/Sale/Invoice/Item/",
+            f"/{BID}/Sale/Invoice/Item/",
         )
         self.assertEndpointReached(
-            self.companyfile.invoices.delete_item,
+            self.myob.invoices.delete_item,
             {"uid": UID},
             "DELETE",
-            f"/{CID}/Sale/Invoice/Item/{UID}/",
+            f"/{BID}/Sale/Invoice/Item/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.invoices.service,
+            self.myob.invoices.service,
             {},
             "GET",
-            f"/{CID}/Sale/Invoice/Service/",
+            f"/{BID}/Sale/Invoice/Service/",
         )
         self.assertEndpointReached(
-            self.companyfile.invoices.get_service,
+            self.myob.invoices.get_service,
             {"uid": UID},
             "GET",
-            f"/{CID}/Sale/Invoice/Service/{UID}/",
+            f"/{BID}/Sale/Invoice/Service/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.invoices.put_service,
+            self.myob.invoices.put_service,
             {"uid": UID, "data": DATA},
             "PUT",
-            f"/{CID}/Sale/Invoice/Service/{UID}/",
+            f"/{BID}/Sale/Invoice/Service/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.invoices.post_service,
+            self.myob.invoices.post_service,
             {"data": DATA},
             "POST",
-            f"/{CID}/Sale/Invoice/Service/",
+            f"/{BID}/Sale/Invoice/Service/",
         )
         self.assertEndpointReached(
-            self.companyfile.invoices.delete_service,
+            self.myob.invoices.delete_service,
             {"uid": UID},
             "DELETE",
-            f"/{CID}/Sale/Invoice/Service/{UID}/",
+            f"/{BID}/Sale/Invoice/Service/{UID}/",
         )
 
     def test_customer_payments(self):
         self.assertEqual(
-            repr(self.companyfile.customer_payments),
+            repr(self.myob.customer_payments),
             (
                 "Sale_CustomerPaymentManager:\n"
-                "          all() - Return all sale customer payments for an AccountRight company file.\n"
+                "          all() - Return all sale customer payments for a business.\n"
                 "    delete(uid) - Delete selected sale customer payment.\n"
                 "       get(uid) - Return selected sale customer payment.\n"
                 "     post(data) - Create new sale customer payment."
             ),
         )
         self.assertEndpointReached(
-            self.companyfile.customer_payments.all,
+            self.myob.customer_payments.all,
             {},
             "GET",
-            f"/{CID}/Sale/CustomerPayment/",
+            f"/{BID}/Sale/CustomerPayment/",
         )
         self.assertEndpointReached(
-            self.companyfile.customer_payments.get,
+            self.myob.customer_payments.get,
             {"uid": UID},
             "GET",
-            f"/{CID}/Sale/CustomerPayment/{UID}/",
+            f"/{BID}/Sale/CustomerPayment/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.customer_payments.delete,
+            self.myob.customer_payments.delete,
             {"uid": UID},
             "DELETE",
-            f"/{CID}/Sale/CustomerPayment/{UID}/",
+            f"/{BID}/Sale/CustomerPayment/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.customer_payments.post,
+            self.myob.customer_payments.post,
             {"data": DATA},
             "POST",
-            f"/{CID}/Sale/CustomerPayment/",
+            f"/{BID}/Sale/CustomerPayment/",
         )
 
     def test_credit_refunds(self):
         self.assertEqual(
-            repr(self.companyfile.credit_refunds),
+            repr(self.myob.credit_refunds),
             (
                 "Sale_CreditRefundManager:\n"
-                "          all() - Return all sale credit refunds for an AccountRight company file.\n"
+                "          all() - Return all sale credit refunds for a business.\n"
                 "    delete(uid) - Delete selected sale credit refund.\n"
                 "       get(uid) - Return selected sale credit refund.\n"
                 "     post(data) - Create new sale credit refund."
             ),
         )
         self.assertEndpointReached(
-            self.companyfile.credit_refunds.all, {}, "GET", f"/{CID}/Sale/CreditRefund/"
+            self.myob.credit_refunds.all, {}, "GET", f"/{BID}/Sale/CreditRefund/"
         )
         self.assertEndpointReached(
-            self.companyfile.credit_refunds.get,
+            self.myob.credit_refunds.get,
             {"uid": UID},
             "GET",
-            f"/{CID}/Sale/CreditRefund/{UID}/",
+            f"/{BID}/Sale/CreditRefund/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.credit_refunds.delete,
+            self.myob.credit_refunds.delete,
             {"uid": UID},
             "DELETE",
-            f"/{CID}/Sale/CreditRefund/{UID}/",
+            f"/{BID}/Sale/CreditRefund/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.credit_refunds.post,
+            self.myob.credit_refunds.post,
             {"data": DATA},
             "POST",
-            f"/{CID}/Sale/CreditRefund/",
+            f"/{BID}/Sale/CreditRefund/",
         )
 
     def test_credit_settlements(self):
         self.assertEqual(
-            repr(self.companyfile.credit_settlements),
+            repr(self.myob.credit_settlements),
             (
                 "Sale_CreditSettlementManager:\n"
-                "          all() - Return all sale credit settlements for an AccountRight company file.\n"
+                "          all() - Return all sale credit settlements for a business.\n"
                 "    delete(uid) - Delete selected sale credit settlement.\n"
                 "       get(uid) - Return selected sale credit settlement.\n"
                 "     post(data) - Create new sale credit settlement."
             ),
         )
         self.assertEndpointReached(
-            self.companyfile.credit_settlements.all,
+            self.myob.credit_settlements.all,
             {},
             "GET",
-            f"/{CID}/Sale/CreditSettlement/",
+            f"/{BID}/Sale/CreditSettlement/",
         )
         self.assertEndpointReached(
-            self.companyfile.credit_settlements.get,
+            self.myob.credit_settlements.get,
             {"uid": UID},
             "GET",
-            f"/{CID}/Sale/CreditSettlement/{UID}/",
+            f"/{BID}/Sale/CreditSettlement/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.credit_settlements.delete,
+            self.myob.credit_settlements.delete,
             {"uid": UID},
             "DELETE",
-            f"/{CID}/Sale/CreditSettlement/{UID}/",
+            f"/{BID}/Sale/CreditSettlement/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.credit_settlements.post,
+            self.myob.credit_settlements.post,
             {"data": DATA},
             "POST",
-            f"/{CID}/Sale/CreditSettlement/",
+            f"/{BID}/Sale/CreditSettlement/",
         )
 
     def test_quotes(self):
         self.assertEqual(
-            repr(self.companyfile.quotes),
+            repr(self.myob.quotes),
             (
                 "Sale_QuoteManager:\n"
-                "                     all() - Return all sale quote types for an AccountRight company file.\n"
+                "                     all() - Return all sale quote types for a business.\n"
                 "          delete_item(uid) - Delete selected item type sale quote.\n"
                 "       delete_service(uid) - Delete selected service type sale quote.\n"
                 "             get_item(uid) - Return selected item type sale quote.\n"
                 "          get_service(uid) - Return selected service type sale quote.\n"
-                "                    item() - Return all item type sale quotes for an AccountRight company file.\n"
+                "                    item() - Return all item type sale quotes for a business.\n"
                 "           post_item(data) - Create new item type sale quote.\n"
                 "        post_service(data) - Create new service type sale quote.\n"
                 "       put_item(uid, data) - Update selected item type sale quote.\n"
                 "    put_service(uid, data) - Update selected service type sale quote.\n"
-                "                 service() - Return all service type sale quotes for an AccountRight company file."
+                "                 service() - Return all service type sale quotes for a business."
             ),
         )
-        self.assertEndpointReached(self.companyfile.quotes.all, {}, "GET", f"/{CID}/Sale/Quote/")
+        self.assertEndpointReached(self.myob.quotes.all, {}, "GET", f"/{BID}/Sale/Quote/")
         self.assertEndpointReached(
-            self.companyfile.quotes.item, {}, "GET", f"/{CID}/Sale/Quote/Item/"
+            self.myob.quotes.item, {}, "GET", f"/{BID}/Sale/Quote/Item/"
         )
         self.assertEndpointReached(
-            self.companyfile.quotes.get_item,
+            self.myob.quotes.get_item,
             {"uid": UID},
             "GET",
-            f"/{CID}/Sale/Quote/Item/{UID}/",
+            f"/{BID}/Sale/Quote/Item/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.quotes.put_item,
+            self.myob.quotes.put_item,
             {"uid": UID, "data": DATA},
             "PUT",
-            f"/{CID}/Sale/Quote/Item/{UID}/",
+            f"/{BID}/Sale/Quote/Item/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.quotes.post_item,
+            self.myob.quotes.post_item,
             {"data": DATA},
             "POST",
-            f"/{CID}/Sale/Quote/Item/",
+            f"/{BID}/Sale/Quote/Item/",
         )
         self.assertEndpointReached(
-            self.companyfile.quotes.delete_item,
+            self.myob.quotes.delete_item,
             {"uid": UID},
             "DELETE",
-            f"/{CID}/Sale/Quote/Item/{UID}/",
+            f"/{BID}/Sale/Quote/Item/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.quotes.service, {}, "GET", f"/{CID}/Sale/Quote/Service/"
+            self.myob.quotes.service, {}, "GET", f"/{BID}/Sale/Quote/Service/"
         )
         self.assertEndpointReached(
-            self.companyfile.quotes.get_service,
+            self.myob.quotes.get_service,
             {"uid": UID},
             "GET",
-            f"/{CID}/Sale/Quote/Service/{UID}/",
+            f"/{BID}/Sale/Quote/Service/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.quotes.put_service,
+            self.myob.quotes.put_service,
             {"uid": UID, "data": DATA},
             "PUT",
-            f"/{CID}/Sale/Quote/Service/{UID}/",
+            f"/{BID}/Sale/Quote/Service/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.quotes.post_service,
+            self.myob.quotes.post_service,
             {"data": DATA},
             "POST",
-            f"/{CID}/Sale/Quote/Service/",
+            f"/{BID}/Sale/Quote/Service/",
         )
         self.assertEndpointReached(
-            self.companyfile.quotes.delete_service,
+            self.myob.quotes.delete_service,
             {"uid": UID},
             "DELETE",
-            f"/{CID}/Sale/Quote/Service/{UID}/",
+            f"/{BID}/Sale/Quote/Service/{UID}/",
         )
 
     def test_orders(self):
         self.assertEqual(
-            repr(self.companyfile.orders),
+            repr(self.myob.orders),
             (
                 "Sale_OrderManager:\n"
-                "                     all() - Return all sale order types for an AccountRight company file.\n"
+                "                     all() - Return all sale order types for a business.\n"
                 "          delete_item(uid) - Delete selected item type sale order.\n"
                 "       delete_service(uid) - Delete selected service type sale order.\n"
                 "             get_item(uid) - Return selected item type sale order.\n"
                 "          get_service(uid) - Return selected service type sale order.\n"
-                "                    item() - Return all item type sale orders for an AccountRight company file.\n"
+                "                    item() - Return all item type sale orders for a business.\n"
                 "           post_item(data) - Create new item type sale order.\n"
                 "        post_service(data) - Create new service type sale order.\n"
                 "       put_item(uid, data) - Update selected item type sale order.\n"
                 "    put_service(uid, data) - Update selected service type sale order.\n"
-                "                 service() - Return all service type sale orders for an AccountRight company file."
+                "                 service() - Return all service type sale orders for a business."
             ),
         )
         self.assertEndpointReached(
-            self.companyfile.invoices.all, {}, "GET", f"/{CID}/Sale/Invoice/"
+            self.myob.invoices.all, {}, "GET", f"/{BID}/Sale/Invoice/"
         )
         self.assertEndpointReached(
-            self.companyfile.invoices.item, {}, "GET", f"/{CID}/Sale/Invoice/Item/"
+            self.myob.invoices.item, {}, "GET", f"/{BID}/Sale/Invoice/Item/"
         )
         self.assertEndpointReached(
-            self.companyfile.invoices.get_item,
+            self.myob.invoices.get_item,
             {"uid": UID},
             "GET",
-            f"/{CID}/Sale/Invoice/Item/{UID}/",
+            f"/{BID}/Sale/Invoice/Item/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.invoices.put_item,
+            self.myob.invoices.put_item,
             {"uid": UID, "data": DATA},
             "PUT",
-            f"/{CID}/Sale/Invoice/Item/{UID}/",
+            f"/{BID}/Sale/Invoice/Item/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.invoices.post_item,
+            self.myob.invoices.post_item,
             {"data": DATA},
             "POST",
-            f"/{CID}/Sale/Invoice/Item/",
+            f"/{BID}/Sale/Invoice/Item/",
         )
         self.assertEndpointReached(
-            self.companyfile.invoices.delete_item,
+            self.myob.invoices.delete_item,
             {"uid": UID},
             "DELETE",
-            f"/{CID}/Sale/Invoice/Item/{UID}/",
+            f"/{BID}/Sale/Invoice/Item/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.invoices.service,
+            self.myob.invoices.service,
             {},
             "GET",
-            f"/{CID}/Sale/Invoice/Service/",
+            f"/{BID}/Sale/Invoice/Service/",
         )
         self.assertEndpointReached(
-            self.companyfile.invoices.get_service,
+            self.myob.invoices.get_service,
             {"uid": UID},
             "GET",
-            f"/{CID}/Sale/Invoice/Service/{UID}/",
+            f"/{BID}/Sale/Invoice/Service/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.invoices.put_service,
+            self.myob.invoices.put_service,
             {"uid": UID, "data": DATA},
             "PUT",
-            f"/{CID}/Sale/Invoice/Service/{UID}/",
+            f"/{BID}/Sale/Invoice/Service/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.invoices.post_service,
+            self.myob.invoices.post_service,
             {"data": DATA},
             "POST",
-            f"/{CID}/Sale/Invoice/Service/",
+            f"/{BID}/Sale/Invoice/Service/",
         )
         self.assertEndpointReached(
-            self.companyfile.invoices.delete_service,
+            self.myob.invoices.delete_service,
             {"uid": UID},
             "DELETE",
-            f"/{CID}/Sale/Invoice/Service/{UID}/",
+            f"/{BID}/Sale/Invoice/Service/{UID}/",
         )
 
     def test_general_ledger(self):
         self.assertEqual(
-            repr(self.companyfile.general_ledger),
+            repr(self.myob.general_ledger),
             (
                 "GeneralLedgerManager:\n"
-                "                        account() - Return all accounts for an AccountRight company file.\n"
-                "           accountingproperties() - Return all accounting property settings for an AccountRight company file.\n"
-                "                accountregister() - Return all account registers for an AccountRight company file.\n"
-                "                       category() - Return all cost center tracking categories for an AccountRight company file.\n"
+                "                        account() - Return all accounts for a business.\n"
+                "           accountingproperties() - Return all accounting property settings for a business.\n"
+                "                accountregister() - Return all account registers for a business.\n"
+                "                       category() - Return all cost center tracking categories for a business.\n"
                 "              delete_account(uid) - Delete selected account.\n"
                 "             delete_category(uid) - Delete selected cost center tracking category.\n"
                 "       delete_generaljournal(uid) - Delete selected general journal.\n"
                 "                  delete_job(uid) - Delete selected job.\n"
                 "              delete_taxcode(uid) - Delete selected tax code.\n"
-                "                 generaljournal() - Return all general journals for an AccountRight company file.\n"
+                "                 generaljournal() - Return all general journals for a business.\n"
                 "                 get_account(uid) - Return selected account.\n"
                 "                get_category(uid) - Return selected cost center tracking category.\n"
                 "          get_generaljournal(uid) - Return selected general journal.\n"
                 "                     get_job(uid) - Return selected job.\n"
                 "      get_journaltransaction(uid) - Return selected transaction journal.\n"
                 "                 get_taxcode(uid) - Return selected tax code.\n"
-                "                            job() - Return all jobs for an AccountRight company file.\n"
-                "             journaltransaction() - Return all transaction journals for an AccountRight company file.\n"
+                "                            job() - Return all jobs for a business.\n"
+                "             journaltransaction() - Return all transaction journals for a business.\n"
                 "               post_account(data) - Create new account.\n"
                 "              post_category(data) - Create new cost center tracking category.\n"
                 "        post_generaljournal(data) - Create new general journal.\n"
@@ -726,124 +736,124 @@ class EndpointTests(TestCase):
                 "    put_generaljournal(uid, data) - Update selected general journal.\n"
                 "               put_job(uid, data) - Update selected job.\n"
                 "           put_taxcode(uid, data) - Update selected tax code.\n"
-                "                        taxcode() - Return all tax codes for an AccountRight company file."
+                "                        taxcode() - Return all tax codes for a business."
             ),
         )
         self.assertEndpointReached(
-            self.companyfile.general_ledger.taxcode,
+            self.myob.general_ledger.taxcode,
             {},
             "GET",
-            f"/{CID}/GeneralLedger/TaxCode/",
+            f"/{BID}/GeneralLedger/TaxCode/",
         )
         self.assertEndpointReached(
-            self.companyfile.general_ledger.get_taxcode,
+            self.myob.general_ledger.get_taxcode,
             {"uid": UID},
             "GET",
-            f"/{CID}/GeneralLedger/TaxCode/{UID}/",
+            f"/{BID}/GeneralLedger/TaxCode/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.general_ledger.put_taxcode,
+            self.myob.general_ledger.put_taxcode,
             {"uid": UID, "data": DATA},
             "PUT",
-            f"/{CID}/GeneralLedger/TaxCode/{UID}/",
+            f"/{BID}/GeneralLedger/TaxCode/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.general_ledger.post_taxcode,
+            self.myob.general_ledger.post_taxcode,
             {"data": DATA},
             "POST",
-            f"/{CID}/GeneralLedger/TaxCode/",
+            f"/{BID}/GeneralLedger/TaxCode/",
         )
         self.assertEndpointReached(
-            self.companyfile.general_ledger.delete_taxcode,
+            self.myob.general_ledger.delete_taxcode,
             {"uid": UID},
             "DELETE",
-            f"/{CID}/GeneralLedger/TaxCode/{UID}/",
+            f"/{BID}/GeneralLedger/TaxCode/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.general_ledger.account,
+            self.myob.general_ledger.account,
             {},
             "GET",
-            f"/{CID}/GeneralLedger/Account/",
+            f"/{BID}/GeneralLedger/Account/",
         )
         self.assertEndpointReached(
-            self.companyfile.general_ledger.get_account,
+            self.myob.general_ledger.get_account,
             {"uid": UID},
             "GET",
-            f"/{CID}/GeneralLedger/Account/{UID}/",
+            f"/{BID}/GeneralLedger/Account/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.general_ledger.put_account,
+            self.myob.general_ledger.put_account,
             {"uid": UID, "data": DATA},
             "PUT",
-            f"/{CID}/GeneralLedger/Account/{UID}/",
+            f"/{BID}/GeneralLedger/Account/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.general_ledger.post_account,
+            self.myob.general_ledger.post_account,
             {"data": DATA},
             "POST",
-            f"/{CID}/GeneralLedger/Account/",
+            f"/{BID}/GeneralLedger/Account/",
         )
         self.assertEndpointReached(
-            self.companyfile.general_ledger.delete_account,
+            self.myob.general_ledger.delete_account,
             {"uid": UID},
             "DELETE",
-            f"/{CID}/GeneralLedger/Account/{UID}/",
+            f"/{BID}/GeneralLedger/Account/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.general_ledger.category,
+            self.myob.general_ledger.category,
             {},
             "GET",
-            f"/{CID}/GeneralLedger/Category/",
+            f"/{BID}/GeneralLedger/Category/",
         )
         self.assertEndpointReached(
-            self.companyfile.general_ledger.get_category,
+            self.myob.general_ledger.get_category,
             {"uid": UID},
             "GET",
-            f"/{CID}/GeneralLedger/Category/{UID}/",
+            f"/{BID}/GeneralLedger/Category/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.general_ledger.put_category,
+            self.myob.general_ledger.put_category,
             {"uid": UID, "data": DATA},
             "PUT",
-            f"/{CID}/GeneralLedger/Category/{UID}/",
+            f"/{BID}/GeneralLedger/Category/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.general_ledger.post_category,
+            self.myob.general_ledger.post_category,
             {"data": DATA},
             "POST",
-            f"/{CID}/GeneralLedger/Category/",
+            f"/{BID}/GeneralLedger/Category/",
         )
         self.assertEndpointReached(
-            self.companyfile.general_ledger.delete_category,
+            self.myob.general_ledger.delete_category,
             {"uid": UID},
             "DELETE",
-            f"/{CID}/GeneralLedger/Category/{UID}/",
+            f"/{BID}/GeneralLedger/Category/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.general_ledger.journaltransaction,
+            self.myob.general_ledger.journaltransaction,
             {},
             "GET",
-            f"/{CID}/GeneralLedger/JournalTransaction/",
+            f"/{BID}/GeneralLedger/JournalTransaction/",
         )
         self.assertEndpointReached(
-            self.companyfile.general_ledger.accountregister,
+            self.myob.general_ledger.accountregister,
             {},
             "GET",
-            f"/{CID}/GeneralLedger/AccountRegister/",
+            f"/{BID}/GeneralLedger/AccountRegister/",
         )
         self.assertEndpointReached(
-            self.companyfile.general_ledger.accountingproperties,
+            self.myob.general_ledger.accountingproperties,
             {},
             "GET",
-            f"/{CID}/GeneralLedger/AccountingProperties/",
+            f"/{BID}/GeneralLedger/AccountingProperties/",
         )
 
     def test_inventory(self):
         self.assertEqual(
-            repr(self.companyfile.inventory),
+            repr(self.myob.inventory),
             (
                 "InventoryManager:\n"
-                "                      adjustment() - Return all inventory adjustments for an AccountRight company file.\n"
+                "                      adjustment() - Return all inventory adjustments for a business.\n"
                 "            delete_adjustment(uid) - Delete selected inventory adjustment.\n"
                 "                  delete_item(uid) - Delete selected inventory item.\n"
                 "              delete_location(uid) - Delete selected inventory location.\n"
@@ -851,9 +861,9 @@ class EndpointTests(TestCase):
                 "                     get_item(uid) - Return selected inventory item.\n"
                 "          get_itempricematrix(uid) - Return selected inventory item price matrix.\n"
                 "                 get_location(uid) - Return selected inventory location.\n"
-                "                            item() - Return all inventory items for an AccountRight company file.\n"
-                "                 itempricematrix() - Return all inventory item price matrices for an AccountRight company file.\n"
-                "                        location() - Return all inventory locations for an AccountRight company file.\n"
+                "                            item() - Return all inventory items for a business.\n"
+                "                 itempricematrix() - Return all inventory item price matrices for a business.\n"
+                "                        location() - Return all inventory locations for a business.\n"
                 "             post_adjustment(data) - Create new inventory adjustment.\n"
                 "                   post_item(data) - Create new inventory item.\n"
                 "               post_location(data) - Create new inventory location.\n"
@@ -864,281 +874,281 @@ class EndpointTests(TestCase):
             ),
         )
         self.assertEndpointReached(
-            self.companyfile.inventory.item, {}, "GET", f"/{CID}/Inventory/Item/"
+            self.myob.inventory.item, {}, "GET", f"/{BID}/Inventory/Item/"
         )
         self.assertEndpointReached(
-            self.companyfile.inventory.get_item,
+            self.myob.inventory.get_item,
             {"uid": UID},
             "GET",
-            f"/{CID}/Inventory/Item/{UID}/",
+            f"/{BID}/Inventory/Item/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.inventory.put_item,
+            self.myob.inventory.put_item,
             {"uid": UID, "data": DATA},
             "PUT",
-            f"/{CID}/Inventory/Item/{UID}/",
+            f"/{BID}/Inventory/Item/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.inventory.post_item,
+            self.myob.inventory.post_item,
             {"data": DATA},
             "POST",
-            f"/{CID}/Inventory/Item/",
+            f"/{BID}/Inventory/Item/",
         )
         self.assertEndpointReached(
-            self.companyfile.inventory.delete_item,
+            self.myob.inventory.delete_item,
             {"uid": UID},
             "DELETE",
-            f"/{CID}/Inventory/Item/{UID}/",
+            f"/{BID}/Inventory/Item/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.inventory.itempricematrix,
+            self.myob.inventory.itempricematrix,
             {},
             "GET",
-            f"/{CID}/Inventory/ItemPriceMatrix/",
+            f"/{BID}/Inventory/ItemPriceMatrix/",
         )
         self.assertEndpointReached(
-            self.companyfile.inventory.get_itempricematrix,
+            self.myob.inventory.get_itempricematrix,
             {"uid": UID},
             "GET",
-            f"/{CID}/Inventory/ItemPriceMatrix/{UID}/",
+            f"/{BID}/Inventory/ItemPriceMatrix/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.inventory.put_itempricematrix,
+            self.myob.inventory.put_itempricematrix,
             {"uid": UID, "data": DATA},
             "PUT",
-            f"/{CID}/Inventory/ItemPriceMatrix/{UID}/",
+            f"/{BID}/Inventory/ItemPriceMatrix/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.inventory.location,
+            self.myob.inventory.location,
             {},
             "GET",
-            f"/{CID}/Inventory/Location/",
+            f"/{BID}/Inventory/Location/",
         )
         self.assertEndpointReached(
-            self.companyfile.inventory.get_location,
+            self.myob.inventory.get_location,
             {"uid": UID},
             "GET",
-            f"/{CID}/Inventory/Location/{UID}/",
+            f"/{BID}/Inventory/Location/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.inventory.put_location,
+            self.myob.inventory.put_location,
             {"uid": UID, "data": DATA},
             "PUT",
-            f"/{CID}/Inventory/Location/{UID}/",
+            f"/{BID}/Inventory/Location/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.inventory.post_location,
+            self.myob.inventory.post_location,
             {"data": DATA},
             "POST",
-            f"/{CID}/Inventory/Location/",
+            f"/{BID}/Inventory/Location/",
         )
         self.assertEndpointReached(
-            self.companyfile.inventory.delete_location,
+            self.myob.inventory.delete_location,
             {"uid": UID},
             "DELETE",
-            f"/{CID}/Inventory/Location/{UID}/",
+            f"/{BID}/Inventory/Location/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.inventory.adjustment,
+            self.myob.inventory.adjustment,
             {},
             "GET",
-            f"/{CID}/Inventory/Adjustment/",
+            f"/{BID}/Inventory/Adjustment/",
         )
         self.assertEndpointReached(
-            self.companyfile.inventory.get_adjustment,
+            self.myob.inventory.get_adjustment,
             {"uid": UID},
             "GET",
-            f"/{CID}/Inventory/Adjustment/{UID}/",
+            f"/{BID}/Inventory/Adjustment/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.inventory.put_adjustment,
+            self.myob.inventory.put_adjustment,
             {"uid": UID, "data": DATA},
             "PUT",
-            f"/{CID}/Inventory/Adjustment/{UID}/",
+            f"/{BID}/Inventory/Adjustment/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.inventory.post_adjustment,
+            self.myob.inventory.post_adjustment,
             {"data": DATA},
             "POST",
-            f"/{CID}/Inventory/Adjustment/",
+            f"/{BID}/Inventory/Adjustment/",
         )
         self.assertEndpointReached(
-            self.companyfile.inventory.delete_adjustment,
+            self.myob.inventory.delete_adjustment,
             {"uid": UID},
             "DELETE",
-            f"/{CID}/Inventory/Adjustment/{UID}/",
+            f"/{BID}/Inventory/Adjustment/{UID}/",
         )
 
     def test_purchase_orders(self):
         self.assertEqual(
-            repr(self.companyfile.purchase_orders),
+            repr(self.myob.purchase_orders),
             (
                 "Purchase_OrderManager:\n"
-                "                  all() - Return all purchase order types for an AccountRight company file.\n"
+                "                  all() - Return all purchase order types for a business.\n"
                 "       delete_item(uid) - Delete selected item type purchase order.\n"
                 "          get_item(uid) - Return selected item type purchase order.\n"
-                "                 item() - Return all item type purchase orders for an AccountRight company file.\n"
+                "                 item() - Return all item type purchase orders for a business.\n"
                 "        post_item(data) - Create new item type purchase order.\n"
                 "    put_item(uid, data) - Update selected item type purchase order."
             ),
         )
         self.assertEndpointReached(
-            self.companyfile.purchase_orders.all, {}, "GET", f"/{CID}/Purchase/Order/"
+            self.myob.purchase_orders.all, {}, "GET", f"/{BID}/Purchase/Order/"
         )
         self.assertEndpointReached(
-            self.companyfile.purchase_orders.item,
+            self.myob.purchase_orders.item,
             {},
             "GET",
-            f"/{CID}/Purchase/Order/Item/",
+            f"/{BID}/Purchase/Order/Item/",
         )
         self.assertEndpointReached(
-            self.companyfile.purchase_orders.get_item,
+            self.myob.purchase_orders.get_item,
             {"uid": UID},
             "GET",
-            f"/{CID}/Purchase/Order/Item/{UID}/",
+            f"/{BID}/Purchase/Order/Item/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.purchase_orders.put_item,
+            self.myob.purchase_orders.put_item,
             {"uid": UID, "data": DATA},
             "PUT",
-            f"/{CID}/Purchase/Order/Item/{UID}/",
+            f"/{BID}/Purchase/Order/Item/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.purchase_orders.post_item,
+            self.myob.purchase_orders.post_item,
             {"data": DATA},
             "POST",
-            f"/{CID}/Purchase/Order/Item/",
+            f"/{BID}/Purchase/Order/Item/",
         )
         self.assertEndpointReached(
-            self.companyfile.purchase_orders.delete_item,
+            self.myob.purchase_orders.delete_item,
             {"uid": UID},
             "DELETE",
-            f"/{CID}/Purchase/Order/Item/{UID}/",
+            f"/{BID}/Purchase/Order/Item/{UID}/",
         )
 
     def test_purchase_bills(self):
         self.assertEqual(
-            repr(self.companyfile.purchase_bills),
+            repr(self.myob.purchase_bills),
             (
                 "Purchase_BillManager:\n"
-                "                           all() - Return all purchase bill types for an AccountRight company file.\n"
+                "                           all() - Return all purchase bill types for a business.\n"
                 "                delete_item(uid) - Delete selected item type purchase bill.\n"
                 "       delete_miscellaneous(uid) - Delete selected miscellaneous type purchase bill.\n"
                 "             delete_service(uid) - Delete selected service type purchase bill.\n"
                 "                   get_item(uid) - Return selected item type purchase bill.\n"
                 "          get_miscellaneous(uid) - Return selected miscellaneous type purchase bill.\n"
                 "                get_service(uid) - Return selected service type purchase bill.\n"
-                "                          item() - Return all item type purchase bills for an AccountRight company file.\n"
-                "                 miscellaneous() - Return all miscellaneous type purchase bills for an AccountRight company file.\n"
+                "                          item() - Return all item type purchase bills for a business.\n"
+                "                 miscellaneous() - Return all miscellaneous type purchase bills for a business.\n"
                 "                 post_item(data) - Create new item type purchase bill.\n"
                 "        post_miscellaneous(data) - Create new miscellaneous type purchase bill.\n"
                 "              post_service(data) - Create new service type purchase bill.\n"
                 "             put_item(uid, data) - Update selected item type purchase bill.\n"
                 "    put_miscellaneous(uid, data) - Update selected miscellaneous type purchase bill.\n"
                 "          put_service(uid, data) - Update selected service type purchase bill.\n"
-                "                       service() - Return all service type purchase bills for an AccountRight company file."
+                "                       service() - Return all service type purchase bills for a business."
             ),
         )
         self.assertEndpointReached(
-            self.companyfile.purchase_bills.all, {}, "GET", f"/{CID}/Purchase/Bill/"
+            self.myob.purchase_bills.all, {}, "GET", f"/{BID}/Purchase/Bill/"
         )
         self.assertEndpointReached(
-            self.companyfile.purchase_bills.item,
+            self.myob.purchase_bills.item,
             {},
             "GET",
-            f"/{CID}/Purchase/Bill/Item/",
+            f"/{BID}/Purchase/Bill/Item/",
         )
         self.assertEndpointReached(
-            self.companyfile.purchase_bills.get_item,
+            self.myob.purchase_bills.get_item,
             {"uid": UID},
             "GET",
-            f"/{CID}/Purchase/Bill/Item/{UID}/",
+            f"/{BID}/Purchase/Bill/Item/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.purchase_bills.put_item,
+            self.myob.purchase_bills.put_item,
             {"uid": UID, "data": DATA},
             "PUT",
-            f"/{CID}/Purchase/Bill/Item/{UID}/",
+            f"/{BID}/Purchase/Bill/Item/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.purchase_bills.post_item,
+            self.myob.purchase_bills.post_item,
             {"data": DATA},
             "POST",
-            f"/{CID}/Purchase/Bill/Item/",
+            f"/{BID}/Purchase/Bill/Item/",
         )
         self.assertEndpointReached(
-            self.companyfile.purchase_bills.delete_item,
+            self.myob.purchase_bills.delete_item,
             {"uid": UID},
             "DELETE",
-            f"/{CID}/Purchase/Bill/Item/{UID}/",
+            f"/{BID}/Purchase/Bill/Item/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.purchase_bills.service,
+            self.myob.purchase_bills.service,
             {},
             "GET",
-            f"/{CID}/Purchase/Bill/Service/",
+            f"/{BID}/Purchase/Bill/Service/",
         )
         self.assertEndpointReached(
-            self.companyfile.purchase_bills.get_service,
+            self.myob.purchase_bills.get_service,
             {"uid": UID},
             "GET",
-            f"/{CID}/Purchase/Bill/Service/{UID}/",
+            f"/{BID}/Purchase/Bill/Service/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.purchase_bills.put_service,
+            self.myob.purchase_bills.put_service,
             {"uid": UID, "data": DATA},
             "PUT",
-            f"/{CID}/Purchase/Bill/Service/{UID}/",
+            f"/{BID}/Purchase/Bill/Service/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.purchase_bills.post_service,
+            self.myob.purchase_bills.post_service,
             {"data": DATA},
             "POST",
-            f"/{CID}/Purchase/Bill/Service/",
+            f"/{BID}/Purchase/Bill/Service/",
         )
         self.assertEndpointReached(
-            self.companyfile.purchase_bills.delete_service,
+            self.myob.purchase_bills.delete_service,
             {"uid": UID},
             "DELETE",
-            f"/{CID}/Purchase/Bill/Service/{UID}/",
+            f"/{BID}/Purchase/Bill/Service/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.purchase_bills.miscellaneous,
+            self.myob.purchase_bills.miscellaneous,
             {},
             "GET",
-            f"/{CID}/Purchase/Bill/Miscellaneous/",
+            f"/{BID}/Purchase/Bill/Miscellaneous/",
         )
         self.assertEndpointReached(
-            self.companyfile.purchase_bills.get_miscellaneous,
+            self.myob.purchase_bills.get_miscellaneous,
             {"uid": UID},
             "GET",
-            f"/{CID}/Purchase/Bill/Miscellaneous/{UID}/",
+            f"/{BID}/Purchase/Bill/Miscellaneous/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.purchase_bills.put_miscellaneous,
+            self.myob.purchase_bills.put_miscellaneous,
             {"uid": UID, "data": DATA},
             "PUT",
-            f"/{CID}/Purchase/Bill/Miscellaneous/{UID}/",
+            f"/{BID}/Purchase/Bill/Miscellaneous/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.purchase_bills.post_miscellaneous,
+            self.myob.purchase_bills.post_miscellaneous,
             {"data": DATA},
             "POST",
-            f"/{CID}/Purchase/Bill/Miscellaneous/",
+            f"/{BID}/Purchase/Bill/Miscellaneous/",
         )
         self.assertEndpointReached(
-            self.companyfile.purchase_bills.delete_miscellaneous,
+            self.myob.purchase_bills.delete_miscellaneous,
             {"uid": UID},
             "DELETE",
-            f"/{CID}/Purchase/Bill/Miscellaneous/{UID}/",
+            f"/{BID}/Purchase/Bill/Miscellaneous/{UID}/",
         )
 
     def test_supplier_payments(self):
         self.assertEqual(
-            repr(self.companyfile.supplier_payments),
+            repr(self.myob.supplier_payments),
             (
                 "Purchase_SupplierPaymentManager:\n"
-                "             all() - Return all purchase supplier payments for an AccountRight company file.\n"
+                "             all() - Return all purchase supplier payments for a business.\n"
                 "       delete(uid) - Delete selected purchase supplier payment.\n"
                 "          get(uid) - Return selected purchase supplier payment.\n"
                 "        post(data) - Create new purchase supplier payment.\n"
@@ -1146,129 +1156,129 @@ class EndpointTests(TestCase):
             ),
         )
         self.assertEndpointReached(
-            self.companyfile.supplier_payments.all,
+            self.myob.supplier_payments.all,
             {},
             "GET",
-            f"/{CID}/Purchase/SupplierPayment/",
+            f"/{BID}/Purchase/SupplierPayment/",
         )
         self.assertEndpointReached(
-            self.companyfile.supplier_payments.get,
+            self.myob.supplier_payments.get,
             {"uid": UID},
             "GET",
-            f"/{CID}/Purchase/SupplierPayment/{UID}/",
+            f"/{BID}/Purchase/SupplierPayment/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.supplier_payments.put,
+            self.myob.supplier_payments.put,
             {"uid": UID, "data": DATA},
             "PUT",
-            f"/{CID}/Purchase/SupplierPayment/{UID}/",
+            f"/{BID}/Purchase/SupplierPayment/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.supplier_payments.delete,
+            self.myob.supplier_payments.delete,
             {"uid": UID},
             "DELETE",
-            f"/{CID}/Purchase/SupplierPayment/{UID}/",
+            f"/{BID}/Purchase/SupplierPayment/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.supplier_payments.post,
+            self.myob.supplier_payments.post,
             {"data": DATA},
             "POST",
-            f"/{CID}/Purchase/SupplierPayment/",
+            f"/{BID}/Purchase/SupplierPayment/",
         )
 
     def test_debit_refunds(self):
         self.assertEqual(
-            repr(self.companyfile.debit_refunds),
+            repr(self.myob.debit_refunds),
             (
                 "Purchase_DebitRefundManager:\n"
-                "          all() - Return all purchase debit refunds for an AccountRight company file.\n"
+                "          all() - Return all purchase debit refunds for a business.\n"
                 "    delete(uid) - Delete selected purchase debit refund.\n"
                 "       get(uid) - Return selected purchase debit refund.\n"
                 "     post(data) - Create new purchase debit refund."
             ),
         )
         self.assertEndpointReached(
-            self.companyfile.debit_refunds.all,
+            self.myob.debit_refunds.all,
             {},
             "GET",
-            f"/{CID}/Purchase/DebitRefund/",
+            f"/{BID}/Purchase/DebitRefund/",
         )
         self.assertEndpointReached(
-            self.companyfile.debit_refunds.get,
+            self.myob.debit_refunds.get,
             {"uid": UID},
             "GET",
-            f"/{CID}/Purchase/DebitRefund/{UID}/",
+            f"/{BID}/Purchase/DebitRefund/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.debit_refunds.delete,
+            self.myob.debit_refunds.delete,
             {"uid": UID},
             "DELETE",
-            f"/{CID}/Purchase/DebitRefund/{UID}/",
+            f"/{BID}/Purchase/DebitRefund/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.debit_refunds.post,
+            self.myob.debit_refunds.post,
             {"data": DATA},
             "POST",
-            f"/{CID}/Purchase/DebitRefund/",
+            f"/{BID}/Purchase/DebitRefund/",
         )
 
     def test_debit_settlements(self):
         self.assertEqual(
-            repr(self.companyfile.debit_settlements),
+            repr(self.myob.debit_settlements),
             (
                 "Purchase_DebitSettlementManager:\n"
-                "          all() - Return all purchase debit settlements for an AccountRight company file.\n"
+                "          all() - Return all purchase debit settlements for a business.\n"
                 "    delete(uid) - Delete selected purchase debit settlement.\n"
                 "       get(uid) - Return selected purchase debit settlement.\n"
                 "     post(data) - Create new purchase debit settlement."
             ),
         )
         self.assertEndpointReached(
-            self.companyfile.debit_settlements.all,
+            self.myob.debit_settlements.all,
             {},
             "GET",
-            f"/{CID}/Purchase/DebitSettlement/",
+            f"/{BID}/Purchase/DebitSettlement/",
         )
         self.assertEndpointReached(
-            self.companyfile.debit_settlements.get,
+            self.myob.debit_settlements.get,
             {"uid": UID},
             "GET",
-            f"/{CID}/Purchase/DebitSettlement/{UID}/",
+            f"/{BID}/Purchase/DebitSettlement/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.debit_settlements.delete,
+            self.myob.debit_settlements.delete,
             {"uid": UID},
             "DELETE",
-            f"/{CID}/Purchase/DebitSettlement/{UID}/",
+            f"/{BID}/Purchase/DebitSettlement/{UID}/",
         )
         self.assertEndpointReached(
-            self.companyfile.debit_settlements.post,
+            self.myob.debit_settlements.post,
             {"data": DATA},
             "POST",
-            f"/{CID}/Purchase/DebitSettlement/",
+            f"/{BID}/Purchase/DebitSettlement/",
         )
 
     def test_company(self):
         self.assertEqual(
-            repr(self.companyfile.company),
+            repr(self.myob.company),
             (
                 "CompanyManager:\n"
-                "    preferences() - Return all company data file preferences for an AccountRight company file."
+                "    preferences() - Return all company data file preferences for a business."
             ),
         )
         self.assertEndpointReached(
-            self.companyfile.company.preferences,
+            self.myob.company.preferences,
             {},
             "GET",
-            f"/{CID}/Company/Preferences/",
+            f"/{BID}/Company/Preferences/",
         )
 
     def test_timeout(self):
         self.assertEndpointReached(
-            self.companyfile.contacts.all,
+            self.myob.contacts.all,
             {"timeout": 5},
             "GET",
-            f"/{CID}/Contact/",
+            f"/{BID}/Contact/",
             timeout=5,
         )
 

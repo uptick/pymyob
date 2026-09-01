@@ -24,3 +24,16 @@ class AuthorisationUrlTests(TestCase):
         # the user picked, leaving nothing to make subsequent calls against.
         params = self.query_params(scopes=(AuthScope.COMPANY_FILE,))
         self.assertEqual(params["prompt"], ["consent"])
+
+
+class PersistedStateTests(TestCase):
+    def test_business_survives_a_round_trip_through_state(self):
+        # The authorisation redirect is the only place the business id is handed over, so
+        # `state` has to carry it for credentials rebuilt later to be able to make any calls.
+        credentials = PartnerCredentials(
+            consumer_key="KeyToTheKingdom",
+            consumer_secret="TellNoOne",  # noqa: S106
+            callback_uri="CallOnlyWhenCalledTo",
+        )
+        credentials.business_id = "DummyBusinessId"
+        self.assertEqual(PartnerCredentials(**credentials.state).business_id, "DummyBusinessId")

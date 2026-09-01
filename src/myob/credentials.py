@@ -8,13 +8,19 @@ from .constants import ACCESS_TOKEN_URL, AUTHORIZE_URL, MYOB_PARTNER_BASE_URL, A
 
 
 class PartnerCredentials:
-    """An object wrapping the 3-step OAuth2 process for Partner MYOB API access."""
+    """An object wrapping the 3-step OAuth2 process for Partner MYOB API access.
+
+    Consent is granted per business, so a set of credentials covers exactly one. Its
+    `business_id` is handed back on the authorisation redirect, and `state` carries it, so
+    rebuilding from a persisted `state` gives you everything needed to make calls.
+    """
 
     def __init__(
         self,
         consumer_key: str,
         consumer_secret: str,
         callback_uri: str,
+        business_id: str | None = None,
         verified: bool = False,
         oauth_token: str | None = None,
         refresh_token: str | None = None,
@@ -25,6 +31,7 @@ class PartnerCredentials:
         self.consumer_key = consumer_key
         self.consumer_secret = consumer_secret
         self.callback_uri = callback_uri
+        self.business_id = business_id
 
         self.verified = verified
         self.oauth_token = oauth_token
@@ -51,6 +58,7 @@ class PartnerCredentials:
                 "consumer_key",
                 "consumer_secret",
                 "callback_uri",
+                "business_id",
                 "verified",
                 "oauth_token",
                 "refresh_token",
