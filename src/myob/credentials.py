@@ -16,10 +16,6 @@ class PartnerCredentials:
         consumer_secret: str,
         callback_uri: str,
         verified: bool = False,
-        # Accepted and ignored. `state` dicts persisted by earlier versions carry this key, and
-        # rebuilding credentials from one shouldn't fail; `state` no longer writes it, so a saved
-        # set of credentials sheds it. Removed in the release after next.
-        companyfile_credentials: dict[str, str] | None = None,
         oauth_token: str | None = None,
         refresh_token: str | None = None,
         oauth_expires_at: datetime | None = None,
