@@ -81,14 +81,19 @@ class PartnerCredentials:
         now = now or datetime.now()
         return self.oauth_expires_at <= (now + timedelta(seconds=CONSERVATIVE_SECONDS))
 
-    def verify(self, code: str) -> None:
-        """Verify an OAuth session, retrieving an access token."""
+    def verify(self, code: str, business_id: str) -> None:
+        """Verify an OAuth session, retrieving an access token.
+
+        Both arguments come off the authorisation redirect, which is the only place MYOB
+        identifies the business the user consented to.
+        """
         token = self._oauth.fetch_token(
             MYOB_PARTNER_BASE_URL + ACCESS_TOKEN_URL,
             code=code,
             client_secret=self.consumer_secret,
             include_client_id=True,
         )
+        self.business_id = business_id
         self.save_token(token)
 
     def refresh(self) -> None:

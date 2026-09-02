@@ -48,7 +48,7 @@ Redirect the user to `cred.url`. There, they will need to log in to MYOB and aut
 
 At the url they're redirected to, rebuild the `PartnerCredentials` then pick the verifier out of the request and use it to verify the credentials.
 
-Alongside the verifier, MYOB hands back the `businessId` of the business the user consented to. Set it on the credentials: it identifies the business for every subsequent call, and this redirect is the only place you're given it. `cred.state` carries it from there, so the credentials you save below are all you need to keep.
+Alongside the verifier, MYOB hands back the `businessId` of the business the user consented to. Hand it to `verify` along with the verifier: it identifies the business for every subsequent call, and this redirect is the only place you're given it. `cred.state` carries it from there, so the credentials you save below are all you need to keep.
 
 ```
 from myob.credentials import PartnerCredentials
@@ -60,8 +60,7 @@ def myob_authorisation_complete_view(request):
         state = <cached_state_from_earlier>
         if state:
             cred = PartnerCredentials(**state)
-            cred.verify(verifier)
-            cred.business_id = business_id
+            cred.verify(verifier, business_id)
             if cred.verified:
                 messages.success(request, 'OAuth verification successful.')
             else:
