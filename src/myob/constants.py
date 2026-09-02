@@ -17,8 +17,8 @@ class AuthScope(StrEnum):
     """Granular data scopes accepted by the authorisation endpoint.
 
     Each scope grants access to one family of endpoints; request only those your
-    integration needs. `AuthScope.COMPANY_FILE` is needed by anything that resolves a
-    business, so most integrations will want it alongside their data scopes.
+    integration needs. `AuthScope.COMPANY_FILE` covers `Myob.business()`, which reads the
+    business's own name and product version.
 
     https://developer.myob.com/api/myob-business-api/api-overview/granular_data_scopes/
     """

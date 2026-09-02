@@ -11,9 +11,14 @@ class Myob:
     def __init__(self, credentials: PartnerCredentials) -> None:
         if not isinstance(credentials, PartnerCredentials):
             raise TypeError(f"Expected a Credentials instance, got {type(credentials).__name__}.")
+        if credentials.business_id is None:
+            raise ValueError(
+                "These credentials carry no business_id, so there is nothing to make calls "
+                "against. Set it from the `businessId` handed back on the authorisation "
+                "redirect."
+            )
         self.credentials = credentials
-        self.companyfiles = CompanyFiles(credentials)
-        self._manager = Manager(
+        self._info_manager = Manager(
             "",
             credentials,
             raw_endpoints=[
@@ -24,57 +29,37 @@ class Myob:
                 ),
             ],
         )
-
-    def info(self) -> str:
-        return self._manager.info()  # type: ignore[attr-defined]
-
-    def __repr__(self) -> str:
-        options = "\n    ".join(["companyfiles", "info"])
-        return f"Myob:\n    {options}"
-
-
-class CompanyFiles:
-    def __init__(self, credentials: PartnerCredentials) -> None:
-        self.credentials = credentials
-        self._manager = Manager(
+        self._business_manager = Manager(
             "",
-            self.credentials,
-            raw_endpoints=[
-                (GET, "[id]/", "List endpoints available for a company file."),
-            ],
+            credentials,
+            raw_endpoints=[(GET, "", "")],
+            business_id=credentials.business_id,
         )
-        self._manager.name = "CompanyFile"
-
-    def get(self, id: str, call: bool = True) -> "CompanyFile":
-        if call:
-            # raw_companyfile = self._manager.get(id=id)['CompanyFile']
-            # NOTE: Annoyingly, we need to pass company_id to the manager, else we won't have permission
-            # on the GET endpoint. The only way we currently allow passing company_id is by setting it on the manager,
-            # and we can't do that on init, as this is a manager for company files plural..
-            # Reluctant to change manager code, as it would add confusion if the inner method let you override the company_id.
-            manager = Manager("", self.credentials, raw_endpoints=[(GET, "", "")], company_id=id)
-            raw_companyfile = manager.get()["CompanyFile"]  # type: ignore[attr-defined]
-        else:
-            raw_companyfile = {"Id": id}
-        return CompanyFile(raw_companyfile, self.credentials)
-
-    def __repr__(self) -> str:
-        return self._manager.__repr__()
-
-
-class CompanyFile:
-    def __init__(self, raw: dict[str, Any], credentials: PartnerCredentials) -> None:
-        self.id = raw["Id"]
-        self.name = raw.get("Name")
-        self.data = raw  # Dump remaining raw data here.
-        self.credentials = credentials
-        for k, v in ENDPOINTS.items():
+        for endpoint, details in ENDPOINTS.items():
             setattr(
                 self,
-                v["name"],  # type: ignore[arg-type]
-                Manager(k, credentials, endpoints=v["methods"], company_id=self.id),
+                details["name"],  # type: ignore[arg-type]
+                Manager(
+                    endpoint,
+                    credentials,
+                    endpoints=details["methods"],
+                    business_id=credentials.business_id,
+                ),
             )
 
+    def business(self) -> dict[str, Any]:
+        """Return this business's own details, such as its name and product version.
+
+        Requires `AuthScope.COMPANY_FILE`. MYOB still wraps the response in a `CompanyFile`
+        key; callers get the contents.
+        """
+        return self._business_manager.get()["CompanyFile"]  # type: ignore[attr-defined]
+
+    def info(self) -> str:
+        """Return API build information. Not scoped to the business."""
+        return self._info_manager.info()  # type: ignore[attr-defined]
+
     def __repr__(self) -> str:
-        options = "\n    ".join(sorted(v["name"] for v in ENDPOINTS.values()))  # type: ignore[misc]
-        return f"CompanyFile:\n    {options}"
+        names = [*(v["name"] for v in ENDPOINTS.values()), "business", "info"]
+        options = "\n    ".join(sorted(names))  # type: ignore[arg-type]
+        return f"Myob:\n    {options}"

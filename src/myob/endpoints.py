@@ -154,7 +154,7 @@ ENDPOINTS = {
 METHOD_MAPPING = {
     ALL: {
         "endpoint": lambda base: base,
-        "hint": lambda name: f"Return all {pluralise(name)} for an AccountRight company file.",
+        "hint": lambda name: f"Return all {pluralise(name)} for a business.",
     },
     GET: {
         "endpoint": lambda base: base + "[uid]/",

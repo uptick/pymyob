@@ -1,4 +1,6 @@
+from datetime import datetime
 from unittest import TestCase
+from unittest.mock import patch
 from urllib.parse import parse_qs, urlparse
 
 from myob.constants import AuthScope
@@ -27,11 +29,32 @@ class AuthorisationUrlTests(TestCase):
 
 
 class PersistedStateTests(TestCase):
-    def test_state_from_an_earlier_version_is_accepted_and_shed(self):
+    def test_business_survives_a_round_trip_through_state(self):
+        # The authorisation redirect is the only place the business id is handed over, so
+        # `state` has to carry it for credentials rebuilt later to be able to make any calls.
         credentials = PartnerCredentials(
             consumer_key="KeyToTheKingdom",
             consumer_secret="TellNoOne",  # noqa: S106
             callback_uri="CallOnlyWhenCalledTo",
-            companyfile_credentials={"a-company-file": "!encoded-userpass="},
+            business_id="DummyBusinessId",
         )
-        self.assertNotIn("companyfile_credentials", credentials.state)
+        self.assertEqual(PartnerCredentials(**credentials.state).business_id, "DummyBusinessId")
+
+
+class VerificationTests(TestCase):
+    @patch("myob.credentials.OAuth2Session.fetch_token")
+    def test_the_business_from_the_redirect_is_recorded(self, mock_fetch_token):
+        mock_fetch_token.return_value = {
+            "access_token": "AnAccessToken",
+            "refresh_token": "ARefreshToken",
+            "expires_at": datetime(1992, 11, 14).timestamp(),
+        }
+        credentials = PartnerCredentials(
+            consumer_key="KeyToTheKingdom",
+            consumer_secret="TellNoOne",  # noqa: S106
+            callback_uri="CallOnlyWhenCalledTo",
+        )
+
+        credentials.verify("AVerifier", "DummyBusinessId")
+
+        self.assertEqual(credentials.business_id, "DummyBusinessId")

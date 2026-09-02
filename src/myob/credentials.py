@@ -8,18 +8,20 @@ from .constants import ACCESS_TOKEN_URL, AUTHORIZE_URL, MYOB_PARTNER_BASE_URL, A
 
 
 class PartnerCredentials:
-    """An object wrapping the 3-step OAuth2 process for Partner MYOB API access."""
+    """An object wrapping the 3-step OAuth2 process for Partner MYOB API access.
+
+    Consent is granted per business, so a set of credentials covers exactly one. Its
+    `business_id` is handed back on the authorisation redirect, and `state` carries it, so
+    rebuilding from a persisted `state` gives you everything needed to make calls.
+    """
 
     def __init__(
         self,
         consumer_key: str,
         consumer_secret: str,
         callback_uri: str,
+        business_id: str | None = None,
         verified: bool = False,
-        # Accepted and ignored. `state` dicts persisted by earlier versions carry this key, and
-        # rebuilding credentials from one shouldn't fail; `state` no longer writes it, so a saved
-        # set of credentials sheds it. Removed in the release after next.
-        companyfile_credentials: dict[str, str] | None = None,
         oauth_token: str | None = None,
         refresh_token: str | None = None,
         oauth_expires_at: datetime | None = None,
@@ -29,6 +31,7 @@ class PartnerCredentials:
         self.consumer_key = consumer_key
         self.consumer_secret = consumer_secret
         self.callback_uri = callback_uri
+        self.business_id = business_id
 
         self.verified = verified
         self.oauth_token = oauth_token
@@ -55,6 +58,7 @@ class PartnerCredentials:
                 "consumer_key",
                 "consumer_secret",
                 "callback_uri",
+                "business_id",
                 "verified",
                 "oauth_token",
                 "refresh_token",
@@ -77,14 +81,19 @@ class PartnerCredentials:
         now = now or datetime.now()
         return self.oauth_expires_at <= (now + timedelta(seconds=CONSERVATIVE_SECONDS))
 
-    def verify(self, code: str) -> None:
-        """Verify an OAuth session, retrieving an access token."""
+    def verify(self, code: str, business_id: str) -> None:
+        """Verify an OAuth session, retrieving an access token.
+
+        Both arguments come off the authorisation redirect, which is the only place MYOB
+        identifies the business the user consented to.
+        """
         token = self._oauth.fetch_token(
             MYOB_PARTNER_BASE_URL + ACCESS_TOKEN_URL,
             code=code,
             client_secret=self.consumer_secret,
             include_client_id=True,
         )
+        self.business_id = business_id
         self.save_token(token)
 
     def refresh(self) -> None:
